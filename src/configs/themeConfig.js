@@ -6,8 +6,8 @@ import logo from '@src/assets/images/logo/logo.svg'
 //Template config options
 const themeConfig = {
   app: {
-    appName: 'Vuexy',
-    appLogoImage: logo
+    appName: 'CRM',
+    // appLogoImage: logo
   },
   layout: {
     isRTL: false,

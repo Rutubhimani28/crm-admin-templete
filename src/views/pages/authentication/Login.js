@@ -1,5 +1,5 @@
 // ** React Imports
-import { useContext } from 'react'
+import { useContext, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 // ** Custom Hooks
@@ -8,7 +8,7 @@ import useJwt from '@src/auth/jwt/useJwt'
 
 // ** Third Party Components
 import toast from 'react-hot-toast'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useForm, Controller } from 'react-hook-form'
 import { Facebook, Twitter, Mail, GitHub, HelpCircle, Coffee, X } from 'react-feather'
 
@@ -46,6 +46,7 @@ import illustrationsDark from '@src/assets/images/pages/login-v2-dark.svg'
 
 // ** Styles
 import '@styles/react/pages/page-authentication.scss'
+import { fetchsingUserData, fetchUserData } from '../../../redux/authentication'
 
 const ToastContent = ({ t, name, role }) => {
   return (
@@ -58,15 +59,15 @@ const ToastContent = ({ t, name, role }) => {
           <h6>{name}</h6>
           <X size={12} className='cursor-pointer' onClick={() => toast.dismiss(t.id)} />
         </div>
-        <span>You have successfully logged in as an {role} user to Vuexy. Now you can start to explore. Enjoy!</span>
+        <span>You have successfully logged in as an {name} user to CRM. Now you can start to explore. Enjoy!</span>
       </div>
     </div>
   )
 }
 
 const defaultValues = {
-  password: 'admin',
-  loginEmail: 'admin@demo.com'
+  password: '',
+  loginEmail: ''
 }
 
 const Login = () => {
@@ -83,41 +84,169 @@ const Login = () => {
   } = useForm({ defaultValues })
 
   const source = skin === 'dark' ? illustrationsDark : illustrationsLight
+  const data = useSelector((state) => state.authentication)
+  console.log("data ", data)
 
-  const onSubmit = data => {
+
+  // const onSubmit = data => {
+  //   console.log("data submit", data)
+  //   if (Object.values(data).every(field => field.length > 0)) {
+  //     useJwt
+  //       .login({ email: data.loginEmail, password: data.password })
+  //       .then(res => {
+  //         console.log("res ", res)
+  //         const data = { ...res.data.userData, accessToken: res.data.accessToken, refreshToken: res.data.refreshToken }
+  //         dispatch(handleLogin(data))
+  //         ability.update(res.data.userData.ability)
+  //         navigate(getHomeRouteForLoggedInUser(data.role))
+  //         toast(t => (
+  //           <ToastContent t={t} role={data.role || 'admin'} name={data.fullName || data.username || 'John Doe'} />
+  //         ))
+  //       })
+  //       .catch(err => setError('loginEmail', {
+  //         type: 'manual',
+  //         message: err.response.data.error
+  //       })
+  //       )
+  //   } else {
+  //     for (const key in data) {
+  //       if (data[key].length === 0) {
+  //         setError(key, {
+  //           type: 'manual'
+  //         })
+  //       }
+  //     }
+  //   }
+  // }
+
+  const onSubmit = async (data) => {
+    console.log("data submit signIn", data)
+
     if (Object.values(data).every(field => field.length > 0)) {
-      useJwt
-        .login({ email: data.loginEmail, password: data.password })
-        .then(res => {
-          const data = { ...res.data.userData, accessToken: res.data.accessToken, refreshToken: res.data.refreshToken }
-          dispatch(handleLogin(data))
-          ability.update(res.data.userData.ability)
-          navigate(getHomeRouteForLoggedInUser(data.role))
-          toast(t => (
-            <ToastContent t={t} role={data.role || 'admin'} name={data.fullName || data.username || 'John Doe'} />
-          ))
-        })
-        .catch(err => setError('loginEmail', {
-            type: 'manual',
-            message: err.response.data.error
+      try {
+        const resultAction = await dispatch(
+          fetchsingUserData({
+            emailAddress: data.loginEmail,
+            password: data.password
           })
         )
+
+        if (fetchsingUserData.fulfilled.match(resultAction)) {
+          const responseData = resultAction.payload
+          console.log("responseData ", responseData)
+
+          const userData = {
+            ...responseData.user,
+            accessToken: responseData.accessToken,
+            refreshToken: responseData.refreshToken
+          }
+
+          dispatch(handleLogin(userData))
+
+          navigate(getHomeRouteForLoggedInUser("admin"))
+
+          toast(t => (
+            <ToastContent
+              t={t}
+              role={'admin'}
+              name={userData.fullName || userData.username || 'User'}
+            />
+          ))
+        } else {
+          setError('loginEmail', {
+            type: 'manual',
+            message: resultAction.payload || resultAction.error.message
+          })
+        }
+      } catch (err) {
+        console.error('Unexpected error during login:', err)
+        setError('loginEmail', {
+          type: 'manual',
+          message: 'Something went wrong. Please try again.'
+        })
+      }
     } else {
+      // Show validation errors
       for (const key in data) {
         if (data[key].length === 0) {
           setError(key, {
-            type: 'manual'
+            type: 'manual',
+            message: 'This field is required'
           })
         }
       }
     }
   }
 
+
+  // const onSubmit = async (data) => {
+  //   try {
+  //     // Check all fields are filled
+  //     if (Object.values(data).every(field => field.length > 0)) {
+  //       console.log("data submit signIn", data)
+
+  //       // Dispatch login thunk
+  //       const resultAction = await dispatch(
+  //         fetchsingUserData({
+  //           emailAddress: data.loginEmail,
+  //           password: data.password
+  //         })
+  //       )
+
+  //       // Check if login was successful
+  //       if (fetchsingUserData.fulfilled.match(resultAction)) {
+  //         const responseData = resultAction.payload
+
+  //         // Extract necessary fields
+  //         const userData = {
+  //           ...responseData.userData,
+  //           accessToken: responseData.accessToken,
+  //           refreshToken: responseData.refreshToken
+  //         }
+  //         console.log("userData ", userData)
+
+  //         // Save to Redux + LocalStorage
+  //         dispatch(handleLogin(userData))
+
+  //         // Update permissions
+  //         ability.update(responseData.userData.ability)
+
+  //         // Navigate to the correct home route
+  //         navigate(getHomeRouteForLoggedInUser(userData.role))
+
+  //         // Show welcome toast
+  //         toast(t => (
+  //           <ToastContent
+  //             t={t}
+  //             role={userData.role || 'admin'}
+  //             name={userData.fullName || userData.username || 'User'}
+  //           />
+  //         ))
+  //       } else {
+  //         // Handle login failure (e.g. wrong password)
+  //         setError('loginEmail', {
+  //           type: 'manual',
+  //           message: resultAction.payload || resultAction.error.message
+  //         })
+  //       }
+  //     } else {
+  //       // Show required field errors
+  //       for (const key in data) {
+  //         if (data[key].length === 0) {
+  //           setError(key, { type: 'manual', message: 'This field is required' })
+  //         }
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error('Unexpected error during login:', error)
+  //   }
+  // }
+
   return (
     <div className='auth-wrapper auth-cover'>
       <Row className='auth-inner m-0'>
         <Link className='brand-logo' to='/' onClick={e => e.preventDefault()}>
-          <svg viewBox='0 0 139 95' version='1.1' height='28'>
+          {/* <svg viewBox='0 0 139 95' version='1.1' height='28'>
             <defs>
               <linearGradient x1='100%' y1='10.5120544%' x2='50%' y2='89.4879456%' id='linearGradient-1'>
                 <stop stopColor='#000000' offset='0%'></stop>
@@ -164,8 +293,8 @@ const Login = () => {
                 </g>
               </g>
             </g>
-          </svg>
-          <h2 className='brand-text text-primary ms-1'>Vuexy</h2>
+          </svg> */}
+          <h2 className='brand-text text-primary ms-1'>CRM</h2>
         </Link>
         <Col className='d-none d-lg-flex align-items-center p-5' lg='8' sm='12'>
           <div className='w-100 d-lg-flex align-items-center justify-content-center px-5'>
@@ -175,11 +304,11 @@ const Login = () => {
         <Col className='d-flex align-items-center auth-bg px-2 p-lg-5' lg='4' sm='12'>
           <Col className='px-xl-2 mx-auto' sm='8' md='6' lg='12'>
             <CardTitle tag='h2' className='fw-bold mb-1'>
-              Welcome to Vuexy! 👋
+              Welcome to CRM! 👋
             </CardTitle>
-            <CardText className='mb-2'>Please sign-in to your account and start the adventure</CardText>
+            {/* <CardText className='mb-2'>Please sign-in to your account and start the adventure</CardText> */}
             <Alert color='primary'>
-              <div className='alert-body font-small-2'>
+              {/* <div className='alert-body font-small-2'>
                 <p>
                   <small className='me-50'>
                     <span className='fw-bold'>Admin:</span> admin@demo.com | admin
@@ -190,7 +319,7 @@ const Login = () => {
                     <span className='fw-bold'>Client:</span> client@demo.com | client
                   </small>
                 </p>
-              </div>
+              </div> */}
               <HelpCircle
                 id='login-tip'
                 className='position-absolute'
@@ -256,7 +385,7 @@ const Login = () => {
                 <span>Create an account</span>
               </Link>
             </p>
-            <div className='divider my-2'>
+            {/* <div className='divider my-2'>
               <div className='divider-text'>or</div>
             </div>
             <div className='auth-footer-btn d-flex justify-content-center'>
@@ -272,7 +401,7 @@ const Login = () => {
               <Button className='me-0' color='github'>
                 <GitHub size={14} />
               </Button>
-            </div>
+            </div> */}
           </Col>
         </Col>
       </Row>

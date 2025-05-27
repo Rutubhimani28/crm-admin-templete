@@ -29,6 +29,10 @@ import illustrationsDark from '@src/assets/images/pages/register-v2-dark.svg'
 
 // ** Styles
 import '@styles/react/pages/page-authentication.scss'
+import { fetchUserData } from '../../../redux/authentication'
+
+import crm from '@src/assets/images/logo/crm1.png'
+
 
 const defaultValues = {
   email: '',
@@ -52,34 +56,103 @@ const Register = () => {
 
   const source = skin === 'dark' ? illustrationsDark : illustrationsLight
 
-  const onSubmit = data => {
+  // const onSubmit = data => {
+  //   const tempData = { ...data }
+  //   delete tempData.terms
+  //   if (Object.values(tempData).every(field => field.length > 0) && data.terms === true) {
+  //     const { username, email, password } = data
+  //     useJwt
+  //       .register({ username, email, password })
+  //       .then(res => {
+  //         if (res.data.error) {
+  //           for (const property in res.data.error) {
+  //             if (res.data.error[property] !== null) {
+  //               setError(property, {
+  //                 type: 'manual',
+  //                 message: res.data.error[property]
+  //               })
+  //             }
+  //           }
+  //         } else {
+  //           const data = { ...res.data.user, accessToken: res.data.accessToken }
+  //           // ability.update(res.data.user.ability)
+  //           dispatch(handleLogin(data))
+  //             // dispatch(fetchUserData({data}))
+
+  //           navigate('/')
+  //         }
+  //       })
+  //       .catch(err => console.log(err))
+  //   } else {
+  //     for (const key in data) {
+  //       if (data[key].length === 0) {
+  //         setError(key, {
+  //           type: 'manual',
+  //           message: `Please enter a valid ${key}`
+  //         })
+  //       }
+  //       if (key === 'terms' && data.terms === false) {
+  //         setError('terms', {
+  //           type: 'manual'
+  //         })
+  //       }
+  //     }
+  //   }
+  // }
+
+  const onSubmit = async (data) => {
     const tempData = { ...data }
     delete tempData.terms
+
+    // Check all required fields
     if (Object.values(tempData).every(field => field.length > 0) && data.terms === true) {
-      const { username, email, password } = data
-      useJwt
-        .register({ username, email, password })
-        .then(res => {
-          if (res.data.error) {
-            for (const property in res.data.error) {
-              if (res.data.error[property] !== null) {
-                setError(property, {
-                  type: 'manual',
-                  message: res.data.error[property]
-                })
-              }
-            }
-          } else {
-            const data = { ...res.data.user, accessToken: res.data.accessToken }
-            ability.update(res.data.user.ability)
-            dispatch(handleLogin(data))
-            navigate('/')
+      try {
+        const resultAction = await dispatch(
+          fetchUserData({
+            userName: data.username,
+            emailAddress: data.email,
+            password: data.password
+          })
+        )
+
+        // If registration is successful
+        if (fetchUserData.fulfilled.match(resultAction)) {
+          const responseData = resultAction.payload
+
+          const userData = {
+            ...responseData.user,
+            accessToken: responseData.accessToken,
+            refreshToken: responseData.refreshToken
           }
-        })
-        .catch(err => console.log(err))
+
+          // Dispatch login action and store tokens
+          dispatch(handleLogin(userData))
+
+          // Navigate to homepage
+          navigate('/')
+        } else {
+          // If backend sends validation errors (e.g. email already exists)
+          if (typeof resultAction.payload === 'string') {
+            setError('email', {
+              type: 'manual',
+              message: resultAction.payload
+            })
+          } else if (typeof resultAction.payload === 'object') {
+            for (const property in resultAction.payload) {
+              setError(property, {
+                type: 'manual',
+                message: resultAction.payload[property]
+              })
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Registration error:', err)
+      }
     } else {
+      // Handle field validation errors
       for (const key in data) {
-        if (data[key].length === 0) {
+        if (key !== 'terms' && data[key].length === 0) {
           setError(key, {
             type: 'manual',
             message: `Please enter a valid ${key}`
@@ -87,7 +160,8 @@ const Register = () => {
         }
         if (key === 'terms' && data.terms === false) {
           setError('terms', {
-            type: 'manual'
+            type: 'manual',
+            message: 'You must agree to the terms'
           })
         }
       }
@@ -146,7 +220,8 @@ const Register = () => {
               </g>
             </g>
           </svg>
-          <h2 className='brand-text text-primary ms-1'>Vuexy</h2>
+          {/* <img src={crm} alt='logo' className='w-full !h-[122px] object-contain' /> */}
+          <h2 className='brand-text text-primary ms-1 backgr gradient-text '>CRM</h2>
         </Link>
         <Col className='d-none d-lg-flex align-items-center p-5' lg='8' sm='12'>
           <div className='w-100 d-lg-flex align-items-center justify-content-center px-5'>
@@ -227,7 +302,7 @@ const Register = () => {
                 <span>Sign in instead</span>
               </Link>
             </p>
-            <div className='divider my-2'>
+            {/* <div className='divider my-2'>
               <div className='divider-text'>or</div>
             </div>
             <div className='auth-footer-btn d-flex justify-content-center'>
@@ -243,7 +318,7 @@ const Register = () => {
               <Button className='me-0' color='github'>
                 <GitHub size={14} />
               </Button>
-            </div>
+            </div> */}
           </Col>
         </Col>
       </Row>
