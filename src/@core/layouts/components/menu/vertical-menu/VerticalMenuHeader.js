@@ -28,7 +28,7 @@ const VerticalMenuHeader = props => {
         <li className='nav-item me-auto'>
           <NavLink to={user ? getHomeRouteForLoggedInUser(user.role) : '/'} className='navbar-brand'>
             <span className='brand-logo'>
-              <img src={themeConfig.app.appLogoImage} alt='logo' />
+              <img src={themeConfig.app.appLogoImage} alt='logo'  />
             </span>
             <h2 className='brand-text mb-0'>{themeConfig.app.appName}</h2>
           </NavLink>

@@ -47,6 +47,7 @@ import illustrationsDark from '@src/assets/images/pages/login-v2-dark.svg'
 // ** Styles
 import '@styles/react/pages/page-authentication.scss'
 import { fetchsingUserData, fetchUserData } from '../../../redux/authentication'
+import crm from '@src/assets/images/logo/crm1.png'
 
 const ToastContent = ({ t, name, role }) => {
   return (
@@ -85,39 +86,6 @@ const Login = () => {
 
   const source = skin === 'dark' ? illustrationsDark : illustrationsLight
   const data = useSelector((state) => state.authentication)
-  console.log("data ", data)
-
-
-  // const onSubmit = data => {
-  //   console.log("data submit", data)
-  //   if (Object.values(data).every(field => field.length > 0)) {
-  //     useJwt
-  //       .login({ email: data.loginEmail, password: data.password })
-  //       .then(res => {
-  //         console.log("res ", res)
-  //         const data = { ...res.data.userData, accessToken: res.data.accessToken, refreshToken: res.data.refreshToken }
-  //         dispatch(handleLogin(data))
-  //         ability.update(res.data.userData.ability)
-  //         navigate(getHomeRouteForLoggedInUser(data.role))
-  //         toast(t => (
-  //           <ToastContent t={t} role={data.role || 'admin'} name={data.fullName || data.username || 'John Doe'} />
-  //         ))
-  //       })
-  //       .catch(err => setError('loginEmail', {
-  //         type: 'manual',
-  //         message: err.response.data.error
-  //       })
-  //       )
-  //   } else {
-  //     for (const key in data) {
-  //       if (data[key].length === 0) {
-  //         setError(key, {
-  //           type: 'manual'
-  //         })
-  //       }
-  //     }
-  //   }
-  // }
 
   const onSubmit = async (data) => {
     console.log("data submit signIn", data)
@@ -133,8 +101,6 @@ const Login = () => {
 
         if (fetchsingUserData.fulfilled.match(resultAction)) {
           const responseData = resultAction.payload
-          console.log("responseData ", responseData)
-
           const userData = {
             ...responseData.user,
             accessToken: responseData.accessToken,
@@ -294,7 +260,9 @@ const Login = () => {
               </g>
             </g>
           </svg> */}
-          <h2 className='brand-text text-primary ms-1'>CRM</h2>
+          <img src={crm} alt='logo' height={100} width={100} />
+
+          {/* <h2 className='brand-text text-primary ms-1'>CRM</h2> */}
         </Link>
         <Col className='d-none d-lg-flex align-items-center p-5' lg='8' sm='12'>
           <div className='w-100 d-lg-flex align-items-center justify-content-center px-5'>

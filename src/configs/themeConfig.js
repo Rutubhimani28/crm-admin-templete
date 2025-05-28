@@ -1,13 +1,14 @@
 // Logo Import
-import logo from '@src/assets/images/logo/logo.svg'
+// import logo from '@src/assets/images/logo/logo.svg'
+import logo from '@src/assets/images/logo/crm1.png'
 
 // You can customize the template with the help of this file
 
 //Template config options
 const themeConfig = {
   app: {
-    appName: 'CRM',
-    // appLogoImage: logo
+    // appName: 'CRM',
+    appLogoImage: logo
   },
   layout: {
     isRTL: false,
