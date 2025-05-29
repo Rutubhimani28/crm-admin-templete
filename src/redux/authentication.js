@@ -1,5 +1,4 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import axios from 'axios'
 import axiosInstance from '../auth/axiosInstance'; // Adjust path
 
 
@@ -10,7 +9,6 @@ const initialState = {
   isLoading: false,
   error: null
 }
-console.log(initialState)
 
 export const fetchUserData = createAsyncThunk(
   'authentication/fetchUserData',
@@ -31,10 +29,55 @@ export const fetchsingUserData = createAsyncThunk(
       const response = await axiosInstance.post('auth/login', payload)
       return response.data
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || error.message)
+      return rejectWithValue(error.response?.data)
     }
   }
 )
+
+export const logout = createAsyncThunk(
+  'authentication/logout',
+  async (payload, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post('auth/logout', payload)
+      return response.data
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message)
+    }
+  }
+
+)
+
+export const forgotPassword = createAsyncThunk(
+  "auth/forgotPassword",
+  async (email, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.post("/auth/forgot-password", { email });
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
+
+
+export const resetPassword = createAsyncThunk(
+  "auth/resetPassword",
+  async ({ id, password, confirmPassword }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(
+        `/auth/reset-password`,
+        { id, password, confirmPassword }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || "Failed to reset password"
+      );
+    }
+  }
+);
+
+
 
 const authSlice = createSlice({
   name: 'authentication',
@@ -87,6 +130,14 @@ const authSlice = createSlice({
       .addCase(fetchsingUserData.rejected, (state, action) => {
         state.isLoading = false
         state.error = action.payload
+      })
+      .addCase(logout.fulfilled, (state) => {
+        state.userData = null
+        state.accessToken = null
+        state.refreshToken = null
+        localStorage.removeItem('userData')
+        localStorage.removeItem('accessToken')
+        localStorage.removeItem('refreshToken')
       })
   }
 })

@@ -1,14 +1,8 @@
-// ** React Imports
-import { Link } from "react-router-dom";
-
-// ** Icons Imports
+import { Link, useParams } from "react-router-dom";
 import { ChevronLeft } from "react-feather";
-
-// ** Custom Components
-import InputPassword from "@components/input-password-toggle";
 import { useDispatch } from "react-redux";
 import { useForm, Controller } from "react-hook-form";
-// ** Reactstrap Imports
+
 import {
   Card,
   CardBody,
@@ -18,47 +12,65 @@ import {
   Label,
   Button,
   FormFeedback,
+  Spinner,
+  Toast,
+  ToastBody,
 } from "reactstrap";
 
-// ** Styles
 import "@styles/react/pages/page-authentication.scss";
-import { resetPassword } from "../../../redux/forgotPassword";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { resetPassword } from "../../../redux/authentication";
+import crm from "@src/assets/images/logo/crm1.png";
+import InputPasswordToggle from "@components/input-password-toggle";
+import { useWatch } from "react-hook-form";
+
 const defaultValues = {
   password: "",
   confirmPassword: "",
 };
 const ResetPasswordBasic = () => {
   const [message, setMessage] = useState("");
+  console.log("message", message)
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
-
-    const queryParams = new URLSearchParams(window.location.search);
+  const { id } = useParams();
+  const queryParams = new URLSearchParams(window.location.search);
   const token = queryParams.get("token");
   const {
     control,
-    setError,
     handleSubmit,
+    getValues,
     formState: { errors },
   } = useForm({ defaultValues });
+
+  const passwordValue = useWatch({ control, name: "password" });
+
+  useEffect(() => {
+    if (errors.confirmPassword) {
+      trigger("confirmPassword");
+    }
+  }, [passwordValue]);
 
   const onSubmit = async (data) => {
     const { password, confirmPassword } = data;
     setMessage("");
     setError("");
-
+    setIsLoading(true);
     try {
       const resultAction = await dispatch(
-        resetPassword({ password, confirmPassword })
+        resetPassword({ id, password, confirmPassword })
       );
 
       if (resetPassword.fulfilled.match(resultAction)) {
-        setMessage(resultAction.payload); 
-        // setTimeout(() => navigate("/login"), 2000);
+        setMessage(resultAction.payload.message || "Password reset successful.");
       } else {
-        setError(resultAction.payload);
+        setError(resultAction.payload.message || "Failed to reset password.");
       }
     } catch (err) {
       setError("Unexpected error occurred");
+    } finally { 
+      setIsLoading(false);
     }
   };
 
@@ -72,82 +84,22 @@ const ResetPasswordBasic = () => {
               to="/"
               onClick={(e) => e.preventDefault()}
             >
-              <svg viewBox="0 0 139 95" version="1.1" height="28">
-                <defs>
-                  <linearGradient
-                    x1="100%"
-                    y1="10.5120544%"
-                    x2="50%"
-                    y2="89.4879456%"
-                    id="linearGradient-1"
-                  >
-                    <stop stopColor="#000000" offset="0%"></stop>
-                    <stop stopColor="#FFFFFF" offset="100%"></stop>
-                  </linearGradient>
-                  <linearGradient
-                    x1="64.0437835%"
-                    y1="46.3276743%"
-                    x2="37.373316%"
-                    y2="100%"
-                    id="linearGradient-2"
-                  >
-                    <stop
-                      stopColor="#EEEEEE"
-                      stopOpacity="0"
-                      offset="0%"
-                    ></stop>
-                    <stop stopColor="#FFFFFF" offset="100%"></stop>
-                  </linearGradient>
-                </defs>
-                <g
-                  id="Page-1"
-                  stroke="none"
-                  strokeWidth="1"
-                  fill="none"
-                  fillRule="evenodd"
-                >
-                  <g
-                    id="Artboard"
-                    transform="translate(-400.000000, -178.000000)"
-                  >
-                    <g id="Group" transform="translate(400.000000, 178.000000)">
-                      <path
-                        d="M-5.68434189e-14,2.84217094e-14 L39.1816085,2.84217094e-14 L69.3453773,32.2519224 L101.428699,2.84217094e-14 L138.784583,2.84217094e-14 L138.784199,29.8015838 C137.958931,37.3510206 135.784352,42.5567762 132.260463,45.4188507 C128.736573,48.2809251 112.33867,64.5239941 83.0667527,94.1480575 L56.2750821,94.1480575 L6.71554594,44.4188507 C2.46876683,39.9813776 0.345377275,35.1089553 0.345377275,29.8015838 C0.345377275,24.4942122 0.230251516,14.560351 -5.68434189e-14,2.84217094e-14 Z"
-                        id="Path"
-                        className="text-primary"
-                        style={{ fill: "currentColor" }}
-                      ></path>
-                      <path
-                        d="M69.3453773,32.2519224 L101.428699,1.42108547e-14 L138.784583,1.42108547e-14 L138.784199,29.8015838 C137.958931,37.3510206 135.784352,42.5567762 132.260463,45.4188507 C128.736573,48.2809251 112.33867,64.5239941 83.0667527,94.1480575 L56.2750821,94.1480575 L32.8435758,70.5039241 L69.3453773,32.2519224 Z"
-                        id="Path"
-                        fill="url(#linearGradient-1)"
-                        opacity="0.2"
-                      ></path>
-                      <polygon
-                        id="Path-2"
-                        fill="#000000"
-                        opacity="0.049999997"
-                        points="69.3922914 32.4202615 32.8435758 70.5039241 54.0490008 16.1851325"
-                      ></polygon>
-                      <polygon
-                        id="Path-2"
-                        fill="#000000"
-                        opacity="0.099999994"
-                        points="69.3922914 32.4202615 32.8435758 70.5039241 58.3683556 20.7402338"
-                      ></polygon>
-                      <polygon
-                        id="Path-3"
-                        fill="url(#linearGradient-2)"
-                        opacity="0.099999994"
-                        points="101.428699 0 83.0667527 94.1480575 130.378721 47.0740288"
-                      ></polygon>
-                    </g>
-                  </g>
-                </g>
-              </svg>
-              <h2 className="brand-text text-primary ms-1">Vuexy</h2>
+              <img src={crm} alt="logo" height={100} width={100} />
             </Link>
             <CardTitle tag="h4" className="mb-1">
+              {(error || message) && (
+                <Toast>
+                  <ToastBody className="p-0">
+                    <div
+                      className={`alert ${error ? "alert-danger" : "alert-success"
+                        } py-2 px-4 w-100 fs-6`}
+                      role="alert"
+                    >
+                      {error || message}
+                    </div>
+                  </ToastBody>
+                </Toast>
+              )}
               Reset Password 🔒
             </CardTitle>
             <CardText className="mb-2">
@@ -162,57 +114,60 @@ const ResetPasswordBasic = () => {
                   New Password
                 </Label>
                 <Controller
-                  type="password"
-                  id="password"
-                  control={control}
                   name="password"
+                  control={control}
+                  rules={{
+                    required: "Password is required",
+                  }}
                   render={({ field }) => (
-                    <InputPassword
+                    <InputPasswordToggle
                       className="input-group-merge"
                       id="new-password"
-                      autoFocus
-                      type="password"
                       invalid={errors.password && true}
                       {...field}
                     />
                   )}
                 />
-           
+                {errors.password && (
+                  <FormFeedback>{errors.password.message}</FormFeedback>
+                )}
               </div>
-              {errors.password && (
-                <FormFeedback>{errors.password.message}</FormFeedback>
-              )}
               <div className="mb-1">
                 <Label className="form-label" for="confirm-password">
                   Confirm Password
                 </Label>
                 <Controller
-                  type="password"
-                  id="confirm-password"
-                  control={control}
                   name="confirmPassword"
+                  control={control}
+                  rules={{
+                    required: "Please confirm your password",
+                    validate: (value) =>
+                      value === getValues("password") ||
+                      "Passwords do not match",
+                  }}
                   render={({ field }) => (
-                    <InputPassword
+                    <InputPasswordToggle
                       className="input-group-merge"
                       id="new-confirm-password"
-                      autoFocus
-                      type="password"
                       invalid={errors.confirmPassword && true}
                       {...field}
                     />
                   )}
                 />
-           
+                {errors.confirmPassword && (
+                  <FormFeedback>{errors.confirmPassword.message}</FormFeedback>
+                )}
               </div>
-              {errors.confirmPassword && (
-                <FormFeedback>{errors.confirmPassword.message}</FormFeedback>
-              )}
-              <Button color="primary" block type="submit">
-                Set New Password
+              <Button color="primary" block type="submit" disabled={isLoading}>
+                {isLoading ? (
+                  <Spinner animation="border" />
+                ) : (
+                  "Set New Password"
+                )}
               </Button>
             </Form>
             <p className="text-center mt-2">
-              <Link to="/pages/login-basic">
+              <Link to="/login">
                 <ChevronLeft className="rotate-rtl me-25" size={14} />
                 <span className="align-middle">Back to login</span>
               </Link>

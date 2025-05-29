@@ -85,7 +85,7 @@ const AuthenticationRoutes = [
     meta: {
       layout: 'blank',
       publicRoute: true,
-      restricted: true
+      restricted: false
     }
   },
   {
@@ -103,10 +103,12 @@ const AuthenticationRoutes = [
     }
   },
   {
-    path: '/pages/reset-password-basic',
+    path: '/pages/reset-password-basic/:id',
     element: <ResetPasswordBasic />,
     meta: {
-      layout: 'blank'
+      layout: 'blank',
+      restricted: false,
+      publicRoute: true,
     }
   },
   {

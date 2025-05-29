@@ -1,13 +1,11 @@
 import axios from "axios";
 
-console.log("hellooooo");
 const axiosInstance = axios.create({
     baseURL: "http://localhost:8000/api/",
 });
 
 axiosInstance.interceptors.request.use((config) => {
     if (JSON.parse(localStorage.getItem("userData") || "{}")?.accessToken) {
-        console.log("helloooo333333");
         config.headers.Authorization = `Bearer ${JSON.parse(localStorage.getItem("userData") || "{}")?.accessToken
             }`;
     }
@@ -17,15 +15,10 @@ axiosInstance.interceptors.request.use((config) => {
 axiosInstance.interceptors.response.use(
     (response) => response,
     async (error) => {
-        console.log("helloooo444444");
         const originalRequest = error.config;
-        console.log("Error:");
         if (error.response?.status === 401 && !originalRequest._retry) {
-            console.log("You are not authorized. Please log in again.");
             originalRequest._retry = true;
-            console.log("Retrying request...");
             try {
-                console.log("Attempting to refresh access token...");
                 const res = await axiosInstance.post(
                     "auth/generate-new-token",
                     {
@@ -41,10 +34,6 @@ axiosInstance.interceptors.response.use(
 
                 return axiosInstance(originalRequest);
             } catch (err) {
-                console.log(
-                    "Failed to refresh access token. You will be logged out.",
-                    err
-                );
                 // 🚨 Refresh token is expired or invalid
                 localStorage.removeItem("accessToken"); // window.location.href = '/login';
                 return Promise.reject(err);

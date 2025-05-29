@@ -1,38 +1,17 @@
-// ** React Imports
 import { useContext } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-
-// ** Custom Hooks
 import { useSkin } from '@hooks/useSkin'
-import useJwt from '@src/auth/jwt/useJwt'
-
-// ** Store & Actions
 import { useDispatch } from 'react-redux'
 import { handleLogin } from '@store/authentication'
-
-// ** Third Party Components
 import { useForm, Controller } from 'react-hook-form'
-import { Facebook, Twitter, Mail, GitHub } from 'react-feather'
-
-// ** Context
 import { AbilityContext } from '@src/utility/context/Can'
-
-// ** Custom Components
 import InputPasswordToggle from '@components/input-password-toggle'
-
-// ** Reactstrap Imports
 import { Row, Col, CardTitle, CardText, Label, Button, Form, Input, FormFeedback } from 'reactstrap'
-
-// ** Illustrations Imports
 import illustrationsLight from '@src/assets/images/pages/register-v2.svg'
 import illustrationsDark from '@src/assets/images/pages/register-v2-dark.svg'
-
-// ** Styles
 import '@styles/react/pages/page-authentication.scss'
 import { fetchUserData } from '../../../redux/authentication'
-
 import crm from '@src/assets/images/logo/crm1.png'
-
 
 const defaultValues = {
   email: '',
@@ -42,7 +21,6 @@ const defaultValues = {
 }
 
 const Register = () => {
-  // ** Hooks
   const ability = useContext(AbilityContext)
   const { skin } = useSkin()
   const navigate = useNavigate()
@@ -56,55 +34,10 @@ const Register = () => {
 
   const source = skin === 'dark' ? illustrationsDark : illustrationsLight
 
-  // const onSubmit = data => {
-  //   const tempData = { ...data }
-  //   delete tempData.terms
-  //   if (Object.values(tempData).every(field => field.length > 0) && data.terms === true) {
-  //     const { username, email, password } = data
-  //     useJwt
-  //       .register({ username, email, password })
-  //       .then(res => {
-  //         if (res.data.error) {
-  //           for (const property in res.data.error) {
-  //             if (res.data.error[property] !== null) {
-  //               setError(property, {
-  //                 type: 'manual',
-  //                 message: res.data.error[property]
-  //               })
-  //             }
-  //           }
-  //         } else {
-  //           const data = { ...res.data.user, accessToken: res.data.accessToken }
-  //           // ability.update(res.data.user.ability)
-  //           dispatch(handleLogin(data))
-  //             // dispatch(fetchUserData({data}))
-
-  //           navigate('/')
-  //         }
-  //       })
-  //       .catch(err => console.log(err))
-  //   } else {
-  //     for (const key in data) {
-  //       if (data[key].length === 0) {
-  //         setError(key, {
-  //           type: 'manual',
-  //           message: `Please enter a valid ${key}`
-  //         })
-  //       }
-  //       if (key === 'terms' && data.terms === false) {
-  //         setError('terms', {
-  //           type: 'manual'
-  //         })
-  //       }
-  //     }
-  //   }
-  // }
-
   const onSubmit = async (data) => {
     const tempData = { ...data }
     delete tempData.terms
 
-    // Check all required fields
     if (Object.values(tempData).every(field => field.length > 0) && data.terms === true) {
       try {
         const resultAction = await dispatch(
@@ -115,42 +48,22 @@ const Register = () => {
           })
         )
 
-        // If registration is successful
         if (fetchUserData.fulfilled.match(resultAction)) {
           const responseData = resultAction.payload
-
           const userData = {
             ...responseData.user,
             accessToken: responseData.accessToken,
             refreshToken: responseData.refreshToken
           }
 
-          // Dispatch login action and store tokens
           dispatch(handleLogin(userData))
 
-          // Navigate to homepage
           navigate('/')
-        } else {
-          // If backend sends validation errors (e.g. email already exists)
-          if (typeof resultAction.payload === 'string') {
-            setError('email', {
-              type: 'manual',
-              message: resultAction.payload
-            })
-          } else if (typeof resultAction.payload === 'object') {
-            for (const property in resultAction.payload) {
-              setError(property, {
-                type: 'manual',
-                message: resultAction.payload[property]
-              })
-            }
-          }
         }
       } catch (err) {
         console.error('Registration error:', err)
       }
     } else {
-      // Handle field validation errors
       for (const key in data) {
         if (key !== 'terms' && data[key].length === 0) {
           setError(key, {
@@ -172,7 +85,7 @@ const Register = () => {
     <div className='auth-wrapper auth-cover'>
       <Row className='auth-inner m-0'>
         <Link className='brand-logo' to='/' onClick={e => e.preventDefault()}>
-         
+
           <img src={crm} alt='logo' height={100} width={100} />
         </Link>
         <Col className='d-none d-lg-flex align-items-center p-5' lg='8' sm='12'>
@@ -196,6 +109,9 @@ const Register = () => {
                   id='username'
                   name='username'
                   control={control}
+                  rules={{
+                    required: 'Username is required'
+                  }}
                   render={({ field }) => (
                     <Input autoFocus placeholder='johndoe' invalid={errors.username && true} {...field} />
                   )}
@@ -210,6 +126,10 @@ const Register = () => {
                   id='email'
                   name='email'
                   control={control}
+                  rules={{
+                    required: 'Email is required'
+                  }}
+
                   render={({ field }) => (
                     <Input type='email' placeholder='john@example.com' invalid={errors.email && true} {...field} />
                   )}
@@ -224,10 +144,14 @@ const Register = () => {
                   id='password'
                   name='password'
                   control={control}
+                  rules={{
+                    required: 'Password is required',
+                  }}
                   render={({ field }) => (
                     <InputPasswordToggle className='input-group-merge' invalid={errors.password && true} {...field} />
                   )}
                 />
+                {errors.password && <FormFeedback>{errors.password.message}</FormFeedback>}
               </div>
               <div className='form-check mb-1'>
                 <Controller
@@ -254,23 +178,6 @@ const Register = () => {
                 <span>Sign in instead</span>
               </Link>
             </p>
-            {/* <div className='divider my-2'>
-              <div className='divider-text'>or</div>
-            </div>
-            <div className='auth-footer-btn d-flex justify-content-center'>
-              <Button color='facebook'>
-                <Facebook size={14} />
-              </Button>
-              <Button color='twitter'>
-                <Twitter size={14} />
-              </Button>
-              <Button color='google'>
-                <Mail size={14} />
-              </Button>
-              <Button className='me-0' color='github'>
-                <GitHub size={14} />
-              </Button>
-            </div> */}
           </Col>
         </Col>
       </Row>
