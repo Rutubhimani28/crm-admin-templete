@@ -25,6 +25,7 @@ import {
 
 // ** Default Avatar Image
 import defaultAvatar from "@src/assets/images/portrait/small/avatar-s-11.jpg";
+import { logout } from "../../../../redux/authentication";
 
 const UserDropdown = () => {
   // ** Store Vars
@@ -32,7 +33,6 @@ const UserDropdown = () => {
 
   // ** State
   const [userData, setUserData] = useState(null);
-
   //** ComponentDidMount
   useEffect(() => {
     if (isUserLoggedIn() !== null) {
@@ -53,10 +53,10 @@ const UserDropdown = () => {
       >
         <div className="user-nav d-sm-flex d-none">
           <span className="user-name fw-bold">
-            {(userData && userData["username"]) || "John Doe"}
+            {(userData && userData["userName"]) || "John Doe"}
           </span>
           <span className="user-status">
-            {(userData && userData.role) || "Admin"}
+            {(userData && userData.emailAddress) || "Admin"}
           </span>
         </div>
         <Avatar img={userAvatar} imgHeight="40" imgWidth="40" status="online" />
@@ -65,7 +65,10 @@ const UserDropdown = () => {
         <DropdownItem
           tag={Link}
           to="/login"
-          onClick={() => dispatch(handleLogout())}
+          onClick={() => {
+            dispatch(handleLogout());
+            dispatch(logout({ refreshToken: userData.refreshToken }));
+          }}
         >
           <Power size={14} className="me-75" />
           <span className="align-middle">Logout</span>

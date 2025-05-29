@@ -112,8 +112,7 @@ const HorizontalLayout = props => {
   return (
     <div
       className={classnames(
-        `wrapper horizontal-layout horizontal-menu ${navbarWrapperClasses[navbarType] || 'navbar-floating'} ${
-          footerClasses[footerType] || 'footer-static'
+        `wrapper horizontal-layout horizontal-menu ${navbarWrapperClasses[navbarType] || 'navbar-floating'} ${footerClasses[footerType] || 'footer-static'
         } menu-expanded`
       )}
       {...(isHidden ? { 'data-col': '1-column' } : {})}
@@ -131,7 +130,7 @@ const HorizontalLayout = props => {
               <NavItem>
                 <Link to='/' className='navbar-brand'>
                   <span className='brand-logo'>
-                    <img src={themeConfig.app.appLogoImage} alt='logo' />
+                    {/* <img src={themeConfig.app.appLogoImage} alt='logo' /> */}
                   </span>
                   <h2 className='brand-text mb-0'>{themeConfig.app.appName}</h2>
                 </Link>
@@ -191,7 +190,7 @@ const HorizontalLayout = props => {
       >
         {footer ? footer : <FooterComponent footerType={footerType} footerClasses={footerClasses} />}
       </footer>
-      
+
 
       {themeConfig.layout.scrollTop === true ? (
         <div className='scroll-to-top'>
