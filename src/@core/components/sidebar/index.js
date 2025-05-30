@@ -40,13 +40,14 @@ const Sidebar = props => {
       className={classnames({
         [className]: className,
         'sidebar-lg': size === 'lg',
-        'sidebar-sm': size === 'sm'
+        'sidebar-sm': size === 'sm',
+        'sidebar-xl': size === 'xl'
       })}
       /*eslint-disable */
       {...(width !== undefined
         ? {
-            style: { width: String(width) + 'px' }
-          }
+          style: { width: String(width) + 'px' }
+        }
         : {})}
       /*eslint-enable */
       {...rest}
@@ -87,7 +88,7 @@ Sidebar.propTypes = {
   contentClassName: Proptypes.string,
   wrapperClassName: Proptypes.string,
   children: Proptypes.any.isRequired,
-  size: Proptypes.oneOf(['sm', 'lg']),
+  size: Proptypes.oneOf(['sm', 'lg', 'xl']),
   toggleSidebar: Proptypes.func.isRequired,
   width: Proptypes.oneOfType([Proptypes.number, Proptypes.string])
 }

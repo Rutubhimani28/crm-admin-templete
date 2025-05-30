@@ -8,7 +8,7 @@ import * as Icon from "react-feather";
 import { NavItem, NavLink } from "reactstrap";
 
 // ** Store & Actions
-import { getBookmarks } from "@store/navbar";
+// import { getBookmarks } from "@store/navbar";
 import { useDispatch } from "react-redux";
 
 const NavbarBookmarks = (props) => {
@@ -20,7 +20,7 @@ const NavbarBookmarks = (props) => {
 
   // ** ComponentDidMount
   useEffect(() => {
-    dispatch(getBookmarks());
+    // dispatch(getBookmarks());
   }, []);
 
   return (

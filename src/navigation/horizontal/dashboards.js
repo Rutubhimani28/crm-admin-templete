@@ -12,7 +12,8 @@ export default [
         title: "eCommerce",
         icon: <ShoppingCart />,
         navLink: "/dashboard/ecommerce",
-      },
+      }
     ],
   },
+
 ];
