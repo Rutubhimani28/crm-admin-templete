@@ -1,5 +1,5 @@
 // ** Icons Import
-import { Home, Circle } from "react-feather";
+import { Home, Circle, PhoneCall } from "react-feather";
 
 export default [
   {
@@ -15,6 +15,12 @@ export default [
         icon: <Circle size={12} />,
         navLink: "/dashboard/ecommerce",
       },
+      {
+        id: "contact",
+        title: "Contact",
+        icon: <PhoneCall size={12} />,
+        navLink: "/dashboard/contact",
+      }
     ],
   },
 ];

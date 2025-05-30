@@ -780,6 +780,65 @@ adler-32@~1.3.0:
   resolved "https://registry.npmjs.org/adler-32/-/adler-32-1.3.1.tgz"
   integrity sha512-ynZ4w/nUUv5rrsR8UUGoe1VC9hZj6V5hU9Qw1HlMDJGEJw5S7TfTErWTjMys6M7vr0YWcPqs3qAr4ss0nDfP+A==
 
+ag-charts-community@11.3.1:
+  version "11.3.1"
+  resolved "https://registry.npmjs.org/ag-charts-community/-/ag-charts-community-11.3.1.tgz"
+  integrity sha512-s4zFvFY1DzF6HHLkdT4H5LHpZE8ybMdzsCGGE6AnU7/mh5oCW62M3fvNSKCU0RlGqj58VNHa6bkCc/EogZtTfw==
+  dependencies:
+    ag-charts-core "11.3.1"
+    ag-charts-locale "11.3.1"
+    ag-charts-types "11.3.1"
+
+ag-charts-core@11.3.1:
+  version "11.3.1"
+  resolved "https://registry.npmjs.org/ag-charts-core/-/ag-charts-core-11.3.1.tgz"
+  integrity sha512-7x4y3UNgkHKHnEVfhcbgFj1XTcFh620H5xa2OXdWVoyr+sN6wNRuEt7a34BnXI/DQHrC2rvKgu7CdycYB/8cEg==
+  dependencies:
+    ag-charts-types "11.3.1"
+
+ag-charts-enterprise@11.3.1:
+  version "11.3.1"
+  resolved "https://registry.npmjs.org/ag-charts-enterprise/-/ag-charts-enterprise-11.3.1.tgz"
+  integrity sha512-tt+5WPHRSgN3+c03evMNoWYjdwpUpgookChTMfVslL4yL31Ee2JHPvMsHNcYt01oBclaeszPjIL+dAAS7JtdSA==
+  dependencies:
+    ag-charts-community "11.3.1"
+    ag-charts-core "11.3.1"
+
+ag-charts-locale@11.3.1:
+  version "11.3.1"
+  resolved "https://registry.npmjs.org/ag-charts-locale/-/ag-charts-locale-11.3.1.tgz"
+  integrity sha512-PLuCYd1TbQGPlG5nWuXxyNeeDtTfslBA1Hg/Vh21NdAfW5SXfD8HQqwAbCM/vwWH6xv4SOJBrEx3TplNL2yIlg==
+
+ag-charts-types@11.3.1:
+  version "11.3.1"
+  resolved "https://registry.npmjs.org/ag-charts-types/-/ag-charts-types-11.3.1.tgz"
+  integrity sha512-kUSSypwsmkQDT5Oqgcr3zYQShzQuhvYeHaT1l2ocUrz3hBzkIiYwzp9CVG3Vs//M9TUCJLTcR0CBIr9ADhPITw==
+
+ag-grid-community@^33.3.1, ag-grid-community@33.3.1:
+  version "33.3.1"
+  resolved "https://registry.npmjs.org/ag-grid-community/-/ag-grid-community-33.3.1.tgz"
+  integrity sha512-c3JXKY5K5V5KVZ6rhFc13hK/8UzaZNwTqL70YKkqUbqwOcogDVVeG4I25W6o5YOlFO6LFN/5xFnFPASWn4LwBw==
+  dependencies:
+    ag-charts-types "11.3.1"
+
+ag-grid-enterprise@^33.3.1:
+  version "33.3.1"
+  resolved "https://registry.npmjs.org/ag-grid-enterprise/-/ag-grid-enterprise-33.3.1.tgz"
+  integrity sha512-R2IPHIfo7gTIgOtDNOaCY53+qqyEsdVCFcZT/TajQrZRu7d5LG1HMc2fAiLniUK7rYL6wkk2yLao/EZkjwFIrA==
+  dependencies:
+    ag-grid-community "33.3.1"
+  optionalDependencies:
+    ag-charts-community "11.3.1"
+    ag-charts-enterprise "11.3.1"
+
+ag-grid-react@^33.3.1:
+  version "33.3.1"
+  resolved "https://registry.npmjs.org/ag-grid-react/-/ag-grid-react-33.3.1.tgz"
+  integrity sha512-CHuuHxzuz2rsKuyxjuGnBadwm0/I2DCG4j1WgIa2wJkdlTUrcKjF6RD9qwfRLYKA4P40shG640emVuU6/qiZLA==
+  dependencies:
+    ag-grid-community "33.3.1"
+    prop-types "^15.8.1"
+
 ajv@^6.10.0, ajv@^6.12.4:
   version "6.12.6"
   resolved "https://registry.npmjs.org/ajv/-/ajv-6.12.6.tgz"
@@ -1457,6 +1516,11 @@ deep-is@^0.1.3:
   resolved "https://registry.npmjs.org/deep-is/-/deep-is-0.1.4.tgz"
   integrity sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==
 
+deepmerge@^2.1.1:
+  version "2.2.1"
+  resolved "https://registry.npmjs.org/deepmerge/-/deepmerge-2.2.1.tgz"
+  integrity sha512-R9hc1Xa/NOBi9WRVUWg19rl1UB7Tt4kuPd+thNJgFZoxXsTz7ncaPaeIm+40oSGuP33DfMb4sZt1QIGiJzC4EA==
+
 deepmerge@^4.2.2:
   version "4.2.2"
   resolved "https://registry.npmjs.org/deepmerge/-/deepmerge-4.2.2.tgz"
@@ -1991,6 +2055,20 @@ form-data@^4.0.0:
     asynckit "^0.4.0"
     combined-stream "^1.0.8"
     mime-types "^2.1.12"
+
+formik@^2.4.6:
+  version "2.4.6"
+  resolved "https://registry.npmjs.org/formik/-/formik-2.4.6.tgz"
+  integrity sha512-A+2EI7U7aG296q2TLGvNapDNTZp1khVt5Vk0Q/fyfSROss0V/V6+txt2aJnwEos44IxTCW/LYAi/zgWzlevj+g==
+  dependencies:
+    "@types/hoist-non-react-statics" "^3.3.1"
+    deepmerge "^2.1.1"
+    hoist-non-react-statics "^3.3.0"
+    lodash "^4.17.21"
+    lodash-es "^4.17.21"
+    react-fast-compare "^2.0.1"
+    tiny-warning "^1.0.2"
+    tslib "^2.0.0"
 
 frac@~1.1.2:
   version "1.1.2"
@@ -2658,10 +2736,10 @@ mkdirp@^0.5.1:
   dependencies:
     minimist "^1.2.6"
 
-moment@^2.29.3:
-  version "2.29.4"
-  resolved "https://registry.npmjs.org/moment/-/moment-2.29.4.tgz"
-  integrity sha512-5LC9SOxjSc2HF6vO2CyuTDNivEdoz2IvyJJGj6X8DJ0eFyfszE0QiEd+iXmBvUP3WHxSjFH/vIsA0EN00cgr8w==
+moment@^2.30.1:
+  version "2.30.1"
+  resolved "https://registry.npmjs.org/moment/-/moment-2.30.1.tgz"
+  integrity sha512-uEmtNhbDOrWPFS+hdjFCBfy9f2YoyzRpwcl+DqpC6taX21FzsTLQVbMV/W7PzNSX6x/bhC1zA3c2UQ5NzH6how==
 
 ms@^2.1.1, ms@2.1.2:
   version "2.1.2"
@@ -3135,6 +3213,11 @@ react-dropzone@^14.2.1:
     attr-accept "^2.2.2"
     file-selector "^0.6.0"
     prop-types "^15.8.1"
+
+react-fast-compare@^2.0.1:
+  version "2.0.4"
+  resolved "https://registry.npmjs.org/react-fast-compare/-/react-fast-compare-2.0.4.tgz"
+  integrity sha512-suNP+J1VU1MWFKcyt7RtjiSWUjvidmQSlqu+eHslq+342xCbGTYmC0mEhPCOHxlW0CywylOC1u2DFAT+bv4dBw==
 
 react-fast-compare@^3.0.1:
   version "3.2.0"
@@ -3881,6 +3964,11 @@ tiny-invariant@^1.1.0:
   version "1.3.1"
   resolved "https://registry.npmjs.org/tiny-invariant/-/tiny-invariant-1.3.1.tgz"
   integrity sha512-AD5ih2NlSssTCwsMznbvwMZpJ1cbhkGd2uueNxzv2jDlEeZdU04JQfRnggJQ8DrcVBGjAsCKwFBbDlVNtEMlzw==
+
+tiny-warning@^1.0.2:
+  version "1.0.3"
+  resolved "https://registry.npmjs.org/tiny-warning/-/tiny-warning-1.0.3.tgz"
+  integrity sha512-lBN9zLN/oAf68o3zNXYrdCt1kP8WsiGW8Oo2ka41b2IM5JL/S1CTyX1rW0mb/zSuJun0ZUrDxx4sqvYS2FWzPA==
 
 to-fast-properties@^2.0.0:
   version "2.0.0"

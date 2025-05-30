@@ -130,6 +130,11 @@
         width: $modal-slide-in-width-lg;
       }
     }
+    &.sidebar-xl {
+      @media (min-width: (map-get($grid-breakpoints, sm))) {
+        width: $modal-slide-in-width-xl;
+      }
+    }
   }
 
   .btn-close {

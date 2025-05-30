@@ -4,13 +4,13 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 // ** Axios Imports
 import axios from 'axios'
 
-export const getBookmarks = createAsyncThunk('layout/getBookmarks', async () => {
-  const response = await axios.get('/api/bookmarks/data')
-  return {
-    data: response.data.suggestions,
-    bookmarks: response.data.bookmarks
-  }
-})
+// export const getBookmarks = createAsyncThunk('layout/getBookmarks', async () => {
+//   const response = await axios.get('/api/bookmarks/data')
+//   return {
+//     data: response.data.suggestions,
+//     bookmarks: response.data.bookmarks
+//   }
+// })
 
 export const updateBookmarked = createAsyncThunk('layout/updateBookmarked', async id => {
   await axios.post('/api/bookmarks/update', { id })
@@ -31,10 +31,10 @@ export const layoutSlice = createSlice({
   },
   extraReducers: builder => {
     builder
-      .addCase(getBookmarks.fulfilled, (state, action) => {
-        state.suggestions = action.payload.data
-        state.bookmarks = action.payload.bookmarks
-      })
+      // .addCase(getBookmarks.fulfilled, (state, action) => {
+      //   state.suggestions = action.payload.data
+      //   state.bookmarks = action.payload.bookmarks
+      // })
       .addCase(updateBookmarked.fulfilled, (state, action) => {
         let objectToUpdate
 

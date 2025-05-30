@@ -15,45 +15,45 @@ import { Navigate } from 'react-router-dom'
 // const InvoicePreview = lazy(() => import('../../views/apps/invoice/preview'))
 
 // const EcommerceShop = lazy(() => import('../../views/apps/ecommerce/shop'))
-const EcommerceDetail = lazy(() => import('../../views/apps/ecommerce/detail'))
+// const EcommerceDetail = lazy(() => import('../../views/apps/ecommerce/detail'))
 // const EcommerceWishlist = lazy(() => import('../../views/apps/ecommerce/wishlist'))
 // const EcommerceCheckout = lazy(() => import('../../views/apps/ecommerce/checkout'))
 
-const UserList = lazy(() => import('../../views/apps/user/list'))
-const UserView = lazy(() => import('../../views/apps/user/view'))
+// const UserList = lazy(() => import('../../views/apps/user/list'))
+// const UserView = lazy(() => import('../../views/apps/user/view'))
 
-const Roles = lazy(() => import('../../views/apps/roles-permissions/roles'))
-const Permissions = lazy(() => import('../../views/apps/roles-permissions/permissions'))
+// const Roles = lazy(() => import('../../views/apps/roles-permissions/roles'))
+// const Permissions = lazy(() => import('../../views/apps/roles-permissions/permissions'))
 
 const AppRoutes = [
-  {
-    element: <Email />,
-    path: '/apps/email',
-    meta: {
-      appLayout: true,
-      className: 'email-application'
-    }
-  },
-  {
-    element: <Email />,
-    path: '/apps/email/:folder',
-    meta: {
-      appLayout: true,
-      className: 'email-application'
-    }
-  },
-  {
-    element: <Email />,
-    path: '/apps/email/label/:label',
-    meta: {
-      appLayout: true,
-      className: 'email-application'
-    }
-  },
-  {
-    element: <Email />,
-    path: '/apps/email/:filter'
-  },
+  // {
+  //   element: <Email />,
+  //   path: '/apps/email',
+  //   meta: {
+  //     appLayout: true,
+  //     className: 'email-application'
+  //   }
+  // },
+  // {
+  //   element: <Email />,
+  //   path: '/apps/email/:folder',
+  //   meta: {
+  //     appLayout: true,
+  //     className: 'email-application'
+  //   }
+  // },
+  // {
+  //   element: <Email />,
+  //   path: '/apps/email/label/:label',
+  //   meta: {
+  //     appLayout: true,
+  //     className: 'email-application'
+  //   }
+  // },
+  // {
+  //   element: <Email />,
+  //   path: '/apps/email/:filter'
+  // },
   // {
   //   path: '/apps/chat',
   //   element: <Chat />,
@@ -150,13 +150,13 @@ const AppRoutes = [
   //     className: 'ecommerce-application'
   //   }
   // },
-  {
-    path: '/apps/ecommerce/product-detail/:product',
-    element: <EcommerceDetail />,
-    meta: {
-      className: 'ecommerce-application'
-    }
-  },
+  // {
+  //   path: '/apps/ecommerce/product-detail/:product',
+  //   element: <EcommerceDetail />,
+  //   meta: {
+  //     className: 'ecommerce-application'
+  //   }
+  // },
   // {
   //   path: '/apps/ecommerce/checkout',
   //   element: <EcommerceCheckout />,
@@ -164,26 +164,26 @@ const AppRoutes = [
   //     className: 'ecommerce-application'
   //   }
   // },
-  {
-    element: <UserList />,
-    path: '/apps/user/list'
-  },
-  {
-    path: '/apps/user/view',
-    element: <Navigate to='/apps/user/view/1' />
-  },
-  {
-    element: <UserView />,
-    path: '/apps/user/view/:id'
-  },
-  {
-    element: <Roles />,
-    path: '/apps/roles'
-  },
-  {
-    element: <Permissions />,
-    path: '/apps/permissions'
-  }
+  // {
+  //   element: <UserList />,
+  //   path: '/apps/user/list'
+  // },
+  // {
+  //   path: '/apps/user/view',
+  //   element: <Navigate to='/apps/user/view/1' />
+  // },
+  // {
+  //   element: <UserView />,
+  //   path: '/apps/user/view/:id'
+  // },
+  // {
+  //   element: <Roles />,
+  //   path: '/apps/roles'
+  // },
+  // {
+  //   element: <Permissions />,
+  //   path: '/apps/permissions'
+  // }
 ]
 
 export default AppRoutes

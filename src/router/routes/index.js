@@ -17,6 +17,7 @@ import PublicRoute from "@components/routes/PublicRoute";
 
 // ** Utils
 import { isObjEmpty } from "@utils";
+import AppRoutes from "./Apps";
 
 const getLayout = {
   blank: <BlankLayout />,
@@ -31,7 +32,7 @@ const TemplateTitle = "%s - Vuexy React Admin Template";
 const DefaultRoute = "/dashboard/ecommerce";
 
 // ** Merge Routes
-const Routes = [...AuthenticationRoutes, ...DashboardRoutes];
+const Routes = [...AuthenticationRoutes, ...DashboardRoutes , ...AppRoutes];
 
 const getRouteMeta = (route) => {
   if (isObjEmpty(route.element.props)) {
