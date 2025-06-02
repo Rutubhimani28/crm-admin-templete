@@ -1,5 +1,5 @@
 // ** Icons Import
-import { Home, ShoppingCart } from "react-feather";
+import { BarChart2, Home, PhoneCall, ShoppingCart } from "react-feather";
 
 export default [
   {
@@ -12,6 +12,18 @@ export default [
         title: "eCommerce",
         icon: <ShoppingCart />,
         navLink: "/dashboard/ecommerce",
+      },
+      {
+        id: "contact",
+        title: "Contact",
+        icon: <PhoneCall size={12} />,
+        navLink: "/dashboard/contact",
+      },
+      {
+        id: "lead",
+        title: "Lead",
+        icon: <BarChart2 size={12} />,
+        navLink: "/dashboard/lead",
       }
     ],
   },
