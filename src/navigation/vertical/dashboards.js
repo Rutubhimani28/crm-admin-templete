@@ -1,5 +1,5 @@
 // ** Icons Import
-import { Home, Circle, PhoneCall } from "react-feather";
+import { Home, Circle, PhoneCall, BarChart2 } from "react-feather";
 
 export default [
   {
@@ -20,6 +20,12 @@ export default [
         title: "Contact",
         icon: <PhoneCall size={12} />,
         navLink: "/dashboard/contact",
+      },
+      {
+        id: "lead",
+        title: "Lead",
+        icon: <BarChart2 size={12} />,
+        navLink: "/dashboard/lead",
       }
     ],
   },
