@@ -1,5 +1,5 @@
 // ** Icons Import
-import { Home, Circle, PhoneCall, BarChart2, Users } from "react-feather";
+import { Home, Circle, PhoneCall, BarChart2, Users, CheckSquare } from "react-feather";
 
 export default [
   {
@@ -12,26 +12,32 @@ export default [
       {
         id: "eCommerceDash",
         title: "eCommerce",
-        icon: <Circle size={12} />,
+        icon: <Circle size={20} />,
         navLink: "/dashboard/ecommerce",
       },
       {
         id: "contact",
         title: "Contact",
-        icon: <PhoneCall size={12} />,
+        icon: <PhoneCall size={20} />,
         navLink: "/dashboard/contact",
       },
       {
         id: "lead",
         title: "Lead",
-        icon: <BarChart2 size={12} />,
+        icon: <BarChart2 size={20} />,
         navLink: "/dashboard/lead",
       },
       {
         id: "customer",
         title: "Customer",
-        icon: <Users size={12} />,
+        icon: <Users size={20} />,
         navLink: "/dashboard/customer",
+      },
+      {
+        id: "task",
+        title: "Task",
+        icon: <CheckSquare size={20} />,
+        navLink: "/dashboard/task",
       }
     ],
   },
