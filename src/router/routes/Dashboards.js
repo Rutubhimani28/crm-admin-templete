@@ -5,6 +5,9 @@ const Contact = lazy(() => import('../../views/dashboard/contact/contact'))
 const ContactView = lazy(() => import('../../views/dashboard/contact/contactView'))
 const Lead = lazy(() => import('../../views/dashboard/lead/lead'))
 const LeadView = lazy(() => import('../../views/dashboard/lead/leadView'))
+const Customer = lazy(() => import('../../views/dashboard/customer/customer'))
+const CustomerView = lazy(() => import('../../views/dashboard/customer/customerView'))
+
 const DashboardRoutes = [
   {
     path: '/dashboard/ecommerce',
@@ -25,6 +28,14 @@ const DashboardRoutes = [
   {
     path:"/lead/leadView/:id",
     element: <LeadView />
+  },
+  {
+    path:"/dashboard/customer",
+    element: <Customer />
+  },
+  {
+    path:"/customer/customerView/:id",
+    element: <CustomerView />
   }
 ]
 
