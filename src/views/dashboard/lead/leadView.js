@@ -53,7 +53,7 @@ const LeadView = () => {
     return (
         <Card>
             <div className="container mt-3">
-                <h3>View Contact</h3>
+                <h3>View lead</h3>
                 <Form>
                     <div className="row">
                         <div className="col mb-2">

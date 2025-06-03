@@ -28,7 +28,7 @@ export default [
       {
         id: "customer",
         title: "Customer",
-        icon: <Users  size={12} />,
+        icon: <Users size={12} />,
         navLink: "/dashboard/customer",
       },
       {
@@ -36,6 +36,12 @@ export default [
         title: "Task",
         icon: <CheckSquare size={12} />,
         navLink: "/dashboard/task",
+      },
+      {
+        id: "team",
+        title: "Team",
+        icon: <CheckSquare size={12} />,
+        navLink: "/dashboard/team",
       }
     ],
   },
