@@ -11,12 +11,12 @@ const initialState = {
 };
 export const getTeam = createAsyncThunk(
     'team/getTeam',
-    async () => {
+    async ({ page = 1, pageSize = 10 }, { rejectWithValue }) => {
         try {
-            const response = await axiosInstance.get(`/team/getAllTeam`);
-            return response.data; // make sure your backend sends { teams, total, totalPages, etc. }
+            const response = await axiosInstance.get(`/team/getAllTeam/?page=${page}&limit=${pageSize}`);
+            return response.data;
         } catch (error) {
-            // return rejectWithValue(error.message);
+            return rejectWithValue(error.message);
         }
     }
 );
@@ -26,7 +26,7 @@ export const addTeam = createAsyncThunk(
     async (team, { dispatch, rejectWithValue }) => {
         try {
             const response = await axiosInstance.post('/team/addTeam', team)
-            dispatch(getTeam())
+            dispatch(getTeam({ page: 1, pageSize: 10 }))
             return response.data
         } catch (error) {
             return rejectWithValue(error.message)
@@ -39,7 +39,7 @@ export const updateTeam = createAsyncThunk(
     async (team, { dispatch, rejectWithValue }) => {
         try {
             const response = await axiosInstance.put(`/team/updateTeamById/${team._id}`, team)
-            dispatch(getTeam())
+            dispatch(getTeam({ page: 1, pageSize: 10 }))
             return response.data
         } catch (error) {
             return rejectWithValue(error.message)
@@ -49,10 +49,10 @@ export const updateTeam = createAsyncThunk(
 
 export const deleteTeam = createAsyncThunk(
     'team/deleteTeam',
-    async (team, { dispatch, rejectWithValue }) => {
+    async (props, { dispatch, rejectWithValue }) => {
         try {
-            const response = await axiosInstance.delete(`/team/deleteTeamById/${team?._id}`)
-            dispatch(getTeam())
+            const response = await axiosInstance.delete(`/team/deleteTeamById/${props?.selectedForDelete?._id}`)
+            dispatch(getTeam({ page: props?.paginationModel?.page + 1, pageSize: props?.paginationModel?.pageSize }));
             return response.data
         } catch (error) {
             return rejectWithValue(error.message)
@@ -86,7 +86,10 @@ const teamSlice = createSlice({
             })
             .addCase(getTeam.fulfilled, (state, action) => {
                 state.loading = false
-                state.data = action.payload
+                state.data = action.payload.teams;
+                state.total = action.payload.total;
+                state.page = action.payload.page;
+                state.totalPages = action.payload.totalPages;
             })
             .addCase(getTeam.rejected, (state, action) => {
                 state.loading = false

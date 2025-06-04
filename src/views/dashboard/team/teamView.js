@@ -3,6 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button, Label, Input, Form, Card } from "reactstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { viewTeam } from "../../../redux/team";
+import { ChevronLeft } from "react-feather";
+import { Box, Grid } from "@mui/material";
 
 
 const TeamView = () => {
@@ -34,56 +36,50 @@ const TeamView = () => {
     } = teamList;
 
     return (
-        <Card>
-            <div className="container mt-3">
+        <>
+            <Box className="d-flex justify-content-between align-items-center mt-1 mb-1">
+
                 <h3>View Team</h3>
-                <Form>
-                    <div className="row">
-                        <div className="col mb-2">
-                            <Label>First Name</Label>
-                            <Input value={firstName} readOnly />
-                        </div>
-                        <div className="col mb-2">
-                            <Label>Last Name</Label>
-                            <Input value={lastName} readOnly />
-                        </div>
-                    </div>
-                    <div className="row">
-                        <div className="col mb-2">
-                            <Label>email</Label>
-                            <Input value={email} readOnly />
-                        </div>
-                        <div className="col mb-2">
-                            <Label>Phone Number</Label>
-                            <Input value={phoneNumber} readOnly />
-                        </div>
-                    </div>
-                    <div className="row">
-                        <div className="col mb-2">
-                            <Label>address</Label>
-                            <Input value={address} readOnly />
-                        </div>
-                    </div>
-
-                    <div className="row">
-                        <div className="col mb-2">
-                            <Label>gender</Label>
-                            <Input value={gender} readOnly />
-                        </div>
-                        <div className="col mb-2">
-                            <Label>position</Label>
-                            <Input value={position} readOnly />
-                        </div>
-                    </div>
-
-                    <div className="mb-2">
-                        <Button color="secondary" onClick={() => navigate(-1)}>
-                            Back
-                        </Button>
-                    </div>
-                </Form>
-            </div>
-        </Card>
+                <Button color="primary" onClick={() => navigate(-1)} >
+                    <ChevronLeft className="mr-2" />
+                    Back
+                </Button>
+            </Box>
+            <Card className='container-md'>
+                <Box className='p-2'>
+                    <Grid container columnSpacing={{ xs: 1 }} >
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <Label className='fs-6 fw-bold'>First Name: </Label>
+                            <p> {firstName}</p>
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <Label className="fs-6 fw-bold">Last Name: </Label>
+                            <p className="fs-6"> {lastName}</p>
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <Label className="fs-6 fw-bold">Email: </Label>
+                            <p className="fs-6"> {email}</p>
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <Label className="fs-6 fw-bold">Phone Number: </Label>
+                            <p className="fs-6"> {phoneNumber}</p>
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <Label className="fs-6 fw-bold">Address: </Label>
+                            <p className="fs-6"> {address}</p>
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <Label className="fs-6 fw-bold">Gender: </Label>
+                            <p className="fs-6"> {gender}</p>
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <Label className="fs-6 fw-bold">Position: </Label>
+                            <p className="fs-6"> {position}</p>
+                        </Grid>
+                    </Grid>
+                </Box>
+            </Card>
+        </>
     );
 };
 
