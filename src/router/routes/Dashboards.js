@@ -9,6 +9,8 @@ const Customer = lazy(() => import('../../views/dashboard/customer/customer'))
 const CustomerView = lazy(() => import('../../views/dashboard/customer/customerView'))
 const Task = lazy(() => import('../../views/dashboard/task/task'))
 const TaskView = lazy(() => import('../../views/dashboard/task/taskview'))
+const Team = lazy(() => import('../../views/dashboard/team/team'))
+const TeamView = lazy(() => import('../../views/dashboard/team/teamView'))
 
 const DashboardRoutes = [
   {
@@ -46,6 +48,14 @@ const DashboardRoutes = [
   {
     path: '/task/taskView/:id',
     element: <TaskView />
+  },
+  {
+    path: '/dashboard/team',
+    element: <Team />
+  },
+  {
+    path:'/team/teamView/:id',
+    element: <TeamView/>
   }
 ]
 

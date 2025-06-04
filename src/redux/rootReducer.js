@@ -6,6 +6,7 @@ import contact from './contact'
 import lead from './lead'
 import customer from './customer'
 import task from './task'
+import team from './team'
 import users from '@src/views/apps/user/store'
 // import contacts from '@src/views/apps/contact/store'
 
@@ -18,6 +19,7 @@ const rootReducer = {
   lead,
   customer,
   task,
+  team,
   // contacts
 }
 

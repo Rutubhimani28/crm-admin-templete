@@ -1,5 +1,7 @@
 // ** React Imports
+import { createTheme, ThemeProvider } from '@mui/material'
 import { useEffect, useState, createContext } from 'react'
+import { useSkin } from '@hooks/useSkin'
 
 // ** Create Context
 const ThemeColors = createContext()
@@ -7,6 +9,7 @@ const ThemeColors = createContext()
 const ThemeContext = ({ children }) => {
   // ** State
   const [colors, setColors] = useState({})
+  const { skin } = useSkin()
 
   //** ComponentDidMount
   useEffect(() => {
@@ -19,6 +22,9 @@ const ThemeContext = ({ children }) => {
         primary: {
           light: getHex('--bs-primary').concat('1a'),
           main: getHex('--bs-primary')
+        },
+        table: {
+          light: "#fff",
         },
         secondary: {
           light: getHex('--bs-secondary').concat('1a'),
@@ -50,7 +56,75 @@ const ThemeContext = ({ children }) => {
     }
   }, [])
 
-  return <ThemeColors.Provider value={{ colors }}>{children}</ThemeColors.Provider>
+
+  const theme = createTheme({
+    palette: {
+      mode: skin,
+      primary: {
+        main: colors?.primary?.main || "#1976d2",
+        light: colors?.primary?.light || "#BBDEFB",
+      },
+      secondary: {
+        main: colors?.secondary?.main || "#9c27b0",
+      },
+      background: {
+        default: skin === "light" ? "#fff" : '#202544',
+      },
+    },
+    components: {
+      MuiDataGrid: {
+        styleOverrides: {
+          root: {
+            bgcolor: skin === "light" ? "#1E1E1E" : "#1E1E1E",
+            color: skin === "light" ? "#000" : "#fff",
+          },
+          columnHeaders: {
+            bgcolor: skin === "light" ? "#f00" : "#202544",
+            color: skin === "light" ? "#000" : "#fff",
+            borderBottom: "1px solid #ccc",
+          },
+          cell: {
+            color: skin === "light" ? "#000" : "#fff",
+          },
+          row: {
+            '&:hover': {
+              backgroundColor: colors?.primary?.light || "#f5f5f5",
+            }
+          }
+        }
+      },
+      MuiTablePagination: {
+        styleOverrides: {
+          toolbar: {
+            backgroundColor: skin === "light" ? "#f9f9f9" : "#202544",
+            color: skin === "light" ? "#000" : "#fff",
+          },
+          selectLabel: {
+            margin: "0 !important",
+          },
+          displayedRows: {
+            margin: "0 !important",
+          },
+        }
+      },
+      MuiList: {
+        styleOverrides: {
+          root: {
+            padding: '0 !important',
+
+          }
+        }
+      }
+    }
+  })
+
+  return (
+    <ThemeColors.Provider value={{ colors }}>
+      <ThemeProvider theme={theme}>
+        {children}
+      </ThemeProvider>
+    </ThemeColors.Provider>
+  )
 }
 
 export { ThemeColors, ThemeContext }
