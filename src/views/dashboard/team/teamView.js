@@ -50,31 +50,31 @@ const TeamView = () => {
                     <Grid container columnSpacing={{ xs: 1 }} >
                         <Grid size={{ xs: 12, sm: 6 }}>
                             <Label className='fs-6 fw-bold'>First Name: </Label>
-                            <p> {firstName}</p>
+                            <p> {firstName || '-'}</p>
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6 }}>
                             <Label className="fs-6 fw-bold">Last Name: </Label>
-                            <p className="fs-6"> {lastName}</p>
+                            <p className="fs-6"> {lastName || '-'}</p>
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6 }}>
                             <Label className="fs-6 fw-bold">Email: </Label>
-                            <p className="fs-6"> {email}</p>
+                            <p className="fs-6"> {email || '-'}</p>
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6 }}>
                             <Label className="fs-6 fw-bold">Phone Number: </Label>
-                            <p className="fs-6"> {phoneNumber}</p>
+                            <p className="fs-6"> {phoneNumber || '-'}</p>
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6 }}>
                             <Label className="fs-6 fw-bold">Address: </Label>
-                            <p className="fs-6"> {address}</p>
+                            <p className="fs-6"> {address || '-'}</p>
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6 }}>
                             <Label className="fs-6 fw-bold">Gender: </Label>
-                            <p className="fs-6"> {gender}</p>
+                            <p className="fs-6"> {gender || '-'}</p>
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6 }}>
                             <Label className="fs-6 fw-bold">Position: </Label>
-                            <p className="fs-6"> {position}</p>
+                            <p className="fs-6"> {position || '-'}</p>
                         </Grid>
                     </Grid>
                 </Box>

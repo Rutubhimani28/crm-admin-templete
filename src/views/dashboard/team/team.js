@@ -1,15 +1,15 @@
-import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Button, Form, Input, InputGroup, InputGroupText, Label, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
 import Sidebar from "@components/sidebar";
 import { useFormik } from "formik";
-import { Edit, Eye, Trash, Trash2 } from "react-feather";
+import { Edit, Eye, Trash2 } from "react-feather";
 import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
 import { addTeam, deleteTeam, getTeam, updateTeam } from "../../../redux/team";
 import { DataGrid } from "@mui/x-data-grid";
 import { useSkin } from '@hooks/useSkin'
+import { Box, Grid } from "@mui/material";
 
 
 const Team = () => {
@@ -36,7 +36,6 @@ const Team = () => {
     useEffect(() => {
         if (teamList?.data?.length) {
             const dataWithId = teamList?.data?.map((item) => ({
-                id: item._id,
                 ...item,
             }));
             setRows(dataWithId);
@@ -76,7 +75,7 @@ const Team = () => {
                             color=''
                             size="small"
                             style={{ padding: "4px" }}
-                            onClick={() => navigate(`/team/teamView/${data.id}`)}
+                            onClick={() => navigate(`/team/teamView/${data._id}`)}
                         >
                             <Eye size={20} color={skin === "light" ? "blue" : "white"} />
                         </Button>
@@ -136,7 +135,7 @@ const Team = () => {
                         return;
                     }
                     const updatedData = { ...editData, ...values };
-                    dispatch(updateTeam(updatedData));
+                    dispatch(updateTeam({ updatedData, paginationModel }));
                 } else {
                     dispatch(addTeam(values));
                 }
@@ -193,13 +192,13 @@ const Team = () => {
 
     return (
         <>
-            <div className="mb-2 text-end">
+            <Box className="mb-2 text-end">
                 <Button color="primary" onClick={toggleSidebar}>
                     Add Team Record
                 </Button>
-            </div>
+            </Box>
 
-            <div style={{ height: 635, width: "100%" }}>
+            <Box style={{ height: 635, width: "100%" }}>
                 <DataGrid
                     rows={rows}
                     columns={columns}
@@ -211,8 +210,9 @@ const Team = () => {
                     rowCount={total}
                     disableRowSelectionOnClick
                     loading={loading}
+                    getRowId={row => row._id}
                 />
-            </div>
+            </Box>
 
             <Sidebar
                 open={sidebarOpen}
@@ -220,158 +220,158 @@ const Team = () => {
                 title={editData ? "Update Team Record" : "Add Team Record"}
                 size="xl"
             >
-                <Form onSubmit={handleSubmit}>
-                    <div className="container mt-1">
-                        <div className="row">
-                            <div className="col mb-2">
-                                <Label for="firstName">
-                                    First Name <span className="text-danger">*</span>
-                                </Label>
-                                <Input
-                                    id="firstName"
-                                    name="firstName"
-                                    value={values.firstName}
-                                    onChange={handleChange}
-                                    placeholder="First Name"
-                                    readOnly={isViewMode}
-                                    onBlur={handleBlur}
-                                    invalid={touched.firstName && !!errors.firstName}
-                                />
-                                {touched.firstName && errors.firstName && (
-                                    <div className="text-danger">{errors.firstName}</div>
-                                )}
-                            </div>
-                            <div className="col mb-2">
-                                <Label for="lastName">
-                                    Last Name <span className="text-danger">*</span>
-                                </Label>
-                                <Input
-                                    type="lastName"
-                                    id="lastName"
-                                    name="lastName"
-                                    value={values.lastName}
-                                    onChange={handleChange}
-                                    placeholder="example@domain.com"
-                                    readOnly={isViewMode}
-                                    onBlur={handleBlur}
-                                    invalid={touched.lastName && !!errors.lastName}
-                                />
-                                {touched.lastName && errors.lastName && (
-                                    <div className="text-danger">{errors.lastName}</div>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="row">
-                            <div className="col mb-2">
-                                <Label for="phoneNumber">
-                                    Phone Number <span className="text-danger">*</span>
-                                </Label>
-                                <Input
-                                    type="tel"
-                                    id="phoneNumber"
-                                    name="phoneNumber"
-                                    value={values.phoneNumber}
-                                    onChange={handleChange}
-                                    placeholder="123-456-7890"
-                                    readOnly={isViewMode}
-                                    onBlur={handleBlur}
-                                    invalid={
-                                        touched.phoneNumber && !!errors.phoneNumber
-                                    }
-                                />
-                                {touched.phoneNumber && errors.phoneNumber && (
-                                    <div className="text-danger">{errors.phoneNumber}</div>
-                                )}
-                            </div>
-
-                            <div className="col mb-2">
-                                <Label for="email">
-                                    Email <span className="text-danger">*</span>
-                                </Label>
-                                <Input
-                                    type="email"
-                                    id="email"
-                                    name="email"
-                                    value={values.email}
-                                    onChange={handleChange}
-                                    placeholder="example@domain.com"
-                                    readOnly={isViewMode}
-                                    onBlur={handleBlur}
-                                    invalid={touched.email && !!errors.email}
-                                />
-                                {touched.email && errors.email && (
-                                    <div className="text-danger">{errors.email}</div>
-                                )}
-                            </div>
-                        </div>
-                        <div className="row">
-                            <div className="col mb-2">
-                                <Label for="position">Position</Label>
-                                <Input
-                                    type="position"
-                                    id="position"
-                                    name="position"
-                                    placeholder="Position"
-                                    value={values.position}
-                                    onChange={handleChange}
-                                    readOnly={isViewMode}
-                                />
-                            </div>
-                            <div className="col mb-2">
-                                <Label for="gender">Gender</Label>
-                                <InputGroup>
-                                    <InputGroupText>
-                                        <Input type="radio" name="gender" value="male" checked={values.gender === "male"} onChange={handleChange} readOnly={isViewMode} />
-                                        Male
-                                    </InputGroupText>
-                                    <InputGroupText>
-                                        <Input type="radio" name="gender" value="female" checked={values.gender === "female"} onChange={handleChange} readOnly={isViewMode} />
-                                        Female
-                                    </InputGroupText>
-                                    <InputGroupText>
-                                        <Input type="radio" name="gender" value="other" checked={values.gender === "other"} onChange={handleChange} readOnly={isViewMode} />
-                                        Other
-                                    </InputGroupText>
-                                </InputGroup>
-                                {errors.gender && touched.gender && (
-                                    <div className="text-danger">{errors.gender}</div>
-                                )}
-                            </div>
-                        </div>
-                        <div className="mb-2">
-                            <Label for="address">Address</Label>
+                <Form onSubmit={handleSubmit} className='mt-2'>
+                    <Grid container spacing={2} className='mb-2'>
+                        <Grid size={{ xs: 12, sm: 6, }}>
+                            <Label for="firstName">
+                                First Name <span className="text-danger">*</span>
+                            </Label>
                             <Input
-                                type="textarea"
-                                id="address"
-                                name="address"
-                                value={values.address}
+                                id="firstName"
+                                name="firstName"
+                                value={values.firstName}
                                 onChange={handleChange}
-                                placeholder="123 Main St, City"
+                                placeholder="First Name"
                                 readOnly={isViewMode}
                                 onBlur={handleBlur}
-                                invalid={!!errors.address && touched.address}
+                                invalid={touched.firstName && !!errors.firstName}
                             />
-                            {errors.address && touched.address && (
-                                <div className="text-danger">{errors.address}</div>
+                            {touched.firstName && errors.firstName && (
+                                <div className="text-danger">{errors.firstName}</div>
                             )}
-                        </div>
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6, }}>
+                            <Label for="lastName">
+                                Last Name <span className="text-danger">*</span>
+                            </Label>
+                            <Input
+                                type="lastName"
+                                id="lastName"
+                                name="lastName"
+                                value={values.lastName}
+                                onChange={handleChange}
+                                placeholder="example@domain.com"
+                                readOnly={isViewMode}
+                                onBlur={handleBlur}
+                                invalid={touched.lastName && !!errors.lastName}
+                            />
+                            {touched.lastName && errors.lastName && (
+                                <div className="text-danger">{errors.lastName}</div>
+                            )}
+                        </Grid>
+                    </Grid>
 
-                        <div className="d-flex justify-content-end">
-                            {!isViewMode && (
-                                <Button className="me-1" color="primary" type="submit" disabled={loading}>
-                                    {loading ? (
-                                        <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                    ) : (
-                                        editData ? "Update" : "Add"
-                                    )}
-                                </Button>
+                    <Grid container spacing={2} className='mb-2'>
+                        <Grid size={{ xs: 12, sm: 6, }}>
+                            <Label for="phoneNumber">
+                                Phone Number <span className="text-danger">*</span>
+                            </Label>
+                            <Input
+                                type="tel"
+                                id="phoneNumber"
+                                name="phoneNumber"
+                                value={values.phoneNumber}
+                                onChange={handleChange}
+                                placeholder="123-456-7890"
+                                readOnly={isViewMode}
+                                onBlur={handleBlur}
+                                invalid={
+                                    touched.phoneNumber && !!errors.phoneNumber
+                                }
+                            />
+                            {touched.phoneNumber && errors.phoneNumber && (
+                                <div className="text-danger">{errors.phoneNumber}</div>
                             )}
-                            <Button color="secondary" onClick={toggleSidebar} outline>
-                                Cancel
+                        </Grid>
+
+                        <Grid size={{ xs: 12, sm: 6, }}>
+                            <Label for="email">
+                                Email <span className="text-danger">*</span>
+                            </Label>
+                            <Input
+                                type="email"
+                                id="email"
+                                name="email"
+                                value={values.email}
+                                onChange={handleChange}
+                                placeholder="example@domain.com"
+                                readOnly={isViewMode}
+                                onBlur={handleBlur}
+                                invalid={touched.email && !!errors.email}
+                            />
+                            {touched.email && errors.email && (
+                                <div className="text-danger">{errors.email}</div>
+                            )}
+                        </Grid>
+                    </Grid>
+
+                    <Grid container spacing={2} className='mb-2'>
+                        <Grid size={{ xs: 12, sm: 6, }}>
+                            <Label for="position">Position</Label>
+                            <Input
+                                type="position"
+                                id="position"
+                                name="position"
+                                placeholder="Position"
+                                value={values.position}
+                                onChange={handleChange}
+                                readOnly={isViewMode}
+                            />
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6, }}>
+                            <Label for="gender">Gender</Label>
+                            <InputGroup>
+                                <InputGroupText>
+                                    <Input type="radio" name="gender" value="male" checked={values.gender === "male"} onChange={handleChange} readOnly={isViewMode} />
+                                    Male
+                                </InputGroupText>
+                                <InputGroupText>
+                                    <Input type="radio" name="gender" value="female" checked={values.gender === "female"} onChange={handleChange} readOnly={isViewMode} />
+                                    Female
+                                </InputGroupText>
+                                <InputGroupText>
+                                    <Input type="radio" name="gender" value="other" checked={values.gender === "other"} onChange={handleChange} readOnly={isViewMode} />
+                                    Other
+                                </InputGroupText>
+                            </InputGroup>
+                            {errors.gender && touched.gender && (
+                                <div className="text-danger">{errors.gender}</div>
+                            )}
+                        </Grid>
+                    </Grid>
+
+                    <Grid size={{ xs: 12, sm: 6, }} className='mb-2'>
+                        <Label for="address">Address</Label>
+                        <Input
+                            type="textarea"
+                            id="address"
+                            name="address"
+                            value={values.address}
+                            onChange={handleChange}
+                            placeholder="123 Main St, City"
+                            readOnly={isViewMode}
+                            onBlur={handleBlur}
+                            invalid={!!errors.address && touched.address}
+                        />
+                        {errors.address && touched.address && (
+                            <div className="text-danger">{errors.address}</div>
+                        )}
+                    </Grid>
+
+                    <Box className="d-flex justify-content-end">
+                        {!isViewMode && (
+                            <Button className="me-1" color="primary" type="submit" disabled={loading}>
+                                {loading ? (
+                                    <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                ) : (
+                                    editData ? "Update" : "Add"
+                                )}
                             </Button>
-                        </div>
-                    </div>
+                        )}
+                        <Button color="secondary" onClick={toggleSidebar} outline>
+                            Cancel
+                        </Button>
+                    </Box>
                 </Form>
             </Sidebar>
 
