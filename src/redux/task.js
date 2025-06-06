@@ -118,7 +118,7 @@ const taskSlice = createSlice({
       })
       .addCase(addTask.fulfilled, (state, action) => {
         state.loading = false;
-        state.data.push(action.payload);
+        state.data.push(action.payload.data);
       })
       .addCase(addTask.rejected, (state, action) => {
         state.loading = false;
