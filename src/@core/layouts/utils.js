@@ -1,6 +1,10 @@
 /* eslint-disable implicit-arrow-linebreak */
 // ** React Imports
 import { useContext } from "react";
+import Swal from "sweetalert2";
+import '@sweetalert2/theme-dark/dark.css';
+import { useSkin } from "@hooks/useSkin";
+
 // import { AbilityContext } from '@src/utility/context/Can'
 
 /**
@@ -80,6 +84,8 @@ export const hasActiveChild = (item, currentUrl) => {
  * @param openGroup
  * @param currentActiveGroup
  */
+
+
 export const removeChildren = (children, openGroup, currentActiveGroup) => {
   children.forEach((child) => {
     if (!currentActiveGroup.includes(child.id)) {
@@ -102,6 +108,7 @@ const checkForVisibleChild = (arr, userRole) => {
 };
 
 export const canViewMenuGroup = (item) => {
+
   const userData = JSON.parse(localStorage.getItem("userData"));
   const userRole = userData ? userData.role : null;
 
@@ -125,4 +132,20 @@ export const canViewMenuItem = (item) => {
     return true;
   }
   return item.roles.includes(userRole);
+};
+
+export const useSweetToast = () => {
+  const { skin } = useSkin();
+
+  const isDark = skin === "dark";
+
+  return Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    background: isDark ? "#202544" : "#ffffff",
+    color: isDark ? "#ffffff" : "#000000"
+  });
 };

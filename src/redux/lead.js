@@ -28,7 +28,7 @@ export const addLead = createAsyncThunk(
         try {
             const response = await axiosInstance.post('/leads/addLead', props)
             dispatch(getLeads({ page: 1, pageSize: 10 }))
-            return response.data
+            return response
         } catch (error) {
             return rejectWithValue(error.message)
         }
@@ -41,7 +41,7 @@ export const updateLead = createAsyncThunk(
         try {
             const response = await axiosInstance.put(`/leads/updateLeadById/${props?.updatedData?._id}`, props?.updatedData)
             dispatch(getLeads({ page: props?.paginationModel?.page + 1, pageSize: props?.paginationModel?.pageSize }))
-            return response.data
+            return response
         } catch (error) {
             return rejectWithValue(error.message)
         }

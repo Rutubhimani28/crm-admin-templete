@@ -17,7 +17,6 @@ export const getTasks = createAsyncThunk(
       const response = await axiosInstance.get(
         `/task/getTask/?page=${page}&limit=${pageSize}`
       );
-      console.log("response.data", response.data);
       return response.data;
     } catch (error) {
       throw new Error(error.message);
@@ -31,7 +30,7 @@ export const addTask = createAsyncThunk(
     try {
       const response = await axiosInstance.post("/task/addTask", props);
       dispatch(getTasks({ page: 1, pageSize: 10 }));
-      return response.data;
+      return response;
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -52,7 +51,7 @@ export const updateTask = createAsyncThunk(
           pageSize: props?.paginationModel?.pageSize,
         })
       );
-      return response.data;
+      return response;
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -103,7 +102,6 @@ const taskSlice = createSlice({
         state.error = null;
       })
       .addCase(getTasks.fulfilled, (state, action) => {
-        console.log(action.payload);
         state.loading = false;
         state.data = action.payload.tasks;
         state.total = action.payload.total;

@@ -27,7 +27,7 @@ export const addTeam = createAsyncThunk(
         try {
             const response = await axiosInstance.post('/team/addTeam', props)
             dispatch(getTeam({ page: 1, pageSize: 10 }))
-            return response.data
+            return response
         } catch (error) {
             return rejectWithValue(error.message)
         }
@@ -40,7 +40,7 @@ export const updateTeam = createAsyncThunk(
         try {
             const response = await axiosInstance.put(`/team/updateTeamById/${props?.updatedData?._id}`, props?.updatedData)
             dispatch(getTeam({ page: props?.paginationModel?.page + 1, pageSize: props?.paginationModel?.pageSize }))
-            return response.data
+            return response
         } catch (error) {
             return rejectWithValue(error.message)
         }

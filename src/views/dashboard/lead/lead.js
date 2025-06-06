@@ -12,6 +12,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { useSkin } from '@hooks/useSkin'
 import moment from "moment";
 import { Box, Grid } from "@mui/material";
+import { useSweetToast } from "../../../@core/layouts/utils";
 
 const Lead = () => {
     const navigate = useNavigate();
@@ -24,6 +25,7 @@ const Lead = () => {
     const [paginationModel, setPaginationModel] = useState({ pageSize: 10, page: 0 });
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedForDelete, setSelectedForDelete] = useState(null);
+    const SweetToast = useSweetToast();
 
     useEffect(() => {
         dispatch(getLeads({ page: paginationModel.page + 1, pageSize: paginationModel.pageSize }));
@@ -135,7 +137,7 @@ const Lead = () => {
         initialValues: editData || initialValues,
         validationSchema,
         enableReinitialize: true,
-        onSubmit: (values, { resetForm }) => {
+        onSubmit: async (values, { resetForm }) => {
             if (editData) {
                 const hasChanged = Object.keys(values).some(
                     key => values[key] !== editData[key]
@@ -147,9 +149,31 @@ const Lead = () => {
                     return;
                 }
                 const updatedData = { ...editData, ...values };
-                dispatch(updateLead({ updatedData, paginationModel }));
+                const res = await dispatch(updateLead({ updatedData, paginationModel }));
+                if (res.payload?.status === 200) {
+                    SweetToast.fire({
+                        icon: "success",
+                        title: res.payload.data.message,
+                    });
+                } else {
+                    SweetToast.fire({
+                        icon: "error",
+                        title: res.payload.data.message,
+                    });
+                }
             } else {
-                dispatch(addLead(values));
+                const res = await dispatch(addLead(values));
+                if (res.payload?.status === 201) {
+                    SweetToast.fire({
+                        icon: "success",
+                        title: res.payload.data.message,
+                    });
+                } else {
+                    SweetToast.fire({
+                        icon: "error",
+                        title: res.payload.data.message,
+                    });
+                }
             }
             resetForm();
             setEditData(null);

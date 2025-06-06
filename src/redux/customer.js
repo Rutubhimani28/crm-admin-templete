@@ -33,7 +33,7 @@ export const addCustomer = createAsyncThunk(
         props
       );
       dispatch(getCustomers({ page: 1, pageSize: 10 }));
-      return response.data;
+      return response;
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -54,7 +54,7 @@ export const updateCustomer = createAsyncThunk(
           pageSize: props?.paginationModel?.pageSize,
         })
       );
-      return response.data;
+      return response;
     } catch (error) {
       return rejectWithValue(error.message);
     }

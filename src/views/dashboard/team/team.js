@@ -10,6 +10,7 @@ import { addTeam, deleteTeam, getTeam, updateTeam } from "../../../redux/team";
 import { DataGrid } from "@mui/x-data-grid";
 import { useSkin } from '@hooks/useSkin'
 import { Box, Grid } from "@mui/material";
+import { useSweetToast } from "../../../@core/layouts/utils";
 
 
 const Team = () => {
@@ -26,6 +27,7 @@ const Team = () => {
     const [loading, setLoading] = useState(teamList?.loading);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedForDelete, setSelectedForDelete] = useState(null);
+    const SweetToast = useSweetToast();
 
     useEffect(() => {
         setLoading(true)
@@ -122,7 +124,7 @@ const Team = () => {
         initialValues: editData || initialValues,
         validationSchema,
         enableReinitialize: true,
-        onSubmit: (values, { resetForm }) => {
+        onSubmit: async (values, { resetForm }) => {
             try {
                 if (editData) {
                     const hasChanged = Object.keys(values).some(
@@ -135,9 +137,31 @@ const Team = () => {
                         return;
                     }
                     const updatedData = { ...editData, ...values };
-                    dispatch(updateTeam({ updatedData, paginationModel }));
+                    const res = await dispatch(updateTeam({ updatedData, paginationModel }));
+                    if (res.payload?.status === 200) {
+                        SweetToast.fire({
+                            icon: "success",
+                            title: res.payload.data.message,
+                        });
+                    } else {
+                        SweetToast.fire({
+                            icon: "error",
+                            title: res.payload.data.message,
+                        });
+                    }
                 } else {
-                    dispatch(addTeam(values));
+                    const res = await dispatch(addTeam(values));
+                    if (res.payload?.status === 201) {
+                        SweetToast.fire({
+                            icon: "success",
+                            title: res.payload.data.message,
+                        });
+                    } else {
+                        SweetToast.fire({
+                            icon: "error",
+                            title: res.payload.data.message,
+                        });
+                    }
                 }
                 resetForm();
                 setEditData(null);

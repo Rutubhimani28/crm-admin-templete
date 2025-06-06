@@ -24,7 +24,8 @@ import { DataGrid } from "@mui/x-data-grid";
 import { getContacts } from "../../../redux/contact";
 import { getLeads } from "../../../redux/lead";
 import { getTeam } from "../../../redux/team";
-import { getCustomers } from  "../../../redux/customer";
+import { getCustomers } from "../../../redux/customer";
+import { useSweetToast } from "../../../@core/layouts/utils";
 
 const Task = () => {
   const navigate = useNavigate();
@@ -46,6 +47,7 @@ const Task = () => {
   const leadList = useSelector((state) => state.lead?.data || []);
   const customerList = useSelector((state) => state.customer?.data);
   const teamList = useSelector((state) => state.team?.data);
+  const SweetToast = useSweetToast();
 
   const contactOptions = contactList?.map((contact) => ({
     label: `${contact.firstName} ${contact.lastName}`,
@@ -200,8 +202,7 @@ const Task = () => {
     initialValues: editData || initialValues,
     validationSchema,
     enableReinitialize: true,
-    onSubmit: (values, { resetForm }) => {
-      console.log("values", values);
+    onSubmit: async (values, { resetForm }) => {
       if (editData) {
         const hasChanged = Object.keys(values).some(
           (key) => values[key] !== editData[key]
@@ -213,10 +214,31 @@ const Task = () => {
           return;
         }
         const updatedData = { ...editData, ...values };
-        dispatch(updateTask({ updatedData, paginationModel }));
+        const res = await dispatch(updateTask({ updatedData, paginationModel }));
+        if (res.payload?.status === 200) {
+          SweetToast.fire({
+            icon: "success",
+            title: res.payload.data.message,
+          });
+        } else {
+          SweetToast.fire({
+            icon: "error",
+            title: res.payload.data.message,
+          });
+        }
       } else {
-        console.log("values", values);
-        dispatch(addTask(values));
+        const res = await dispatch(addTask(values));
+        if (res.payload?.status === 201) {
+          SweetToast.fire({
+            icon: "success",
+            title: res.payload.data.message,
+          });
+        } else {
+          SweetToast.fire({
+            icon: "error",
+            title: res.payload.data.message,
+          });
+        }
       }
       resetForm();
       setEditData(null);

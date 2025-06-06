@@ -29,9 +29,9 @@ export const addContact = createAsyncThunk(
     async (props, { dispatch, rejectWithValue }) => {
         try {
             const response = await axiosInstance.post('/contacts/addContact', props)
-            const data = await response.data
+            console.log("response ", response)
             dispatch(getContacts({ page: 1, pageSize: 10 }))
-            return data
+            return response
         } catch (error) {
             return rejectWithValue(error.message)
         }
@@ -42,9 +42,10 @@ export const updateContact = createAsyncThunk(
     async (props, { dispatch, rejectWithValue }) => {
         try {
             const response = await axiosInstance.put(`/contacts/updateContact/${props?.updatedData?._id}`, props?.updatedData)
-            const data = await response.data
+            console.log("response ", response.data)
+            // const data = await response.data
             dispatch(getContacts({ page: props?.paginationModel?.page + 1, pageSize: props?.paginationModel?.pageSize }))
-            return data
+            return response
         } catch (error) {
             return rejectWithValue(error.message)
         }
