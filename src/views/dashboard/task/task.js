@@ -1,333 +1,579 @@
-import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
-import { AgGridReact } from "ag-grid-react";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Button, Form, Input, InputGroup, InputGroupText, Label } from "reactstrap";
+import {
+  Button,
+  Col,
+  Form,
+  Input,
+  Label,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+} from "reactstrap";
 import Sidebar from "@components/sidebar";
-import { Formik, useFormik } from "formik";
-import { Edit, Eye, Trash } from "react-feather";
+import { useFormik } from "formik";
+import { Edit, Eye, Trash2 } from "react-feather";
 import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
-import { addCustomer, deleteCustomer, getCustomers, updateCustomer } from "../../../redux/customer";
 import moment from "moment";
-import Select, { components } from 'react-select'
 import { addTask, deleteTask, getTasks, updateTask } from "../../../redux/task";
-
-
-ModuleRegistry.registerModules([AllCommunityModule]);
+import { Box, Grid } from "@mui/material";
+import { useSkin } from "@hooks/useSkin";
+import { DataGrid } from "@mui/x-data-grid";
+import { getContacts } from "../../../redux/contact";
+import { getLeads } from "../../../redux/lead";
+import { getTeam } from "../../../redux/team";
+import { getCustomers } from "../../../redux/customer";
+import { useSweetToast } from "../../../@core/layouts/utils";
 
 const Task = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+  const { skin } = useSkin();
+  const dispatch = useDispatch();
+  const taskList = useSelector((state) => state?.task);
+  const userData = JSON.parse(localStorage.getItem("userData"));
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [editData, setEditData] = useState(null);
+  const [isViewMode, setIsViewMode] = useState(false);
+  const [rows, setRows] = useState([]);
+  const [paginationModel, setPaginationModel] = useState({
+    pageSize: 10,
+    page: 0,
+  });
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedForDelete, setSelectedForDelete] = useState(null);
+  const contactList = useSelector((state) => state.contact?.data);
+  const leadList = useSelector((state) => state.lead?.data || []);
+  const customerList = useSelector((state) => state.customer?.data);
+  const teamList = useSelector((state) => state.team?.data);
+  const SweetToast = useSweetToast();
 
-    const dispatch = useDispatch();
-    const taskList = useSelector((state) => state?.task?.data);
-    const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [rowData, setRowData] = useState([]);
-    const [editData, setEditData] = useState(null);
-    const [isViewMode, setIsViewMode] = useState(false);
+  const contactOptions = contactList?.map((contact) => ({
+    label: `${contact.firstName} ${contact.lastName}`,
+    value: contact._id,
+  }));
 
-    useEffect(() => {
-        dispatch(getTasks());
-    }, [dispatch]);
+  const leadOptions = leadList?.map((lead) => ({
+    label: `${lead.name} `,
+    value: lead._id,
+  }));
 
-    useEffect(() => {
-        if (taskList?.length) {
-            setRowData(taskList);
-        }
-    }, [taskList]);
+  const customerOptions = customerList?.map((customer) => ({
+    label: `${customer.name} `,
+    value: customer._id,
+  }));
 
-    const defaultColDef = useMemo(
-        () => ({
-            filter: true,
-            floatingFilter: false,
-            sortable: true,
-            resizable: true,
-            flex: 1,
-        }),
-        []
+  const teamOptions = teamList?.map((team) => ({
+    label: `${team.firstName} ${team.lastName}`,
+    value: team._id,
+  }));
+
+  useEffect(() => {
+    dispatch(
+      getTasks({
+        page: paginationModel.page + 1,
+        pageSize: paginationModel.pageSize,
+      })
     );
+    dispatch(
+      getContacts({
+        page: paginationModel.page + 1,
+        pageSize: paginationModel.pageSize,
+      })
+    );
+    dispatch(
+      getLeads({
+        page: paginationModel.page + 1,
+        pageSize: paginationModel.pageSize,
+      })
+    );
+    dispatch(
+      getCustomers({
+        page: paginationModel.page + 1,
+        pageSize: paginationModel.pageSize,
+      })
+    );
+    dispatch(
+      getTeam({
+        page: paginationModel.page + 1,
+        pageSize: paginationModel.pageSize,
+      })
+    );
+  }, [dispatch, paginationModel]);
 
+  useEffect(() => {
+    if (taskList?.data?.length) {
+      const dataWithId = taskList.data.map((item) => item.task || item);
 
-    const columnDefs = [
-        { field: "title", headerName: "Title" },
-        { field: "assignTo", headerName: "Assign To" },
-        {
-            field: "startDate",
-            headerName: "Start Date",
-            valueFormatter: (params) =>
-                params.value ? moment(params.value).format("YYYY-MM-DD") : ""
-        },
-        {
-            field: "deadLine",
-            headerName: "Deadline",
-            valueFormatter: (params) =>
-                params.value ? moment(params.value).format("YYYY-MM-DD") : ""
-        },
-        {
-            headerName: "Actions",
-            field: "actions",
-            filter: false,
-            cellRenderer: (params) => (
-                <div className="d-flex">
-                    <Button
-                        size="sm"
-                        className="me-1"
-                        onClick={() => handleEdit(params.data)}
-                    >
-                        <Edit size={14} className="me-20" />
-                    </Button>
-                    <Button
-                        size="sm"
-                        className="me-1"
-                        color=""
-                        onClick={() => handleView(params.data)}
-                    >
-                        <Eye size={14} className="me-20" />
-                    </Button>
-                    <Button
-                        size="sm"
-                        onClick={() => handleDelete(params.data)}
-                    >
-                        <Trash size={14} className="me-20" />
-                    </Button>
-                </div>
-            ),
-        },
-    ];
+      setRows(dataWithId);
+    }
+  }, [taskList]);
 
-    const initialValues = {
-        title: "",
-        description: "",
-        assignTo: "",
-        status: "",
-        priority: '',
-        startDate: '',
-        deadLine: ''
+  const columns = [
+    { field: "title", headerName: "Title", flex: 1 },
+    { field: "assignToName", headerName: "Assign To Name", flex: 1 },
+    { field: "status", headerName: "status", flex: 1 },
+    {
+      field: "startDate",
+      headerName: "Start Date",
+      flex: 1,
+      valueFormatter: (value) =>
+        value ? moment(value).format("DD/MM/YYYY") : "—",
+    },
+    {
+      field: "deadLine",
+      headerName: "dead Line",
+      flex: 1,
+      valueFormatter: (value) =>
+        value ? moment(value).format("DD/MM/YYYY") : "—",
+    },
+    {
+      field: "actions",
+      headerName: "Actions",
+      sortable: false,
+      filterable: false,
+      flex: 1,
 
-    };
-
-    const validationSchema = Yup.object().shape({
-        title: Yup.string().required("Title is required"),
-        description: Yup.string(),
-        assignTo: Yup.string().required("Assign To is required"),
-        status: Yup.string(),
-        priority: Yup.string(),
-        startDate: Yup.date(),
-        deadLine: Yup.date(),
-    });
-
-    const formik = useFormik({
-        initialValues: editData || initialValues,
-        validationSchema,
-        enableReinitialize: true, // important to update form when editData changes
-        onSubmit: (values, { resetForm }) => {
-            if (editData) {
-                const updatedData = { ...editData, ...values };
-                dispatch(updateTask(updatedData));
-            } else {
-                dispatch(addTask(values));
-            }
-            resetForm();
-            setEditData(null);
-            toggleSidebar();
-        },
-    });
-
-    const { handleSubmit, values, errors, touched, handleChange, handleBlur } = formik;
-
-    const toggleSidebar = () => {
-        setSidebarOpen(!sidebarOpen);
-        setEditData(null);
-        setIsViewMode(false);
-        formik.resetForm();
-    };
-
-    const handleEdit = (data) => {
-        const formattedData = {
-            ...data,
-            startDate: data.startDate
-                ? moment(data.startDate).format("YYYY-MM-DD")
-                : ""
-            ,
-            deadLine: data.deadLine
-                ? moment(data.deadLine).format("YYYY-MM-DD")
-                : "",
-        };
-        setEditData(formattedData);
-        setIsViewMode(false);
-
-        setSidebarOpen(true);
-    };
-
-    const handleDelete = (data) => {
-        dispatch(deleteTask (data));
-    };
-
-    const handleView = (data) => {
-        navigate(`/task/taskView/${data._id}`);
-    };
-
-    const statusOptions = [
-        { value: "active", label: "Active" },
-        { value: "inactive", label: "Inactive" },
-        { value: "archived", label: "Archived" },
-        { value: "pending", label: "Pending" },
-        { value: "completed", label: "Completed" },
-        { value: "cancelled", label: "Cancelled" }
-    ];
-
-    return (
-        <>
-            <div className="mb-2 text-end">
-                <Button color="primary" onClick={toggleSidebar}>
-                    Add Task 
-                </Button>
-            </div>
-
-            <div style={{ height: 500, width: "100%" }}>
-                <AgGridReact
-                    rowData={rowData}
-                    columnDefs={columnDefs}
-                    defaultColDef={defaultColDef}
-                    pagination={true}
-                    paginationPageSize={10}
-                    paginationPageSizeSelector={[10, 20, 50, 100]}
-                />
-            </div>
-
-            <Sidebar
-                open={sidebarOpen}
-                toggleSidebar={toggleSidebar}
-                title={editData ? "Update Task" : "Add Task"}
-                size="xl"
+      renderCell: (params) => {
+        const data = params.row;
+        return (
+          <div style={{ display: "flex", marginTop: "7px" }}>
+            <Button
+              variant="outlined"
+              size="small"
+              style={{ padding: "2px" }}
+              color=""
+              onClick={() => {
+                handleEdit(data);
+              }}
             >
-                <Form onSubmit={handleSubmit}>
-                    <div className="container">
-                        <div className="row">
-                            <div className="col mb-2">
-                                <Label for="title">
-                                    Title <span className="text-danger">*</span>
-                                </Label>
-                                <Input
-                                    id="title"
-                                    name="title"
-                                    value={values.title}
-                                    onChange={handleChange}
-                                    placeholder="Title"
-                                    readOnly={isViewMode}
-                                    onBlur={handleBlur}
-                                    invalid={touched.title && !!errors.title}
-                                />
-                                {touched.title && errors.title && (
-                                    <div className="text-danger">{errors.title}</div>
-                                )}
-                            </div>
-                            <div className="col mb-2">
-                                <Label for="assignTo">
-                                    AssignTo <span className="text-danger">*</span>
-                                </Label>
-                                <Input
-                                    id="assignTo"
-                                    name="assignTo"
-                                    value={values.assignTo}
-                                    onChange={handleChange}
-                                    placeholder="AssignTo"
-                                    readOnly={isViewMode}
-                                    onBlur={handleBlur}
-                                    invalid={touched.assignTo && !!errors.assignTo}
-                                />
-                                {touched.assignTo && errors.assignTo && (
-                                    <div className="text-danger">{errors.assignTo}</div>
-                                )}
-                            </div>
-                        </div>
+              <Edit size={20} color="green" />
+            </Button>
+            <Button
+              variant="contained"
+              color=""
+              size="small"
+              style={{ padding: "4px" }}
+              onClick={() => navigate(`/task/taskView/${data._id}`)}
+            >
+              <Eye size={20} color={skin === "light" ? "blue" : "white"} />
+            </Button>
 
-                        <div className="row">
-                            <div className="col mb-2">
-                                <Label for="status">Status</Label>
-                                <Select
-                                    id="status"
-                                    name="status"
-                                    options={statusOptions}
-                                    value={statusOptions.find((option) => option.value === values.status) || null}
-                                    onChange={(selectedOption) => formik.setFieldValue("status", selectedOption?.value)}
-                                    onBlur={() => formik.setFieldTouched("status", true)}
-                                    isDisabled={isViewMode}
-                                    classNamePrefix="react-select"
-                                />
-                            </div>
-                            <div className="col mb-2">
-                                <Label for="priority">Priority</Label>
-                                <Input
-                                    id="priority"
-                                    name="priority"
-                                    value={values.priority}
-                                    onChange={handleChange}
-                                    placeholder="Priority"
-                                    readOnly={isViewMode}
-                                />
-                            </div>
-                        </div>
+            <Button
+              variant="contained"
+              color="error"
+              size="small"
+              style={{ padding: "2px" }}
+              onClick={() => dispatch(() => openDeleteModal(data))}
+            >
+              <Trash2 size={20} color="red" />
+            </Button>
+          </div>
+        );
+      },
+    },
+  ];
 
-                        <div className="row">
-                            <div className="col mb-2">
-                                <Label for="startDate">Start Date</Label>
-                                <Input
-                                    type="date"
-                                    id="startDate"
-                                    name="startDate"
-                                    value={values.startDate}
-                                    onChange={handleChange}
-                                    readOnly={isViewMode}
-                                    onBlur={handleBlur}
-                                    invalid={!!errors.startDate && touched.startDate}
-                                />
-                            </div>
-                            <div className="col mb-2">
-                                <Label for="deadLine">DeadLine Date</Label>
-                                <Input
-                                    type="date"
-                                    id="deadLine"
-                                    name="deadLine"
-                                    value={values.deadLine}
-                                    onChange={handleChange}
-                                    readOnly={isViewMode}
-                                    onBlur={handleBlur}
-                                    invalid={!!errors.deadLine && touched.deadLine}
-                                />
-                            </div>
+  const initialValues = {
+    title: "",
+    description: "",
+    assignToContactId: "",
+    assignToLeadId: "",
+    assignToCustomerId: "",
+    assignToTeamId: "",
+    status: "",
+    priority: "",
+    startDate: "",
+    deadLine: "",
+    related: "none",
+  };
 
-                        </div>
-                        <div className=" mb-2">
-                            <Label for="description">Description</Label>
-                            <Input
-                                type="textarea"
-                                id="description"
-                                name="description"
-                                value={values.description}
-                                onChange={handleChange}
-                                placeholder="123 Main St, City"
-                                readOnly={isViewMode}
-                                onBlur={handleBlur}
-                                invalid={!!errors.description && touched.description}
-                            />
-                        </div>
+  const validationSchema = Yup.object().shape({
+    title: Yup.string().required("Title is required"),
+    description: Yup.string(),
+    status: Yup.string(),
+    priority: Yup.string(),
+    startDate: Yup.date(),
+    deadLine: Yup.date(),
+  });
 
-                        <div className="d-flex justify-content-end">
-                            {!isViewMode && (
-                                <Button className="me-1" color="primary" type="submit">
-                                    {editData ? "Update" : "Add"}
-                                </Button>
-                            )}
-                            <Button color="secondary" onClick={toggleSidebar} outline>
-                                Cancel
-                            </Button>
-                        </div>
-                    </div>
-                </Form>
-            </Sidebar>
-        </>
-    );
+  const formik = useFormik({
+    initialValues: editData || initialValues,
+    validationSchema,
+    enableReinitialize: true,
+    onSubmit: async (values, { resetForm }) => {
+      if (editData) {
+        const hasChanged = Object.keys(values).some(
+          (key) => values[key] !== editData[key]
+        );
+        if (!hasChanged) {
+          toggleSidebar();
+          resetForm();
+          setEditData(null);
+          return;
+        }
+        const updatedData = { ...editData, ...values };
+        const res = await dispatch(updateTask({ updatedData, paginationModel }));
+        if (res.payload?.status === 200) {
+          SweetToast.fire({
+            icon: "success",
+            title: res.payload.data.message,
+          });
+        } else {
+          SweetToast.fire({
+            icon: "error",
+            title: res.payload.data.message,
+          });
+        }
+      } else {
+        const res = await dispatch(addTask(values));
+        if (res.payload?.status === 201) {
+          SweetToast.fire({
+            icon: "success",
+            title: res.payload.data.message,
+          });
+        } else {
+          SweetToast.fire({
+            icon: "error",
+            title: res.payload.data.message,
+          });
+        }
+      }
+      resetForm();
+      setEditData(null);
+      toggleSidebar();
+    },
+  });
+
+  const { handleSubmit, values, errors, touched, handleChange, handleBlur } =
+    formik;
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+    setEditData(null);
+    setIsViewMode(false);
+    formik.resetForm();
+  };
+
+  const handleEdit = (data) => {
+    let related = "none";
+    let assignToContactId = "";
+    let assignToLeadId = "";
+
+    if (data.assignToContactId) {
+      related = "contact";
+      assignToContactId = data.assignToContactId;
+    } else if (data.assignToLeadId) {
+      related = "lead";
+      assignToLeadId = data.assignToLeadId;
+    }
+
+    const formattedData = {
+      ...data,
+      related,
+      assignToContactId,
+      assignToLeadId,
+      startDate: data.startDate
+        ? moment(data.startDate).format("YYYY-MM-DD")
+        : "",
+      deadLine: data.deadLine ? moment(data.deadLine).format("YYYY-MM-DD") : "",
+    };
+
+    setEditData(formattedData);
+    setIsViewMode(false);
+    setSidebarOpen(true);
+  };
+
+  const openDeleteModal = (rowData) => {
+    setSelectedForDelete(rowData);
+    setIsDeleteModalOpen(true);
+  };
+
+  const closeDeleteModal = () => {
+    setSelectedForDelete(null);
+    setIsDeleteModalOpen(false);
+  };
+
+  const confirmDelete = () => {
+    try {
+      if (selectedForDelete) {
+        dispatch(deleteTask({ selectedForDelete, paginationModel }));
+      }
+      closeDeleteModal();
+    } catch (error) {
+      console.error("Error deleting team:", error);
+    }
+  };
+
+  return (
+    <>
+      {userData.role === "admin" && (
+        <Box className="mb-2 text-end">
+          <Button color="primary" onClick={toggleSidebar}>
+            Add Task
+          </Button>
+        </Box>
+      )}
+
+      <Box style={{ height: 635, width: "100%" }}>
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          pagination
+          paginationMode="server"
+          paginationModel={paginationModel}
+          onPaginationModelChange={setPaginationModel}
+          pageSizeOptions={[5, 10, 20]}
+          rowCount={taskList?.total || 0}
+          disableRowSelectionOnClick
+          getRowId={(row) => row._id}
+        />
+      </Box>
+
+      <Sidebar
+        open={sidebarOpen}
+        toggleSidebar={toggleSidebar}
+        title={editData ? "Update Task" : "Add Task"}
+        size="xl"
+      >
+        <Form onSubmit={handleSubmit} className="mt-2">
+          <Grid container spacing={2} className="mb-2">
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label for="title">
+                Title <span className="text-danger">*</span>
+              </Label>
+              <Input
+                id="title"
+                name="title"
+                value={values.title}
+                onChange={handleChange}
+                placeholder="Title"
+                readOnly={isViewMode}
+                onBlur={handleBlur}
+                invalid={touched.title && !!errors.title}
+              />
+              {touched.title && errors.title && (
+                <div className="text-danger">{errors.title}</div>
+              )}
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label for="related">Related</Label>
+              <Input
+                type="select"
+                id="related"
+                name="related"
+                value={values.related}
+                onChange={handleChange}
+                readOnly={isViewMode}
+              >
+                <option value="none">None</option>
+                <option value="contact">Contact</option>
+                <option value="lead">Lead</option>
+                <option value="customer">Customer</option>
+                <option value="team">team</option>
+              </Input>
+              {errors.related && touched.related && (
+                <div className="text-danger">{errors.related}</div>
+              )}
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              {values.related === "contact" && (
+                <>
+                  <Label for="assignTo">Assign To Contact</Label>
+                  <Input
+                    type="select"
+                    id="assignToContactId"
+                    name="assignToContactId"
+                    value={values.assignToContactId}
+                    onChange={handleChange}
+                    disabled={isViewMode}
+                  >
+                    <option value="">Select Contact</option>
+                    {contactOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </Input>
+                </>
+              )}
+
+              {values.related === "lead" && (
+                <>
+                  <Label for="assignTo">Assign To Lead</Label>
+                  <Input
+                    type="select"
+                    id="assignToLeadId"
+                    name="assignToLeadId"
+                    value={values.assignToLeadId}
+                    onChange={handleChange}
+                    disabled={isViewMode}
+                  >
+                    <option value="">Select Lead</option>
+                    {leadOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </Input>
+                </>
+              )}
+              {values.related === "team" && (
+                <>
+                  <Label for="assignTo">Assign To Team</Label>
+                  <Input
+                    type="select"
+                    id="assignToTeamId"
+                    name="assignToTeamId"
+                    value={values.assignToTeamId}
+                    onChange={handleChange}
+                    disabled={isViewMode}
+                  >
+                    <option value="">Select Team</option>
+                    {teamOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </Input>
+                </>
+              )}
+              {values.related === "customer" && (
+                <>
+                  <Label for="assignTo">Assign To Customer</Label>
+                  <Input
+                    type="select"
+                    id="assignToCustomerId"
+                    name="assignToCustomerId"
+                    value={values.assignToCustomerId}
+                    onChange={handleChange}
+                    disabled={isViewMode}
+                  >
+                    <option value="">Select Customer</option>
+                    {customerOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </Input>
+                </>
+              )}
+
+              {touched.assignTo && errors.assignTo && (
+                <div className="text-danger">{errors.assignTo}</div>
+              )}
+            </Grid>
+          </Grid>
+
+          <Grid container spacing={2} className="mb-2">
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Col sm={12}>
+                <Label for="status">Status</Label>
+                <Input
+                  id="status"
+                  name="status"
+                  type="select"
+                  value={formik.values.status}
+                  onChange={formik.handleChange}
+                >
+                  <option value="">Select Status</option>
+                  <option value="Active">Active</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Inactive">Inactive</option>
+                  <option value="Completed">Completed</option>
+                </Input>
+              </Col>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label for="priority">Priority</Label>
+              <Input
+                id="priority"
+                name="priority"
+                value={values.priority}
+                onChange={handleChange}
+                placeholder="Priority"
+                readOnly={isViewMode}
+              />
+            </Grid>
+          </Grid>
+
+          <Grid container spacing={2} className="mb-2">
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label for="startDate">Start Date</Label>
+              <Input
+                type="date"
+                id="startDate"
+                name="startDate"
+                value={values.startDate}
+                onChange={handleChange}
+                readOnly={isViewMode}
+                onBlur={handleBlur}
+                invalid={!!errors.startDate && touched.startDate}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label for="deadLine">DeadLine Date</Label>
+              <Input
+                type="date"
+                id="deadLine"
+                name="deadLine"
+                value={values.deadLine}
+                onChange={handleChange}
+                readOnly={isViewMode}
+                onBlur={handleBlur}
+                invalid={!!errors.deadLine && touched.deadLine}
+              />
+            </Grid>
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6 }} className="mb-2">
+            <Label for="description">Description</Label>
+            <Input
+              type="textarea"
+              id="description"
+              name="description"
+              value={values.description}
+              onChange={handleChange}
+              placeholder="123 Main St, City"
+              readOnly={isViewMode}
+              onBlur={handleBlur}
+              invalid={!!errors.description && touched.description}
+            />
+          </Grid>
+
+          <Box className="d-flex justify-content-end">
+            {!isViewMode && (
+              <Button className="me-1" color="primary" type="submit">
+                {editData ? "Update" : "Add"}
+              </Button>
+            )}
+            <Button color="secondary" onClick={toggleSidebar} outline>
+              Cancel
+            </Button>
+          </Box>
+        </Form>
+      </Sidebar>
+
+      <Modal isOpen={isDeleteModalOpen} toggle={closeDeleteModal}>
+        <ModalHeader toggle={closeDeleteModal}>Confirm Deletion</ModalHeader>
+        <ModalBody>
+          Are you sure you want to delete{" "}
+          <strong>
+            {selectedForDelete?.firstName} {selectedForDelete?.lastName}
+          </strong>
+          ?
+        </ModalBody>
+        <ModalFooter>
+          <Button color="danger" onClick={confirmDelete}>
+            Yes, Delete
+          </Button>
+          <Button color="secondary" onClick={closeDeleteModal}>
+            Cancel
+          </Button>
+        </ModalFooter>
+      </Modal>
+    </>
+  );
 };
 
 export default Task;

@@ -4,14 +4,17 @@ import axiosInstance from '../auth/axiosInstance'
 const initialState = {
     data: [],
     loading: false,
-    error: null
+    error: null,
+    total: 0,
+    page: 1,
+    totalPages: 0
 }
 
 export const getLeads = createAsyncThunk(
     'lead/getLeads',
-    async () => {
+    async ({ page = 1, pageSize = 10 }, { rejectWithValue }) => {
         try {
-            const response = await axiosInstance.get('/leads/getAllLeads')
+            const response = await axiosInstance.get(`/leads/getAllLeads/?page=${page}&limit=${pageSize}`)
             return response.data
         } catch (error) {
             throw new Error(error.message)
@@ -21,11 +24,11 @@ export const getLeads = createAsyncThunk(
 
 export const addLead = createAsyncThunk(
     'lead/addLead',
-    async (lead, { dispatch, rejectWithValue }) => {
+    async (props, { dispatch, rejectWithValue }) => {
         try {
-            const response = await axiosInstance.post('/leads/addLead', lead)
-            dispatch(getLeads())
-            return response.data
+            const response = await axiosInstance.post('/leads/addLead', props)
+            dispatch(getLeads({ page: 1, pageSize: 10 }))
+            return response
         } catch (error) {
             return rejectWithValue(error.message)
         }
@@ -34,11 +37,11 @@ export const addLead = createAsyncThunk(
 
 export const updateLead = createAsyncThunk(
     'lead/updateLead',
-    async (lead, { dispatch, rejectWithValue }) => {
+    async (props, { dispatch, rejectWithValue }) => {
         try {
-            const response = await axiosInstance.put(`/leads/updateLeadById/${lead._id}`, lead)
-            dispatch(getLeads())
-            return response.data
+            const response = await axiosInstance.put(`/leads/updateLeadById/${props?.updatedData?._id}`, props?.updatedData)
+            dispatch(getLeads({ page: props?.paginationModel?.page + 1, pageSize: props?.paginationModel?.pageSize }))
+            return response
         } catch (error) {
             return rejectWithValue(error.message)
         }
@@ -49,10 +52,10 @@ export const updateLead = createAsyncThunk(
 
 export const deleteLead = createAsyncThunk(
     'lead/deleteLead',
-    async (lead, { dispatch, rejectWithValue }) => {
+    async (props, { dispatch, rejectWithValue }) => {
         try {
-            const response = await axiosInstance.delete(`/leads/deleteLeadById/${lead?._id}`)
-            dispatch(getLeads())
+            const response = await axiosInstance.delete(`/leads/deleteLeadById/${props?.selectedForDelete?._id}`)
+            dispatch(getLeads({ page: props?.paginationModel?.page + 1, pageSize: props?.paginationModel?.pageSize }))
             return response.data
         } catch (error) {
             return rejectWithValue(error.message)
@@ -85,7 +88,10 @@ const leadSlice = createSlice({
             })
             .addCase(getLeads.fulfilled, (state, action) => {
                 state.loading = false
-                state.data = action.payload
+                state.data = action.payload.leads;
+                state.total = action.payload.total;
+                state.page = action.payload.page;
+                state.totalPages = action.payload.totalPages;
             })
             .addCase(getLeads.rejected, (state, action) => {
                 state.loading = false

@@ -23,11 +23,11 @@ export const getTeam = createAsyncThunk(
 
 export const addTeam = createAsyncThunk(
     'team/addTeam',
-    async (team, { dispatch, rejectWithValue }) => {
+    async (props, { dispatch, rejectWithValue }) => {
         try {
-            const response = await axiosInstance.post('/team/addTeam', team)
+            const response = await axiosInstance.post('/team/addTeam', props)
             dispatch(getTeam({ page: 1, pageSize: 10 }))
-            return response.data
+            return response
         } catch (error) {
             return rejectWithValue(error.message)
         }
@@ -36,11 +36,11 @@ export const addTeam = createAsyncThunk(
 
 export const updateTeam = createAsyncThunk(
     'team/updateTeam',
-    async (team, { dispatch, rejectWithValue }) => {
+    async (props, { dispatch, rejectWithValue }) => {
         try {
-            const response = await axiosInstance.put(`/team/updateTeamById/${team._id}`, team)
-            dispatch(getTeam({ page: 1, pageSize: 10 }))
-            return response.data
+            const response = await axiosInstance.put(`/team/updateTeamById/${props?.updatedData?._id}`, props?.updatedData)
+            dispatch(getTeam({ page: props?.paginationModel?.page + 1, pageSize: props?.paginationModel?.pageSize }))
+            return response
         } catch (error) {
             return rejectWithValue(error.message)
         }
@@ -63,7 +63,6 @@ export const deleteTeam = createAsyncThunk(
 export const viewTeam = createAsyncThunk(
     'team/viewTeam',
     async (_id, { rejectWithValue }) => {
-        console.log('viewTeam thunk called')
         try {
             const response = await axiosInstance.get(`/team/viewTeamById/${_id?._id}`)
             const data = await response.data

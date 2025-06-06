@@ -1,26 +1,30 @@
 /* eslint-disable implicit-arrow-linebreak */
 // ** React Imports
-import { useContext } from 'react'
+import { useContext } from "react";
+import Swal from "sweetalert2";
+import '@sweetalert2/theme-dark/dark.css';
+import { useSkin } from "@hooks/useSkin";
+
 // import { AbilityContext } from '@src/utility/context/Can'
 
 /**
  * Return which component to render based on it's data/context
  * @param {Object} item nav menu item
  */
-export const resolveVerticalNavMenuItemComponent = item => {
-  if (item.header) return 'VerticalNavMenuSectionHeader'
-  if (item.children) return 'VerticalNavMenuGroup'
-  return 'VerticalNavMenuLink'
-}
+export const resolveVerticalNavMenuItemComponent = (item) => {
+  if (item.header) return "VerticalNavMenuSectionHeader";
+  if (item.children) return "VerticalNavMenuGroup";
+  return "VerticalNavMenuLink";
+};
 
 /**
  * Return which component to render based on it's data/context
  * @param {Object} item nav menu item
  */
-export const resolveHorizontalNavMenuItemComponent = item => {
-  if (item.children) return 'HorizontalNavMenuGroup'
-  return 'HorizontalNavMenuLink'
-}
+export const resolveHorizontalNavMenuItemComponent = (item) => {
+  if (item.children) return "HorizontalNavMenuGroup";
+  return "HorizontalNavMenuLink";
+};
 
 /**
  * Check if nav-link is active
@@ -29,10 +33,13 @@ export const resolveHorizontalNavMenuItemComponent = item => {
 export const isNavLinkActive = (link, currentURL, routerProps) => {
   return (
     currentURL === link ||
-    (routerProps && routerProps.meta && routerProps.meta.navLink && routerProps.meta.navLink === link)
-  )
+    (routerProps &&
+      routerProps.meta &&
+      routerProps.meta.navLink &&
+      routerProps.meta.navLink === link)
+  );
   // return currentURL === link
-}
+};
 
 /**
  * Check if the given item has the given url
@@ -42,27 +49,32 @@ export const isNavLinkActive = (link, currentURL, routerProps) => {
  * @param activeItem
  */
 export const hasActiveChild = (item, currentUrl) => {
-  const { children } = item
+  const { children } = item;
 
   if (!children) {
-    return false
+    return false;
   }
 
   for (const child of children) {
     if (child.children) {
       if (hasActiveChild(child, currentUrl)) {
-        return true
+        return true;
       }
     }
 
     // Check if the child has a link and is active
-    if (child && child.navLink && currentUrl && (child.navLink === currentUrl || currentUrl.includes(child.navLink))) {
-      return true
+    if (
+      child &&
+      child.navLink &&
+      currentUrl &&
+      (child.navLink === currentUrl || currentUrl.includes(child.navLink))
+    ) {
+      return true;
     }
   }
 
-  return false
-}
+  return false;
+};
 
 /**
  * Check if this is a children
@@ -72,42 +84,68 @@ export const hasActiveChild = (item, currentUrl) => {
  * @param openGroup
  * @param currentActiveGroup
  */
+
+
 export const removeChildren = (children, openGroup, currentActiveGroup) => {
-  children.forEach(child => {
+  children.forEach((child) => {
     if (!currentActiveGroup.includes(child.id)) {
-      const index = openGroup.indexOf(child.id)
-      if (index > -1) openGroup.splice(index, 1)
-      if (child.children) removeChildren(child.children, openGroup, currentActiveGroup)
+      const index = openGroup.indexOf(child.id);
+      if (index > -1) openGroup.splice(index, 1);
+      if (child.children)
+        removeChildren(child.children, openGroup, currentActiveGroup);
     }
-  })
-}
+  });
+};
 
-const checkForVisibleChild = (arr, ability) => {
-  return arr.some(i => {
+const checkForVisibleChild = (arr, userRole) => {
+  return arr.some((i) => {
     if (i.children) {
-      return checkForVisibleChild(i.children, ability)
+      return checkForVisibleChild(i.children, userRole);
     } else {
-      return ability.can(i.action, i.resource)
+      return i.roles && i.roles.includes(userRole);
     }
-  })
-}
+  });
+};
 
-export const canViewMenuGroup = item => {
-  // const ability = useContext(AbilityContext)
-  // ! This same logic is used in canViewHorizontalNavMenuGroup and canViewHorizontalNavMenuHeaderGroup. So make sure to update logic in them as well
-  // const hasAnyVisibleChild = item.children && checkForVisibleChild(item.children, ability)
+export const canViewMenuGroup = (item) => {
 
-  // ** If resource and action is defined in item => Return based on children visibility (Hide group if no child is visible)
-  // ** Else check for ability using provided resource and action along with checking if has any visible child
-  // if (!(item.action && item.resource)) {
-  //   return hasAnyVisibleChild
-  // }
-  // return ability.can(item.action, item.resource) && hasAnyVisibleChild
-  return true
-}
+  const userData = JSON.parse(localStorage.getItem("userData"));
+  const userRole = userData ? userData.role : null;
 
-export const canViewMenuItem = item => {
-  // const ability = useContext(AbilityContext)
-  // return ability.can(item.action, item.resource)
-  return true
-}
+  if (!userRole) return false;
+
+  const hasAnyVisibleChild =
+    item.children && checkForVisibleChild(item.children, userRole);
+
+  if (!item.roles) {
+    return hasAnyVisibleChild;
+  }
+  return item.roles.includes(userRole) && hasAnyVisibleChild;
+};
+
+export const canViewMenuItem = (item) => {
+  const userData = JSON.parse(localStorage.getItem("userData"));
+  const userRole = userData ? userData.role : null;
+
+  if (!userRole) return false;
+  if (!item.roles) {
+    return true;
+  }
+  return item.roles.includes(userRole);
+};
+
+export const useSweetToast = () => {
+  const { skin } = useSkin();
+
+  const isDark = skin === "dark";
+
+  return Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    background: isDark ? "#202544" : "#ffffff",
+    color: isDark ? "#ffffff" : "#000000"
+  });
+};

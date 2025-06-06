@@ -1,101 +1,89 @@
 import React, { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Button, Label, Input, Form, Card } from "reactstrap";
+import { Button, Label, Card } from "reactstrap";
 import { useDispatch, useSelector } from "react-redux";
-import { contactView } from "../../../redux/contact";
 import moment from "moment/moment";
 import { viewTask } from "../../../redux/task";
-
+import { Box, Grid } from "@mui/material";
+import { ChevronLeft } from "react-feather";
 
 const TaskView = () => {
-    const { id } = useParams();
-    const navigate = useNavigate();
-    const dispatch = useDispatch();
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-    // Access redux state
-    const taskList = useSelector((state) => state?.task?.data);
+  const taskList = useSelector((state) => state?.task?.data);
 
-    useEffect(() => {
-        if (id) {
-            dispatch(viewTask({ _id: id }));
-        }
-    }, [id, dispatch]);
-
-    // if (loading) {
-    //     return <p>Loading contact data...</p>;
-    // }
-
-    // if (error) {
-    //     return <p>Error loading contact: {error}</p>;
-    // }
-
-    if (!taskList) {
-        return <p>No task data found.</p>;
+  useEffect(() => {
+    if (id) {
+      dispatch(viewTask({ _id: id }));
     }
+  }, [id, dispatch]);
 
-    // Destructure with fallback values to avoid undefined errors
-    const {
-        title = "",
-        description = "",
-        assignTo = "",
-        status = "",
-        priority = '',
-        startDate = '',
-        deadLine = ''
-    } = taskList;
+  if (!taskList) {
+    return <p>No task data found.</p>;
+  }
 
-    return (
-        <Card>
-            <div className="container mt-3">
-                <h3>View Task</h3>
-                <Form>
-                    <div className="row">
-                        <div className="col mb-2">
-                            <Label>Title</Label>
-                            <Input value={title} readOnly />
-                        </div>
-                        <div className="col mb-2">
-                            <Label>description</Label>
-                            <Input value={description} readOnly />
-                        </div>
-                    </div>
-                    <div className="row">
-                        <div className="col mb-2">
-                            <Label>assignTo</Label>
-                            <Input value={assignTo} readOnly />
-                        </div>
-                        <div className="col mb-2">
-                            <Label>status</Label>
-                            <Input value={status} readOnly />
-                        </div>
-                    </div>
-                    <div className="row">
-                        <div className="col mb-2">
-                            <Label>priority</Label>
-                            <Input value={priority} readOnly />
-                        </div>
-                    </div>
+  const {
+    title = "",
+    description = "",
+    assignToName = "",
+    status = "",
+    priority = "",
+    startDate = "",
+    deadLine = "",
+    related = "",
+  } = taskList;
 
-                    <div className="row">
-                        <div className="col mb-2">
-                            <Label>startDate</Label>
-                            <Input value={moment(startDate).format("DD-MM-YYYY")} readOnly />
-                        </div>
-                        <div className="col mb-2">
-                            <Label>deadLine</Label>
-                            <Input value={moment(deadLine).format("DD-MM-YYYY")} readOnly />
-                        </div>
-                    </div>
-
-                    <div className="mb-2">
-                        <Button color="secondary" onClick={() => navigate(-1)}>
-                            Back
-                        </Button>
-                    </div>
-                </Form>
-            </div>
-        </Card>
-    );
+  return (
+    <>
+      <Box className="d-flex justify-content-between align-items-center mt-1 mb-1">
+        <h3>View Task</h3>
+        <Button color="primary" onClick={() => navigate(-1)}>
+          <ChevronLeft className="mr-2" />
+          Back
+        </Button>
+      </Box>
+      <Card>
+        <Box className="p-2">
+          <Grid container columnSpacing={{ xs: 1 }}>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label className="fs-6 fw-bold">Title: </Label>
+              <p>{title || "-"}</p>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label className="fs-6 fw-bold">Description: </Label>
+              <p>{description || "-"}</p>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label className="fs-6 fw-bold">Assigned To: </Label>
+              <p>{assignToName || "-"}</p>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label className="fs-6 fw-bold">Related To: </Label>
+              <p>{related || "-"}</p>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label className="fs-6 fw-bold">Status: </Label>
+              <p>{status || "-"}</p>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label className="fs-6 fw-bold">Priority: </Label>
+              <p>{priority || "-"}</p>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label className="fs-6 fw-bold">Start Date: </Label>
+              <p>{moment(startDate).format("YYYY-MM-DD") || "-"}</p>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label className="fs-6 fw-bold">Deadline: </Label>
+              <p>{moment(deadLine).format("YYYY-MM-DD") || "-"}</p>
+            </Grid>
+          </Grid>
+        </Box>
+      </Card>
+    </>
+  );
 };
 
 export default TaskView;

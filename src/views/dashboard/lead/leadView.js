@@ -1,138 +1,140 @@
 import React, { useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { Button, Label, Input, Form, Card } from "reactstrap";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { Button, Label, Card } from "reactstrap";
 import { useDispatch, useSelector } from "react-redux";
-import { contactView } from "../../../redux/contact";
 import moment from "moment/moment";
 import { viewLead } from "../../../redux/lead";
-
+import { Box, Grid } from "@mui/material";
+import { ChevronLeft } from "react-feather";
 
 const LeadView = () => {
-    const { id } = useParams();
-    const navigate = useNavigate();
-    const dispatch = useDispatch();
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-    // Access redux state
-    const lead = useSelector(state => state?.lead?.data); // Adjust slice name
+  const lead = useSelector((state) => state?.lead?.data);
 
-    useEffect(() => {
-        if (id) {
-            dispatch(viewLead({ _id: id }));
-        }
-    }, [id, dispatch]);
-
-    // if (loading) {
-    //     return <p>Loading contact data...</p>;
-    // }
-
-    // if (error) {
-    //     return <p>Error loading contact: {error}</p>;
-    // }
-
-    if (!lead) {
-        return <p>No contact data found.</p>;
+  useEffect(() => {
+    if (id) {
+      dispatch(viewLead({ _id: id }));
     }
+  }, [id, dispatch]);
 
-    // Destructure with fallback values to avoid undefined errors
-    const {
-        name = "",
-        email = "",
-        phoneNumber = "",
-        address = "",
-        city = '',
-        country = '',
-        state = '',
-        zip = '',
-        source = '',
-        status = '',
-        owner = '',
-        conversationDate = '',
-        followUpDate = '',
-    } = lead;
+  if (!lead) {
+    return <p>No contact data found.</p>;
+  }
 
-    return (
-        <Card>
-            <div className="container mt-3">
-                <h3>View lead</h3>
-                <Form>
-                    <div className="row">
-                        <div className="col mb-2">
-                            <Label>Name</Label>
-                            <Input value={name} readOnly />
-                        </div>
-                        <div className="col mb-2">
-                            <Label>Email</Label>
-                            <Input value={email} readOnly />
-                        </div>
-                    </div>
+  const {
+    name = "",
+    email = "",
+    phoneNumber = "",
+    address = "",
+    city = "",
+    country = "",
+    state = "",
+    zip = "",
+    source = "",
+    status = "",
+    owner = "",
+    conversationDate = "",
+    followUpDate = "",
+    task = [],
+  } = lead;
 
-                    <div className="row">
-                        <div className="col mb-2">
-                            <Label>Phone Number</Label>
-                            <Input value={phoneNumber} readOnly />
-                        </div>
-                        <div className="col mb-2">
-                            <Label>Owner</Label>
-                            <Input value={owner} readOnly />
-                        </div>
-                    </div>
-                    <div className="mb-2">
-                        <Label>Address</Label>
-                        <Input type="textarea" value={address} readOnly />
-                    </div>
-                    <div className="row">
-                        <div className="col mb-2">
-                            <Label>City</Label>
-                            <Input value={city} readOnly />
-                        </div>
-                        <div className="col mb-2">
-                            <Label>State</Label>
-                            <Input value={state} readOnly />
-                        </div>
-                    </div>
+  return (
+    <>
+      <Box className="d-flex justify-content-between align-items-center mt-1 mb-1">
+        <h3>View lead</h3>
+        <Button color="primary" onClick={() => navigate(-1)}>
+          <ChevronLeft className="mr-2" />
+          Back
+        </Button>
+      </Box>
+      <Card>
+        <Box className="p-2">
+          <Grid container columnSpacing={{ xs: 1 }}>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label className="fs-6 fw-bold">Name: </Label>
+              <p>{name || "-"}</p>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label className="fs-6 fw-bold">Task: </Label>
+              {task?.length > 0 ? (
+                task?.map((item, index) => (
+                  <Box key={item._id}>
+                    <Link
+                      to={`/task/taskView/${item._id}`}
+                      className="text-primary text-decoration-underline"
+                    >
+                      {item.title || "Untitled"}
+                    </Link>
+                    {index < task.length - 1 && ", "}
+                  </Box>
+                ))
+              ) : (
+                <p>-</p>
+              )}
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label className="fs-6 fw-bold">Email: </Label>
+              <p>{email || "-"}</p>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label className="fs-6 fw-bold">Phone Number: </Label>
+              <p>{phoneNumber || "-"}</p>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label className="fs-6 fw-bold">Status: </Label>
+              <p>{status || "-"}</p>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label className="fs-6 fw-bold">Address: </Label>
+              <p>{address || "-"}</p>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label className="fs-6 fw-bold">City: </Label>
+              <p>{city || "-"}</p>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label className="fs-6 fw-bold">Country: </Label>
+              <p>{country || "-"}</p>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label className="fs-6 fw-bold">State: </Label>
+              <p>{state || "-"}</p>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label className="fs-6 fw-bold">ZIP Code: </Label>
+              <p>{zip || "-"}</p>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label className="fs-6 fw-bold">Source: </Label>
+              <p>{source || "-"}</p>
+            </Grid>
 
-                    <div className="row">
-                        <div className="col mb-2">
-                            <Label>Country</Label>
-                            <Input value={country} readOnly />
-                        </div>
-                        <div className="col mb-2">
-                            <Label>ZIP Code</Label>
-                            <Input value={zip} readOnly />
-                        </div>
-                    </div>
-
-                    <div className="row">
-                        <div className="col mb-2">
-                            <Label>source</Label>
-                            <Input value={source} readOnly />
-                        </div>
-                        <div className="col mb-2">
-                            <Label>status</Label>
-                            <Input value={status} readOnly />
-                        </div>
-                    </div>
-                    <div className="row">
-                        <div className="col mb-2">
-                            <Label>Conversation Date</Label>
-                            <Input value={moment(conversationDate).format("DD-MM-YYYY")} readOnly />
-                        </div>
-                        <div className="col mb-2">
-                            <Label>Follow-Up Date</Label>
-                            <Input value={moment(followUpDate).format("DD-MM-YYYY")} readOnly />
-                        </div>
-                    </div>
-
-
-                    <div className="mb-2">
-                        <Button color="secondary" onClick={() => navigate(-1)}>
-                            Back
-                        </Button>
-                    </div>
-                </Form>
-            </div>
-        </Card>
-    );
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label className="fs-6 fw-bold">Owner: </Label>
+              <p>{owner || "-"}</p>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label className="fs-6 fw-bold">Conversation Date: </Label>
+              <p>
+                {conversationDate
+                  ? moment(conversationDate).format("YYYY-MM-DD")
+                  : "-"}
+              </p>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label className="fs-6 fw-bold">Follow-Up Date: </Label>
+              <p>
+                {followUpDate ? moment(followUpDate).format("YYYY-MM-DD") : "-"}
+              </p>
+            </Grid>
+          </Grid>
+        </Box>
+      </Card>
+    </>
+  );
 };
 
 export default LeadView;

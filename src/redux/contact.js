@@ -1,34 +1,37 @@
 
-// src/redux/contact/contactSlice.js
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axiosInstance from '../auth/axiosInstance'
 
 const initialState = {
     data: [],
     loading: false,
-    error: null
+    error: null,
+    total: 0,
+    page: 1,
+    totalPages: 0
 }
 
 export const getContacts = createAsyncThunk(
     'contact/getContacts',
-    async () => {
+    async ({ page = 1, pageSize = 10 }, { rejectWithValue }) => {
         try {
-            const response = await axiosInstance.get('/contacts/getAllContacts')
+            const response = await axiosInstance.get(`/contacts/getAllContacts/?page=${page}&limit=${pageSize}`)
             const data = await response.data
             return data
         } catch (error) {
-            throw error
+            return rejectWithValue(error.message);
+
         }
     });
 
 export const addContact = createAsyncThunk(
     'contact/addContact',
-    async (contact, { dispatch, rejectWithValue }) => {
+    async (props, { dispatch, rejectWithValue }) => {
         try {
-            const response = await axiosInstance.post('/contacts/addContact', contact)
-            const data = await response.data
-            dispatch(getContacts())
-            return data
+            const response = await axiosInstance.post('/contacts/addContact', props)
+            console.log("response ", response)
+            dispatch(getContacts({ page: 1, pageSize: 10 }))
+            return response
         } catch (error) {
             return rejectWithValue(error.message)
         }
@@ -36,12 +39,13 @@ export const addContact = createAsyncThunk(
 
 export const updateContact = createAsyncThunk(
     'contact/updateContact',
-    async (contact, { dispatch, rejectWithValue }) => {
+    async (props, { dispatch, rejectWithValue }) => {
         try {
-            const response = await axiosInstance.put(`/contacts/updateContact/${contact._id}`, contact)
-            const data = await response.data
-            dispatch(getContacts())
-            return data
+            const response = await axiosInstance.put(`/contacts/updateContact/${props?.updatedData?._id}`, props?.updatedData)
+            console.log("response ", response.data)
+            // const data = await response.data
+            dispatch(getContacts({ page: props?.paginationModel?.page + 1, pageSize: props?.paginationModel?.pageSize }))
+            return response
         } catch (error) {
             return rejectWithValue(error.message)
         }
@@ -49,10 +53,10 @@ export const updateContact = createAsyncThunk(
 
 export const deleteContact = createAsyncThunk(
     'contact/deleteContact',
-    async (contact, { dispatch, rejectWithValue }) => {
+    async (props, { dispatch, rejectWithValue }) => {
         try {
-            await axiosInstance.delete(`/contacts/deleteContact/${contact._id}`)
-            dispatch(getContacts())
+            await axiosInstance.delete(`/contacts/deleteContact/${props?.selectedForDelete?._id}`)
+            dispatch(getContacts({ page: props?.paginationModel?.page + 1, pageSize: props?.paginationModel?.pageSize }))
         } catch (error) {
             return rejectWithValue(error.message)
         }
@@ -81,7 +85,10 @@ const contactSlice = createSlice({
             })
             .addCase(getContacts.fulfilled, (state, action) => {
                 state.loading = false
-                state.data = action.payload
+                state.data = action.payload.contacts;
+                state.total = action.payload.total;
+                state.page = action.payload.page;
+                state.totalPages = action.payload.totalPages;
             })
             .addCase(getContacts.rejected, (state, action) => {
                 state.loading = false

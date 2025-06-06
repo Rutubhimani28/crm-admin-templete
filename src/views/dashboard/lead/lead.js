@@ -1,87 +1,96 @@
-import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
-import { AgGridReact } from "ag-grid-react";
-import React, { useEffect, useMemo, useState } from "react";
+
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Button, Form, Input, Label } from "reactstrap";
+import { Button, Col, Form, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
 import Sidebar from "@components/sidebar";
-import { Formik, useFormik } from "formik";
-import { Edit, Eye, Trash } from "react-feather";
+import { useFormik } from "formik";
+import { Edit, Eye, Trash2 } from "react-feather";
 import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
 import { addLead, deleteLead, getLeads, updateLead } from "../../../redux/lead";
-
-ModuleRegistry.registerModules([AllCommunityModule]);
+import { DataGrid } from "@mui/x-data-grid";
+import { useSkin } from '@hooks/useSkin'
+import moment from "moment";
+import { Box, Grid } from "@mui/material";
+import { useSweetToast } from "../../../@core/layouts/utils";
 
 const Lead = () => {
     const navigate = useNavigate();
-
+    const { skin } = useSkin()
     const dispatch = useDispatch();
-    const leadList = useSelector((state) => state?.lead?.data);
+    const leadList = useSelector((state) => state?.lead);
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [rowData, setRowData] = useState([]);
     const [editData, setEditData] = useState(null);
-    const [isViewMode, setIsViewMode] = useState(false);
+    const [rows, setRows] = useState([]);
+    const [paginationModel, setPaginationModel] = useState({ pageSize: 10, page: 0 });
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [selectedForDelete, setSelectedForDelete] = useState(null);
+    const SweetToast = useSweetToast();
 
     useEffect(() => {
-        dispatch(getLeads());
-    }, [dispatch]);
+        dispatch(getLeads({ page: paginationModel.page + 1, pageSize: paginationModel.pageSize }));
+    }, [dispatch, paginationModel]);
 
     useEffect(() => {
-        if (leadList?.length) {
-            setRowData(leadList);
+        if (leadList?.data?.length) {
+            const dataWithId = leadList?.data?.map((item) => ({
+                ...item,
+            }));
+            setRows(dataWithId);
         }
     }, [leadList]);
 
-    const defaultColDef = useMemo(
-        () => ({
-            filter: true,
-            floatingFilter: false,
-            sortable: true,
-            resizable: true,
-            flex: 1,
-        }),
-        []
-    );
 
-    const columnDefs = [
-        { field: "name" },
-        { field: "email" },
-        { field: "phoneNumber" },
-        { field: "address" },
-        { field: "status" },
+    const columns = [
+        { field: "name", headerName: "Name", flex: 1 },
+        { field: "email", headerName: "Email", flex: 1 },
+        { field: "phoneNumber", headerName: "Phone Number", flex: 1 },
+        { field: "address", headerName: "Address", flex: 1 },
+        { field: "status", headerName: "Status", flex: 1 },
         {
-            headerName: "Actions",
             field: "actions",
-            filter: false,
-            cellRenderer: (params) => (
-                <div className="d-flex">
-                    <Button
-                        size="sm"
-                        // color="warning"
-                        className="me-1"
-                        onClick={() => handleEdit(params.data)}
-                    >
-                        <Edit size={14} className="me-20" />
-                        {/* Edit */}
-                    </Button>
-                    <Button
-                        size="sm"
-                        color=""
-                        className="me-1"
-                        onClick={() => handleView(params.data)}
-                    >
-                        <Eye size={14} className="me-20" />
-                    </Button>
-                    <Button
-                        size="sm"
-                        // color="danger"
-                        onClick={() => handleDelete(params.data)}
-                    >
-                        <Trash size={14} className="me-20" />
-                        {/* Delete */}
-                    </Button>
-                </div>
-            ),
+            headerName: "Actions",
+            sortable: false,
+            filterable: false,
+            flex: 1,
+
+            renderCell: (params) => {
+                const data = params.row;
+                return (
+                    <div style={{ display: "flex", marginTop: "7px" }}>
+                        <Button
+                            variant="outlined"
+                            size="small"
+                            style={{ padding: "2px" }}
+                            color=''
+                            onClick={() => {
+                                handleEdit(data)
+                            }}
+                        >
+                            <Edit size={20} color="green" />
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color=''
+                            size="small"
+                            style={{ padding: "4px" }}
+                            onClick={() => navigate(`/lead/leadView/${data._id}`)}
+                        >
+                            <Eye size={20} color={skin === "light" ? "blue" : "white"} />
+                        </Button>
+
+                        <Button
+                            variant="contained"
+                            color="error"
+                            size="small"
+                            style={{ padding: "2px" }}
+                            onClick={() => dispatch(() => openDeleteModal(data))}
+                        >
+                            <Trash2 size={20} color="red" />
+                        </Button>
+                    </div>
+                );
+            },
         },
     ];
 
@@ -112,7 +121,7 @@ const Lead = () => {
             .required("Phone number is required"),
 
         address: Yup.string(),
-        city: Yup.string().required("City is required"),
+        city: Yup.string(),
         state: Yup.string(),
         country: Yup.string(),
         zip: Yup.string(),
@@ -123,29 +132,48 @@ const Lead = () => {
         followUpDate: Yup.date(),
     });
 
-    const formatDate = (dateString) => {
-        if (!dateString) return "";
-        const date = new Date(dateString);
-        if (isNaN(date)) return "";
-        return date.toISOString().split("T")[0]; // "YYYY-MM-DD"
-    };
 
     const formik = useFormik({
-        initialValues: editData
-            ? {
-                ...editData,
-                conversationDate: formatDate(editData.conversationDate),
-                followUpDate: formatDate(editData.followUpDate),
-            }
-            : initialValues,
+        initialValues: editData || initialValues,
         validationSchema,
-        enableReinitialize: true, // important to update form when editData changes
-        onSubmit: (values, { resetForm }) => {
+        enableReinitialize: true,
+        onSubmit: async (values, { resetForm }) => {
             if (editData) {
+                const hasChanged = Object.keys(values).some(
+                    key => values[key] !== editData[key]
+                );
+                if (!hasChanged) {
+                    toggleSidebar();
+                    resetForm();
+                    setEditData(null);
+                    return;
+                }
                 const updatedData = { ...editData, ...values };
-                dispatch(updateLead(updatedData));
+                const res = await dispatch(updateLead({ updatedData, paginationModel }));
+                if (res.payload?.status === 200) {
+                    SweetToast.fire({
+                        icon: "success",
+                        title: res.payload.data.message,
+                    });
+                } else {
+                    SweetToast.fire({
+                        icon: "error",
+                        title: res.payload.data.message,
+                    });
+                }
             } else {
-                dispatch(addLead(values));
+                const res = await dispatch(addLead(values));
+                if (res.payload?.status === 201) {
+                    SweetToast.fire({
+                        icon: "success",
+                        title: res.payload.data.message,
+                    });
+                } else {
+                    SweetToast.fire({
+                        icon: "error",
+                        title: res.payload.data.message,
+                    });
+                }
             }
             resetForm();
             setEditData(null);
@@ -156,43 +184,69 @@ const Lead = () => {
     const toggleSidebar = () => {
         setSidebarOpen(!sidebarOpen);
         setEditData(null);
-        setIsViewMode(false);
         formik.resetForm();
     };
 
     const handleEdit = (data) => {
-        setEditData(data);
-        setIsViewMode(false);
-
+        const formattedData = {
+            ...data,
+            conversationDate: data.conversationDate
+                ? moment(data.conversationDate).format("YYYY-MM-DD")
+                : ""
+            ,
+            followUpDate: data.followUpDate
+                ? moment(data.followUpDate).format("YYYY-MM-DD")
+                : ""
+        };
+        setEditData(formattedData);
         setSidebarOpen(true);
     };
 
-    const handleDelete = (data) => {
-        dispatch(deleteLead(data));
+    const openDeleteModal = (rowData) => {
+        setSelectedForDelete(rowData);
+        setIsDeleteModalOpen(true);
     };
 
-    const handleView = (data) => {
-        navigate(`/lead/leadView/${data._id}`);
+    const closeDeleteModal = () => {
+        setSelectedForDelete(null);
+        setIsDeleteModalOpen(false);
     };
+
+    const confirmDelete = () => {
+        try {
+            if (selectedForDelete) {
+                dispatch(deleteLead({ selectedForDelete, paginationModel }));
+            }
+            closeDeleteModal();
+        } catch (error) {
+            console.error("Error deleting team:", error);
+        }
+    };
+
 
     return (
         <>
-            <div className="mb-2 text-end">
+            <Box className="mb-2 text-end">
                 <Button color="primary" onClick={toggleSidebar}>
                     Add lead Record
                 </Button>
-            </div>
+            </Box>
 
-            <div style={{ height: 500, width: "100%" }}>
-                <AgGridReact
-                    rowData={rowData}
-                    columnDefs={columnDefs}
-                    defaultColDef={defaultColDef}
-                    pagination={true}
-                    paginationPageSize={10}
-                    paginationPageSizeSelector={[10, 20, 50, 100]}
+            <Box style={{ height: 635, width: "100%" }}>
+                <DataGrid
+                    rows={rows}
+                    columns={columns}
+                    pagination
+                    paginationMode="server"
+                    paginationModel={paginationModel}
+                    onPaginationModelChange={setPaginationModel}
+                    pageSizeOptions={[5, 10, 20]}
+                    rowCount={leadList?.total}
+                    disableRowSelectionOnClick
+                    // loading={loading}
+                    getRowId={row => row._id}
                 />
-            </div>
+            </Box>
 
             <Sidebar
                 open={sidebarOpen}
@@ -200,164 +254,149 @@ const Lead = () => {
                 title={editData ? "Update Lead Record" : "Add Lead Record"}
                 size="xl"
             >
-                <Form onSubmit={formik.handleSubmit}>
-                    <div className="container">
-                        <div className="row">
-                            <div className="col mb-2">
-                                <Label for="name">
-                                    Name <span className="text-danger">*</span>
-                                </Label>
-                                <Input
-                                    id="name"
-                                    name="name"
-                                    value={formik.values.name}
-                                    onChange={formik.handleChange}
-                                    placeholder="Name"
-                                    readOnly={isViewMode}
-                                    onBlur={formik.handleBlur}
-                                    invalid={formik.touched.name && !!formik.errors.name}
-                                />
-                                {formik.touched.name && formik.errors.name && (
-                                    <div className="text-danger">{formik.errors.name}</div>
-                                )}
-                            </div>
-                            <div className="col mb-2">
-                                <Label for="email">
-                                    Email <span className="text-danger">*</span>
-                                </Label>
-                                <Input
-                                    type="email"
-                                    id="email"
-                                    name="email"
-                                    value={formik.values.email}
-                                    onChange={formik.handleChange}
-                                    placeholder="example@domain.com"
-                                    readOnly={isViewMode}
-                                    onBlur={formik.handleBlur}
-                                    invalid={formik.touched.email && !!formik.errors.email}
-                                />
-                                {formik.touched.email && formik.errors.email && (
-                                    <div className="text-danger">{formik.errors.email}</div>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="row">
-                            <div className="col mb-2">
-                                <Label for="phoneNumber">
-                                    Phone Number <span className="text-danger">*</span>
-                                </Label>
-                                <Input
-                                    type="tel"
-                                    id="phoneNumber"
-                                    name="phoneNumber"
-                                    value={formik.values.phoneNumber}
-                                    onChange={formik.handleChange}
-                                    placeholder="123-456-7890"
-                                    readOnly={isViewMode}
-                                    onBlur={formik.handleBlur}
-                                    invalid={
-                                        formik.touched.phoneNumber && !!formik.errors.phoneNumber
-                                    }
-                                />
-                                {formik.touched.phoneNumber && formik.errors.phoneNumber && (
-                                    <div className="text-danger">{formik.errors.phoneNumber}</div>
-                                )}
-                            </div>
-
-                            <div className="col mb-2">
-                                <Label for="owner">Owner</Label>
-                                <Input
-                                    id="owner"
-                                    name="owner"    
-                                    value={formik.values.owner}
-                                    onChange={formik.handleChange}
-                                    placeholder="Owner"
-                                    readOnly={isViewMode}
-                                />
-                            </div>
-                        </div>
-
-                        <div className="mb-2">
-                            <Label for="address">Address</Label>
+                <Form onSubmit={formik.handleSubmit} className='mt-2'>
+                    <Grid container spacing={2} className='mb-2'>
+                        <Grid size={{ xs: 12, sm: 6, }}>
+                            <Label for="name">
+                                Name <span className="text-danger">*</span>
+                            </Label>
                             <Input
-                                type="textarea"
-                                id="address"
-                                name="address"
-                                value={formik.values.address}
+                                id="name"
+                                name="name"
+                                value={formik.values.name}
                                 onChange={formik.handleChange}
-                                placeholder="123 Main St, City"
-                                readOnly={isViewMode}
+                                placeholder="Name"
+                                onBlur={formik.handleBlur}
+                                invalid={formik.touched.name && !!formik.errors.name}
                             />
-                        </div>
+                            {formik.touched.name && formik.errors.name && (
+                                <div className="text-danger">{formik.errors.name}</div>
+                            )}
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6, }}>
+                            <Label for="email">
+                                Email <span className="text-danger">*</span>
+                            </Label>
+                            <Input
+                                type="email"
+                                id="email"
+                                name="email"
+                                value={formik.values.email}
+                                onChange={formik.handleChange}
+                                placeholder="example@domain.com"
+                                onBlur={formik.handleBlur}
+                                invalid={formik.touched.email && !!formik.errors.email}
+                            />
+                            {formik.touched.email && formik.errors.email && (
+                                <div className="text-danger">{formik.errors.email}</div>
+                            )}
+                        </Grid>
+                    </Grid>
 
-                        <div className="row">
-                            <div className="col mb-2">
-                                <Label for="city">
-                                    City <span className="text-danger">*</span>
-                                </Label>
-                                <Input
-                                    id="city"
-                                    name="city"
-                                    value={formik.values.city}
-                                    onChange={formik.handleChange}
-                                    placeholder="City"
-                                    readOnly={isViewMode}
-                                    onBlur={formik.handleBlur}
-                                    invalid={formik.touched.city && !!formik.errors.city}
-                                />
-                                {formik.touched.city && formik.errors.city && (
-                                    <div className="text-danger">{formik.errors.city}</div>
-                                )}
-                            </div>
-                            <div className="col mb-2">
-                                <Label for="state">State</Label>
-                                <Input
-                                    id="state"
-                                    name="state"
-                                    value={formik.values.state}
-                                    onChange={formik.handleChange}
-                                    placeholder="State"
-                                    readOnly={isViewMode}
-                                />
-                            </div>
-                        </div>
+                    <Grid container spacing={2} className='mb-2'>
+                        <Grid size={{ xs: 12, sm: 6, }}>
+                            <Label for="phoneNumber">
+                                Phone Number <span className="text-danger">*</span>
+                            </Label>
+                            <Input
+                                type="tel"
+                                id="phoneNumber"
+                                name="phoneNumber"
+                                value={formik.values.phoneNumber}
+                                onChange={formik.handleChange}
+                                placeholder="123-456-7890"
+                                onBlur={formik.handleBlur}
+                                invalid={
+                                    formik.touched.phoneNumber && !!formik.errors.phoneNumber
+                                }
+                            />
+                            {formik.touched.phoneNumber && formik.errors.phoneNumber && (
+                                <div className="text-danger">{formik.errors.phoneNumber}</div>
+                            )}
+                        </Grid>
 
-                        <div className="row">
-                            <div className="col mb-2">
-                                <Label for="country">Country</Label>
-                                <Input
-                                    id="country"
-                                    name="country"
-                                    value={formik.values.country}
-                                    onChange={formik.handleChange}
-                                    placeholder="Country"
-                                    readOnly={isViewMode}
-                                />
-                            </div>
-                            <div className="col mb-2">
-                                <Label for="zip">ZIP Code</Label>
-                                <Input
-                                    id="zip"
-                                    name="zip"
-                                    value={formik.values.zip}
-                                    onChange={formik.handleChange}
-                                    placeholder="ZIP Code"
-                                    readOnly={isViewMode}
-                                />
-                            </div>
-                        </div>
+                        <Grid size={{ xs: 12, sm: 6, }}>
+                            <Label for="owner">Owner</Label>
+                            <Input
+                                id="owner"
+                                name="owner"
+                                value={formik.values.owner}
+                                onChange={formik.handleChange}
+                                placeholder="Owner"
+                            />
+                        </Grid>
+                    </Grid>
 
-                        <div className="row">
-                            <div className="col mb-2">
-                                <Label for="source">Source</Label>
-                                <select
+                    <Grid size={{ xs: 12, sm: 6, }} className='mb-2'>
+                        <Label for="address">Address</Label>
+                        <Input
+                            type="textarea"
+                            id="address"
+                            name="address"
+                            value={formik.values.address}
+                            onChange={formik.handleChange}
+                            placeholder="123 Main St, City"
+                        />
+                    </Grid>
+
+                    <Grid container spacing={2} className='mb-2'>
+                        <Grid size={{ xs: 12, sm: 6, }}>
+                            <Label for="city">
+                                City
+                            </Label>
+                            <Input
+                                id="city"
+                                name="city"
+                                value={formik.values.city}
+                                onChange={formik.handleChange}
+                                placeholder="City"
+                            />
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6, }}>
+                            <Label for="state">State</Label>
+                            <Input
+                                id="state"
+                                name="state"
+                                value={formik.values.state}
+                                onChange={formik.handleChange}
+                                placeholder="State"
+                            />
+                        </Grid>
+                    </Grid>
+
+                    <Grid container spacing={2} className='mb-2'>
+                        <Grid size={{ xs: 12, sm: 6, }}>
+                            <Label for="country">Country</Label>
+                            <Input
+                                id="country"
+                                name="country"
+                                value={formik.values.country}
+                                onChange={formik.handleChange}
+                                placeholder="Country"
+                            />
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6, }}>
+                            <Label for="zip">ZIP Code</Label>
+                            <Input
+                                id="zip"
+                                name="zip"
+                                value={formik.values.zip}
+                                onChange={formik.handleChange}
+                                placeholder="ZIP Code"
+                            />
+                        </Grid>
+                    </Grid>
+
+                    <Grid container spacing={2} className='mb-2'>
+                        <Grid size={{ xs: 12, sm: 6, }}>
+                            <Label for="source">Source</Label>
+                            <Col sm={12}>
+                                <Input
                                     id="source"
                                     name="source"
-                                    className="form-control"
+                                    type="select"
                                     value={formik.values.source}
                                     onChange={formik.handleChange}
-                                    disabled={isViewMode}
                                 >
                                     <option value="">Select Source</option>
                                     <option value="Social Media">Social Media</option>
@@ -365,65 +404,85 @@ const Lead = () => {
                                     <option value="Website">Website</option>
                                     <option value="Search Engine">Search Engine</option>
                                     <option value="Google Ads">Google Ads</option>
-                                </select>
-                            </div>
+                                </Input>
+                            </Col>
+                        </Grid>
 
-                            <div className="col mb-2">
-                                <Label for="status">Status</Label>
-                                <select
+                        <Grid size={{ xs: 12, sm: 6, }}>
+                            <Label for="status">Status</Label>
+                            <Col sm={12}>
+                                <Input
                                     id="status"
                                     name="status"
-                                    className="form-control"
+                                    type="select"
                                     value={formik.values.status}
                                     onChange={formik.handleChange}
-                                    disabled={isViewMode}
                                 >
                                     <option value="">Select Status</option>
                                     <option value="Active">Active</option>
                                     <option value="Pending">Pending</option>
                                     <option value="Inactive">Inactive</option>
-                                </select>
-                            </div>
-                        </div>
+                                </Input>
+                            </Col>
+                        </Grid>
+                    </Grid>
 
-                        <div className="row">
-                            <div className="col mb-2">
-                                <Label for="conversationDate">Conversation Date</Label>
-                                <Input
-                                    type="date"
-                                    id="conversationDate"
-                                    name="conversationDate"
-                                    value={formik.values.conversationDate}
-                                    onChange={formik.handleChange}
-                                    readOnly={isViewMode}
-                                />
-                            </div>
-                            <div className="col mb-2">
-                                <Label for="followUpDate">Follow Up Date</Label>
-                                <Input
-                                    type="date"
-                                    id="followUpDate"
-                                    name="followUpDate"
-                                    value={formik.values.followUpDate}
-                                    onChange={formik.handleChange}
-                                    readOnly={isViewMode}
-                                />
-                            </div>
-                        </div>
+                    <Grid container spacing={2} className='mb-2'>
+                        <Grid size={{ xs: 12, sm: 6, }}>
+                            <Label for="conversationDate">Conversation Date</Label>
+                            <Input
+                                type="date"
+                                id="conversationDate"
+                                name="conversationDate"
+                                value={formik.values.conversationDate}
+                                onChange={formik.handleChange}
+                            />
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6, }}>
 
-                        <div className="d-flex justify-content-end">
-                            {!isViewMode && (
-                                <Button className="me-1" color="primary" type="submit">
-                                    {editData ? "Update" : "Add"}
-                                </Button>
-                            )}
-                            <Button color="secondary" onClick={toggleSidebar} outline>
-                                Cancel
-                            </Button>
-                        </div>
-                    </div>
+                            <Label for="followUpDate">Follow Up Date</Label>
+                            <Input
+                                type="date"
+                                id="followUpDate"
+                                name="followUpDate"
+                                value={formik.values.followUpDate}
+                                onChange={formik.handleChange}
+                            />
+                        </Grid>
+                    </Grid>
+
+                    <Box className="d-flex justify-content-end">
+
+                        <Button className="me-1" color="primary" type="submit">
+                            {editData ? "Update" : "Add"}
+                        </Button>
+
+                        <Button color="secondary" onClick={toggleSidebar} outline>
+                            Cancel
+                        </Button>
+                    </Box>
                 </Form>
             </Sidebar>
+
+            <Modal isOpen={isDeleteModalOpen} toggle={closeDeleteModal}>
+                <ModalHeader toggle={closeDeleteModal}>
+                    Confirm Deletion
+                </ModalHeader>
+                <ModalBody>
+                    Are you sure you want to delete <strong>
+                        {selectedForDelete?.firstName} {selectedForDelete?.lastName}
+                    </strong>?
+                </ModalBody>
+                <ModalFooter>
+                    <Button color="danger" onClick={confirmDelete}>
+                        Yes, Delete
+                    </Button>
+                    <Button color="secondary" onClick={closeDeleteModal}>
+                        Cancel
+                    </Button>
+                </ModalFooter>
+            </Modal>
+
         </>
     );
 };
