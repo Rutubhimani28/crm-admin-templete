@@ -1,115 +1,155 @@
 import React, { useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { Button, Label, Input, Form, Card } from "reactstrap";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { Button, Label, Card } from "reactstrap";
 import { useDispatch, useSelector } from "react-redux";
 import moment from "moment/moment";
 import { viewCustomer } from "../../../redux/customer";
-
+import { Box, Grid } from "@mui/material";
+import { ChevronLeft } from "react-feather";
 
 const CustomerView = () => {
-    const { id } = useParams();
-    const navigate = useNavigate();
-    const dispatch = useDispatch();
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-    const customerList = useSelector((state) => state?.customer?.data);
+  const customerList = useSelector((state) => state?.customer?.data);
 
-    useEffect(() => {
-        if (id) {
-            dispatch(viewCustomer({ _id: id }));
-        }
-    }, [id, dispatch]);
-
-    // if (loading) {
-    //     return <p>Loading contact data...</p>;
-    // }
-
-    // if (error) {
-    //     return <p>Error loading contact: {error}</p>;
-    // }
-
-    if (!customerList) {
-        return <p>No customer data found.</p>;
+  useEffect(() => {
+    if (id) {
+      dispatch(viewCustomer({ _id: id }));
     }
+  }, [id, dispatch]);
 
-    const {
-        name = "",
-        email = "",
-        phoneNumber = "",
-        address = "",
-        dateOfBirth = '',
-        gender = '',
-        occupation = '',
-        linkedInProfile = '',
-        facebookProfile = '',
-        twitterProfile = ''
-    } = customerList;
+  if (!customerList) {
+    return <p>No customer data found.</p>;
+  }
 
-    return (
-        <Card>
-            <div className="container mt-3">
-                <h3>View customer</h3>
-                <Form>
-                    <div className="row">
-                        <div className="col mb-2">
-                            <Label>Name</Label>
-                            <Input value={name} readOnly />
-                        </div>
-                        <div className="col mb-2">
-                            <Label>Email</Label>
-                            <Input value={email} readOnly />
-                        </div>
-                        <div className="col mb-2">
-                            <Label>Phone Number</Label>
-                            <Input value={phoneNumber} readOnly />
-                        </div>
-                    </div>
+  const {
+    name = "",
+    email = "",
+    phoneNumber = "",
+    address = "",
+    dateOfBirth = "",
+    gender = "",
+    occupation = "",
+    linkedInProfile = "",
+    facebookProfile = "",
+    twitterProfile = "",
+    task = [],
+  } = customerList;
 
-                    <div className="row">
-                        <div className="col mb-2">
-                            <Label>Date of Birth</Label>
-                            <Input value={moment(dateOfBirth).format("DD-MM-YYYY")} readOnly />
-                        </div>
-                        <div className="col mb-2">
-                            <Label>Gender</Label>
-                            <Input value={gender} readOnly />
-                        </div>
-                    </div>
-                    <div className="mb-2">
-                        <Label>Address</Label>
-                        <Input type="textarea" value={address} readOnly />
-                    </div>
+  return (
+    <>
+      <Box className="d-flex justify-content-between align-items-center mt-1 mb-1">
+        <h3>View customer</h3>
+        <Button color="primary" onClick={() => navigate(-1)}>
+          <ChevronLeft className="mr-2" />
+          Back
+        </Button>
+      </Box>
+      <Card>
+        <Box className="p-2">
+          <Grid container columnSpacing={{ xs: 1 }}>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label className="fs-6 fw-bold">Name: </Label>
+              <p>{name || "-"}</p>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label className="fs-6 fw-bold">Task:</Label>
+              {task?.length > 0 ? (
+                task?.map((item, index) => (
+                  <Box key={item._id}>
+                    <Link
+                      to={`/task/taskView/${item._id}`}
+                      className="text-primary text-decoration-underline"
+                    >
+                      {item.title || "Untitled"}
+                    </Link>
+                    {index < task.length - 1 && ", "}
+                  </Box>
+                ))
+              ) : (
+                <p>-</p>
+              )}
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label className="fs-6 fw-bold">Email: </Label>
+              <p>{email || "-"}</p>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label className="fs-6 fw-bold">Phone Number: </Label>
+              <p>{phoneNumber || "-"}</p>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label className="fs-6 fw-bold">Address: </Label>
+              <p>{address || "-"}</p>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label className="fs-6 fw-bold">Date of Birth: </Label>
+              <p>{moment(dateOfBirth).format("DD-MM-YYYY") || "-"}</p>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label className="fs-6 fw-bold">Gender: </Label>
+              <p>{gender || "-"}</p>
+            </Grid>
 
-
-                    <div className="mb-2">
-                        <Label>Occupation</Label>
-                        <Input value={occupation} readOnly />
-                    </div>
-
-                    <div className="mb-2">
-                        <Label>LinkedIn Profile</Label>
-                        <Input value={linkedInProfile} readOnly />
-                    </div>
-
-                    <div className="mb-2">
-                        <Label>Facebook Profile</Label>
-                        <Input value={facebookProfile} readOnly />
-                    </div>
-
-                    <div className="mb-2">
-                        <Label>Twitter Profile</Label>
-                        <Input value={twitterProfile} readOnly />
-                    </div>
-
-
-                    <div className="mb-2">
-                        <Button color="secondary" onClick={() => navigate(-1)}>
-                            Back
-                        </Button>
-                    </div>
-                </Form>
-            </div>
-        </Card>
-    );
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label className="fs-6 fw-bold">Occupation: </Label>
+              <p>{occupation || "-"}</p>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label className="fs-6 fw-bold">LinkedIn Profile: </Label>
+              <p>
+                {linkedInProfile ? (
+                  <a
+                    href={linkedInProfile}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {linkedInProfile}
+                  </a>
+                ) : (
+                  "N/A"
+                )}
+              </p>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label className="fs-6 fw-bold">Facebook Profile: </Label>
+              <p>
+                {facebookProfile ? (
+                  <a
+                    href={facebookProfile}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {facebookProfile}
+                  </a>
+                ) : (
+                  "N/A"
+                )}
+              </p>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Label className="fs-6 fw-bold">Twitter Profile: </Label>
+              <p>
+                {twitterProfile ? (
+                  <a
+                    href={twitterProfile}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {twitterProfile}
+                  </a>
+                ) : (
+                  "N/A"
+                )}
+              </p>
+            </Grid>
+          </Grid>
+        </Box>
+      </Card>
+    </>
+  );
 };
 
 export default CustomerView;
