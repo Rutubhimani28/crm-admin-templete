@@ -175,6 +175,7 @@ const Task = () => {
     },
   ];
 
+
   const initialValues = {
     title: "",
     description: "",
@@ -260,6 +261,8 @@ const Task = () => {
     let related = "none";
     let assignToContactId = "";
     let assignToLeadId = "";
+    let assignToCustomerId = "";
+    let assignToTeamId = "";
 
     if (data.assignToContactId) {
       related = "contact";
@@ -267,6 +270,12 @@ const Task = () => {
     } else if (data.assignToLeadId) {
       related = "lead";
       assignToLeadId = data.assignToLeadId;
+    } else if (data.assignToCustomerId) {
+      related = "customer";
+      assignToCustomerId = data.assignToCustomerId;
+    } else if (data.assignToTeamId) {
+      related = "team";
+      assignToTeamId = data.assignToTeamId;
     }
 
     const formattedData = {
@@ -274,6 +283,8 @@ const Task = () => {
       related,
       assignToContactId,
       assignToLeadId,
+      assignToCustomerId,
+      assignToTeamId,
       startDate: data.startDate
         ? moment(data.startDate).format("YYYY-MM-DD")
         : "",
@@ -306,6 +317,8 @@ const Task = () => {
     }
   };
 
+
+
   return (
     <>
       {userData.role === "admin" && (
@@ -327,7 +340,7 @@ const Task = () => {
           pageSizeOptions={[5, 10, 20]}
           rowCount={taskList?.total || 0}
           disableRowSelectionOnClick
-          getRowId={(row) => row._id}
+          getRowId={(row) => row?._id}
         />
       </Box>
 

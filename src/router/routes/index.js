@@ -29,10 +29,10 @@ const getLayout = {
 const TemplateTitle = "%s - Vuexy React Admin Template";
 
 // ** Default Route
-const DefaultRoute = "/dashboard/ecommerce";
+const DefaultRoute = "/dashboard/contact";
 
 // ** Merge Routes
-const Routes = [...AuthenticationRoutes, ...DashboardRoutes , ...AppRoutes];
+const Routes = [...AuthenticationRoutes, ...DashboardRoutes, ...AppRoutes];
 
 const getRouteMeta = (route) => {
   if (isObjEmpty(route.element.props)) {
@@ -69,7 +69,7 @@ const MergeLayoutRoutes = (layout, defaultLayout) => {
             // eslint-disable-next-line multiline-ternary
             isObjEmpty(route.element.props) && isBlank === false
               ? // eslint-disable-next-line multiline-ternary
-                LayoutWrapper
+              LayoutWrapper
               : Fragment;
 
           route.element = (
