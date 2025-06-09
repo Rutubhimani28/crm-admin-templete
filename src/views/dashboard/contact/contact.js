@@ -17,6 +17,7 @@ import {
   ModalBody,
   ModalFooter,
   ModalHeader,
+  Spinner,
 } from "reactstrap";
 import Sidebar from "@components/sidebar";
 import { useFormik } from "formik";
@@ -27,9 +28,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { useSkin } from "@hooks/useSkin";
 import moment from "moment";
 import { Box, Grid } from "@mui/material";
-import Swal from "sweetalert2";
 import { useSweetToast } from "../../../@core/layouts/utils";
-// import '@sweetalert2/theme-dark/dark.css';
 
 const Contact = () => {
   const navigate = useNavigate();
@@ -38,7 +37,6 @@ const Contact = () => {
   const contactList = useSelector((state) => state?.contact);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [editData, setEditData] = useState(null);
-  const [isViewMode, setIsViewMode] = useState(false);
   const [rows, setRows] = useState([]);
   const [paginationModel, setPaginationModel] = useState({
     pageSize: 10,
@@ -46,11 +44,11 @@ const Contact = () => {
   });
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedForDelete, setSelectedForDelete] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
     setEditData(null);
-    setIsViewMode(false);
   };
   const SweetToast = useSweetToast();
   useEffect(() => {
@@ -73,12 +71,10 @@ const Contact = () => {
 
 
   const columns = [
-    { field: "title", headerName: "Title", flex: 1 },
-    { field: "firstName", headerName: "First Name", flex: 1 },
-    { field: "lastName", headerName: "Last Name", flex: 1 },
-    { field: "email", headerName: "Email", flex: 1 },
-    { field: "phoneNumber", headerName: "Phone Number", flex: 1 },
-    { field: "address", headerName: "Address", flex: 1 },
+    { field: "title", headerName: "Title", flex: 1, renderCell: (params) => params.value || "–" },
+    { field: "firstName", headerName: "First Name", flex: 1, renderCell: (params) => params.value || "–" },
+    { field: "lastName", headerName: "Last Name", flex: 1, renderCell: (params) => params.value || "–" },
+    { field: "email", headerName: "Email", flex: 1, renderCell: (params) => params.value || "–" },
     {
       field: "actions",
       headerName: "Actions",
@@ -155,7 +151,7 @@ const Contact = () => {
         /^(?:\D*\d){10}\D*$/,
         "Phone number must contain exactly 10 digits"
       )
-      .required("Phone number is required"),
+      .required("Phone Number is required"),
 
     address: Yup.string(),
     city: Yup.string(),
@@ -175,6 +171,7 @@ const Contact = () => {
     validationSchema,
     enableReinitialize: true,
     onSubmit: async (values, { resetForm }) => {
+      setLoading(true);
       try {
         if (editData) {
           const hasChanged = Object.keys(values).some(
@@ -202,7 +199,6 @@ const Contact = () => {
         } else {
           const res = await dispatch(addContact(values));
           if (res.payload?.status === 201) {
-            console.log("res", res.payload?.data?.message);
             SweetToast.fire({
               icon: "success",
               title: res.payload?.data?.message,
@@ -237,7 +233,6 @@ const Contact = () => {
         : "",
     };
     setEditData(formattedData);
-    setIsViewMode(false);
     setSidebarOpen(true);
   };
 
@@ -264,9 +259,10 @@ const Contact = () => {
 
   return (
     <>
-      <Box className="mb-2 text-end">
+      <Box className="mb-2 d-flex justify-content-between align-items-center ">
+        <h3>Contact List</h3>
         <Button color="primary" onClick={toggleSidebar}>
-          Add contact Record
+          Add
         </Button>
       </Box>
 
@@ -282,6 +278,10 @@ const Contact = () => {
           rowCount={contactList?.total}
           disableRowSelectionOnClick
           getRowId={(row) => row._id}
+          loading={loading}
+          localeText={{
+            noRowsLabel: loading ? "No customers found" : <Spinner />,
+          }}
         />
       </Box>
 
@@ -298,15 +298,20 @@ const Contact = () => {
                 Title <span className="text-danger">*</span>
               </Label>
               <Input
+                type="select"
                 id="title"
                 name="title"
                 value={values.title}
                 onChange={handleChange}
-                placeholder="Mr, Mrs, Ms, Dr"
-                readOnly={isViewMode}
                 onBlur={handleBlur}
                 invalid={!!errors.title && touched.title}
-              />
+              >
+                <option value="">Select Title</option>
+                <option value="Mr">Mr</option>
+                <option value="Mrs">Mrs</option>
+                <option value="Ms">Ms</option>
+                <option value="Dr">Dr</option>
+              </Input>
               {errors.title && touched.title && (
                 <Box className="text-danger">{errors.title}</Box>
               )}
@@ -321,7 +326,6 @@ const Contact = () => {
                 value={values.firstName}
                 onChange={handleChange}
                 placeholder="John"
-                readOnly={isViewMode}
                 onBlur={handleBlur}
                 invalid={!!errors.firstName && touched.firstName}
               />
@@ -342,7 +346,6 @@ const Contact = () => {
                 value={values.lastName}
                 onChange={handleChange}
                 placeholder="Doe"
-                readOnly={isViewMode}
                 onBlur={handleBlur}
                 invalid={!!errors.lastName && touched.lastName}
               />
@@ -361,7 +364,6 @@ const Contact = () => {
                 value={values.email}
                 onChange={handleChange}
                 placeholder="example@domain.com"
-                readOnly={isViewMode}
                 onBlur={handleBlur}
                 invalid={!!errors.email && touched.email}
               />
@@ -383,7 +385,6 @@ const Contact = () => {
                 value={values.phoneNumber}
                 onChange={handleChange}
                 placeholder="123-456-7890"
-                readOnly={isViewMode}
                 onBlur={handleBlur}
                 invalid={!!errors.phoneNumber && touched.phoneNumber}
               />
@@ -402,7 +403,6 @@ const Contact = () => {
               value={values.address}
               onChange={handleChange}
               placeholder="123 Main St, City"
-              readOnly={isViewMode}
               onBlur={handleBlur}
               invalid={!!errors.address && touched.address}
             />
@@ -419,7 +419,6 @@ const Contact = () => {
                 name="dateOfBirth"
                 value={values.dateOfBirth}
                 onChange={handleChange}
-                readOnly={isViewMode}
                 onBlur={handleBlur}
                 invalid={!!errors.dateOfBirth && touched.dateOfBirth}
               />
@@ -437,7 +436,6 @@ const Contact = () => {
                     value="male"
                     checked={values.gender === "male"}
                     onChange={handleChange}
-                    readOnly={isViewMode}
                   />
                   Male
                 </InputGroupText>
@@ -448,7 +446,6 @@ const Contact = () => {
                     value="female"
                     checked={values.gender === "female"}
                     onChange={handleChange}
-                    readOnly={isViewMode}
                   />
                   Female
                 </InputGroupText>
@@ -459,7 +456,6 @@ const Contact = () => {
                     value="other"
                     checked={values.gender === "other"}
                     onChange={handleChange}
-                    readOnly={isViewMode}
                   />
                   Other
                 </InputGroupText>
@@ -479,7 +475,6 @@ const Contact = () => {
                 value={values.city}
                 onChange={handleChange}
                 placeholder="City"
-                readOnly={isViewMode}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
@@ -490,7 +485,6 @@ const Contact = () => {
                 value={values.state}
                 onChange={handleChange}
                 placeholder="State"
-                readOnly={isViewMode}
               />
             </Grid>
           </Grid>
@@ -504,7 +498,6 @@ const Contact = () => {
                 value={values.country}
                 onChange={handleChange}
                 placeholder="Country"
-                readOnly={isViewMode}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }} className="mb-2">
@@ -515,7 +508,6 @@ const Contact = () => {
                 value={values.zip}
                 onChange={handleChange}
                 placeholder="ZIP Code"
-                readOnly={isViewMode}
               />
             </Grid>
           </Grid>
@@ -528,7 +520,6 @@ const Contact = () => {
               value={values.occupation}
               onChange={handleChange}
               placeholder="Occupation"
-              readOnly={isViewMode}
             />
           </Grid>
 
@@ -540,7 +531,6 @@ const Contact = () => {
               value={values.linkedInProfile}
               onChange={handleChange}
               placeholder="LinkedIn URL"
-              readOnly={isViewMode}
             />
           </Grid>
 
@@ -552,11 +542,10 @@ const Contact = () => {
               value={values.facebookProfile}
               onChange={handleChange}
               placeholder="Facebook URL"
-              readOnly={isViewMode}
             />
           </Grid>
 
-          <Grid size={{ xs: 12, sm: 6 }}>
+          <Grid size={{ xs: 12, sm: 6 }} className='mb-2'>
             <Label for="twitterProfile">Twitter Profile</Label>
             <Input
               id="twitterProfile"
@@ -564,16 +553,19 @@ const Contact = () => {
               value={values.twitterProfile}
               onChange={handleChange}
               placeholder="Twitter URL"
-              readOnly={isViewMode}
             />
           </Grid>
 
           <Box className="d-flex justify-content-end">
-            {!isViewMode && (
-              <Button className="me-1" color="primary" type="submit">
-                {editData ? "Update" : "Add"}
-              </Button>
-            )}
+
+            <Button className="me-1" color="primary" type="submit" disabled={loading}>
+              {loading ? (
+                <Spinner className="spinner-border spinner-border-sm " />
+              ) : (
+                editData ? "Update" : "Save"
+              )}
+            </Button>
+
             <Button color="secondary" onClick={toggleSidebar} outline>
               Cancel
             </Button>
@@ -591,7 +583,7 @@ const Contact = () => {
         </ModalBody>
         <ModalFooter>
           <Button color="danger" onClick={confirmDelete}>
-            Yes, Delete
+            Delete
           </Button>
           <Button color="secondary" onClick={closeDeleteModal}>
             Cancel

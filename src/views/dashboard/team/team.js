@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Button, Form, Input, InputGroup, InputGroupText, Label, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
+import { Button, Form, Input, InputGroup, InputGroupText, Label, Modal, ModalBody, ModalFooter, ModalHeader, Spinner } from "reactstrap";
 import Sidebar from "@components/sidebar";
 import { useFormik } from "formik";
 import { Edit, Eye, Trash2 } from "react-feather";
@@ -22,17 +22,16 @@ const Team = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [rows, setRows] = useState([]);
     const [editData, setEditData] = useState(null);
-    const [isViewMode, setIsViewMode] = useState(false);
     const [paginationModel, setPaginationModel] = useState({ pageSize: 10, page: 0 });
-    const [loading, setLoading] = useState(teamList?.loading);
+    const [loading, setLoading] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedForDelete, setSelectedForDelete] = useState(null);
     const SweetToast = useSweetToast();
 
     useEffect(() => {
-        setLoading(true)
+        // setLoading(true)
         dispatch(getTeam({ page: paginationModel.page + 1, pageSize: paginationModel.pageSize }));
-        setLoading(false)
+        // setLoading(false)
     }, [dispatch, paginationModel]);
 
     useEffect(() => {
@@ -46,10 +45,10 @@ const Team = () => {
 
 
     const columns = [
-        { field: "firstName", headerName: "First Name", flex: 1 },
-        { field: "email", headerName: "Email", flex: 1 },
-        { field: "phoneNumber", headerName: "Phone Number", flex: 1 },
-        { field: "address", headerName: "Address", flex: 1 },
+        { field: "firstName", headerName: "First Name", flex: 1, renderCell: (params) => params.value || "–" },
+        { field: "email", headerName: "Email", flex: 1, renderCell: (params) => params.value || "–" },
+        { field: "phoneNumber", headerName: "Phone Number", flex: 1, renderCell: (params) => params.value || "–" },
+        { field: "address", headerName: "Address", flex: 1, renderCell: (params) => params.value || "–" },
         {
             field: "actions",
             headerName: "Actions",
@@ -110,7 +109,7 @@ const Team = () => {
         firstName: Yup.string().required("First Name is required"),
         lastName: Yup.string().required("Last Name is required"),
         email: Yup.string().email("Invalid email").required("Email is required"),
-        phoneNumber: Yup.string().required("Phone number is required")
+        phoneNumber: Yup.string().required("Phone Number is required")
             .matches(/^(?:\D*\d){10}\D*$/, "Phone number must contain exactly 10 digits")
         ,
         address: Yup.string(),
@@ -125,6 +124,7 @@ const Team = () => {
         validationSchema,
         enableReinitialize: true,
         onSubmit: async (values, { resetForm }) => {
+            setLoading(true);
             try {
                 if (editData) {
                     const hasChanged = Object.keys(values).some(
@@ -178,14 +178,11 @@ const Team = () => {
     const toggleSidebar = () => {
         setSidebarOpen(!sidebarOpen);
         setEditData(null);
-        setIsViewMode(false);
         formik.resetForm();
     };
 
     const handleEdit = (data) => {
         setEditData(data);
-        setIsViewMode(false);
-
         setSidebarOpen(true);
     };
 
@@ -216,9 +213,10 @@ const Team = () => {
 
     return (
         <>
-            <Box className="mb-2 text-end">
+            <Box className="mb-2 d-flex justify-content-between align-items-center ">
+                <h3>Team List</h3>
                 <Button color="primary" onClick={toggleSidebar}>
-                    Add Team Record
+                    Add
                 </Button>
             </Box>
 
@@ -235,6 +233,9 @@ const Team = () => {
                     disableRowSelectionOnClick
                     loading={loading}
                     getRowId={row => row._id}
+                    localeText={{
+                        noRowsLabel: loading ? "No customers found" : <Spinner />,
+                    }}
                 />
             </Box>
 
@@ -256,7 +257,6 @@ const Team = () => {
                                 value={values.firstName}
                                 onChange={handleChange}
                                 placeholder="First Name"
-                                readOnly={isViewMode}
                                 onBlur={handleBlur}
                                 invalid={touched.firstName && !!errors.firstName}
                             />
@@ -275,7 +275,6 @@ const Team = () => {
                                 value={values.lastName}
                                 onChange={handleChange}
                                 placeholder="example@domain.com"
-                                readOnly={isViewMode}
                                 onBlur={handleBlur}
                                 invalid={touched.lastName && !!errors.lastName}
                             />
@@ -297,7 +296,6 @@ const Team = () => {
                                 value={values.phoneNumber}
                                 onChange={handleChange}
                                 placeholder="123-456-7890"
-                                readOnly={isViewMode}
                                 onBlur={handleBlur}
                                 invalid={
                                     touched.phoneNumber && !!errors.phoneNumber
@@ -319,7 +317,6 @@ const Team = () => {
                                 value={values.email}
                                 onChange={handleChange}
                                 placeholder="example@domain.com"
-                                readOnly={isViewMode}
                                 onBlur={handleBlur}
                                 invalid={touched.email && !!errors.email}
                             />
@@ -339,22 +336,21 @@ const Team = () => {
                                 placeholder="Position"
                                 value={values.position}
                                 onChange={handleChange}
-                                readOnly={isViewMode}
                             />
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6, }}>
                             <Label for="gender">Gender</Label>
                             <InputGroup>
                                 <InputGroupText>
-                                    <Input type="radio" name="gender" value="male" checked={values.gender === "male"} onChange={handleChange} readOnly={isViewMode} />
+                                    <Input type="radio" name="gender" value="male" checked={values.gender === "male"} onChange={handleChange} />
                                     Male
                                 </InputGroupText>
                                 <InputGroupText>
-                                    <Input type="radio" name="gender" value="female" checked={values.gender === "female"} onChange={handleChange} readOnly={isViewMode} />
+                                    <Input type="radio" name="gender" value="female" checked={values.gender === "female"} onChange={handleChange} />
                                     Female
                                 </InputGroupText>
                                 <InputGroupText>
-                                    <Input type="radio" name="gender" value="other" checked={values.gender === "other"} onChange={handleChange} readOnly={isViewMode} />
+                                    <Input type="radio" name="gender" value="other" checked={values.gender === "other"} onChange={handleChange} />
                                     Other
                                 </InputGroupText>
                             </InputGroup>
@@ -373,8 +369,7 @@ const Team = () => {
                             value={values.address}
                             onChange={handleChange}
                             placeholder="123 Main St, City"
-                            readOnly={isViewMode}
-                            onBlur={handleBlur}
+                            s onBlur={handleBlur}
                             invalid={!!errors.address && touched.address}
                         />
                         {errors.address && touched.address && (
@@ -383,15 +378,13 @@ const Team = () => {
                     </Grid>
 
                     <Box className="d-flex justify-content-end">
-                        {!isViewMode && (
-                            <Button className="me-1" color="primary" type="submit" disabled={loading}>
-                                {loading ? (
-                                    <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                ) : (
-                                    editData ? "Update" : "Add"
-                                )}
-                            </Button>
-                        )}
+                        <Button className="me-1" color="primary" type="submit" disabled={loading}>
+                            {loading ? (
+                                <Spinner className="spinner-border spinner-border-sm " />
+                            ) : (
+                                editData ? "Update" : "Save"
+                            )}
+                        </Button>
                         <Button color="secondary" onClick={toggleSidebar} outline>
                             Cancel
                         </Button>
@@ -409,9 +402,16 @@ const Team = () => {
                     </strong>?
                 </ModalBody>
                 <ModalFooter>
-                    <Button color="danger" onClick={confirmDelete}>
-                        Yes, Delete
-                    </Button>
+                    {
+                        loading ? (
+                            <Spinner className="spinner-border spinner-border-sm " />
+                        ) : (
+                            <Button color="danger" onClick={confirmDelete}>
+                                Delete
+                            </Button>
+                        )
+
+                    }
                     <Button color="secondary" onClick={closeDeleteModal}>
                         Cancel
                     </Button>

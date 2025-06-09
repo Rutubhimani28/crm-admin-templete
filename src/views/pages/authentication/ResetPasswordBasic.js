@@ -30,7 +30,6 @@ const defaultValues = {
 };
 const ResetPasswordBasic = () => {
   const [message, setMessage] = useState("");
-  console.log("message", message)
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();

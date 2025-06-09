@@ -11,6 +11,7 @@ import {
   ModalBody,
   ModalFooter,
   ModalHeader,
+  Spinner,
 } from "reactstrap";
 import Sidebar from "@components/sidebar";
 import { useFormik } from "formik";
@@ -38,16 +39,19 @@ const Customer = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [rows, setRows] = useState([]);
   const [editData, setEditData] = useState(null);
-  const [isViewMode, setIsViewMode] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
     pageSize: 10,
     page: 0,
   });
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedForDelete, setSelectedForDelete] = useState(null);
+  const [loading, setLoading] = useState(false);
+
   const SweetToast = useSweetToast();
 
+
   useEffect(() => {
+    // setLoading(true);
     dispatch(
       getCustomers({
         page: paginationModel.page + 1,
@@ -57,19 +61,25 @@ const Customer = () => {
   }, [dispatch, paginationModel]);
 
   useEffect(() => {
-    if (customerList?.data?.length) {
-      const dataWithId = customerList?.data?.map((item) => ({
-        ...item,
-      }));
-      setRows(dataWithId);
+    try {
+      if (customerList?.data?.length) {
+        const dataWithId = customerList?.data?.map((item) => ({
+          ...item,
+        }));
+        setRows(dataWithId);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      // setLoading(false);
     }
   }, [customerList]);
 
   const columns = [
-    { field: "name", headerName: "Name", flex: 1 },
-    { field: "email", headerName: "Email", flex: 1 },
-    { field: "phoneNumber", headerName: "Phone Number", flex: 1 },
-    { field: "address", headerName: "Address", flex: 1 },
+    { field: "name", headerName: "Name", flex: 1, renderCell: (params) => params.value || "–" },
+    { field: "email", headerName: "Email", flex: 1, renderCell: (params) => params.value || "–" },
+    { field: "phoneNumber", headerName: "Phone Number", flex: 1, renderCell: (params) => params.value || "–" },
+    { field: "address", headerName: "Address", flex: 1, renderCell: (params) => params.value || "–" },
     {
       field: "actions",
       headerName: "Actions",
@@ -138,7 +148,7 @@ const Customer = () => {
         /^(?:\D*\d){10}\D*$/,
         "Phone number must contain exactly 10 digits"
       )
-      .required("Phone number is required"),
+      .required("Phone Number is required"),
 
     address: Yup.string(),
     occupation: Yup.string(),
@@ -152,46 +162,53 @@ const Customer = () => {
     validationSchema,
     enableReinitialize: true,
     onSubmit: async (values, { resetForm }) => {
-      if (editData) {
-        const hasChanged = Object.keys(values).some(
-          (key) => values[key] !== editData[key]
-        );
-        if (!hasChanged) {
-          toggleSidebar();
-          resetForm();
-          setEditData(null);
-          return;
-        }
-        const updatedData = { ...editData, ...values };
-        const res = await dispatch(updateCustomer({ updatedData, paginationModel }));
-        if (res.payload?.status === 200) {
-          SweetToast.fire({
-            icon: "success",
-            title: res.payload.data.message,
-          });
+      setLoading(true);
+      try {
+        if (editData) {
+          const hasChanged = Object.keys(values).some(
+            (key) => values[key] !== editData[key]
+          );
+          if (!hasChanged) {
+            toggleSidebar();
+            resetForm();
+            setEditData(null);
+            return;
+          }
+          const updatedData = { ...editData, ...values };
+          const res = await dispatch(updateCustomer({ updatedData, paginationModel }));
+          if (res.payload?.status === 200) {
+            SweetToast.fire({
+              icon: "success",
+              title: res.payload.data.message,
+            });
+          } else {
+            SweetToast.fire({
+              icon: "error",
+              title: res.payload.data.message,
+            });
+          }
         } else {
-          SweetToast.fire({
-            icon: "error",
-            title: res.payload.data.message,
-          });
+          const res = await dispatch(addCustomer(values));
+          if (res.payload?.status === 201) {
+            SweetToast.fire({
+              icon: "success",
+              title: res.payload.data.message,
+            });
+          } else {
+            SweetToast.fire({
+              icon: "error",
+              title: res.payload.data.message,
+            });
+          }
         }
-      } else {
-        const res = await dispatch(addCustomer(values));
-        if (res.payload?.status === 201) {
-          SweetToast.fire({
-            icon: "success",
-            title: res.payload.data.message,
-          });
-        } else {
-          SweetToast.fire({
-            icon: "error",
-            title: res.payload.data.message,
-          });
-        }
+        resetForm();
+        setEditData(null);
+        toggleSidebar();
+      } catch (error) {
+        console.error("Error submitting form:", error);
+      } finally {
+        setLoading(false);
       }
-      resetForm();
-      setEditData(null);
-      toggleSidebar();
     },
   });
 
@@ -201,7 +218,6 @@ const Customer = () => {
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
     setEditData(null);
-    setIsViewMode(false);
     formik.resetForm();
   };
 
@@ -213,8 +229,6 @@ const Customer = () => {
         : "",
     };
     setEditData(formattedData);
-    setIsViewMode(false);
-
     setSidebarOpen(true);
   };
 
@@ -241,9 +255,10 @@ const Customer = () => {
 
   return (
     <>
-      <Box className="mb-2 text-end">
+      <Box className="mb-2 d-flex justify-content-between align-items-center ">
+        <h3>Customer List</h3>
         <Button color="primary" onClick={toggleSidebar}>
-          Add Customer Record
+          Add
         </Button>
       </Box>
 
@@ -259,6 +274,10 @@ const Customer = () => {
           rowCount={customerList?.total}
           disableRowSelectionOnClick
           getRowId={(row) => row._id}
+          loading={loading}
+          localeText={{
+            noRowsLabel: loading ? "No customers found" : <Spinner />,
+          }}
         />
       </Box>
 
@@ -280,7 +299,6 @@ const Customer = () => {
                 value={values.name}
                 onChange={handleChange}
                 placeholder="Name"
-                readOnly={isViewMode}
                 onBlur={handleBlur}
                 invalid={touched.name && !!errors.name}
               />
@@ -299,7 +317,6 @@ const Customer = () => {
                 value={values.email}
                 onChange={handleChange}
                 placeholder="example@domain.com"
-                readOnly={isViewMode}
                 onBlur={handleBlur}
                 invalid={touched.email && !!errors.email}
               />
@@ -321,7 +338,6 @@ const Customer = () => {
                 value={values.phoneNumber}
                 onChange={handleChange}
                 placeholder="123-456-7890"
-                readOnly={isViewMode}
                 onBlur={handleBlur}
                 invalid={touched.phoneNumber && !!errors.phoneNumber}
               />
@@ -337,7 +353,6 @@ const Customer = () => {
                 value={values.occupation}
                 onChange={handleChange}
                 placeholder="Occupation"
-                readOnly={isViewMode}
               />
             </Grid>
           </Grid>
@@ -351,7 +366,6 @@ const Customer = () => {
                 name="dateOfBirth"
                 value={values.dateOfBirth}
                 onChange={handleChange}
-                readOnly={isViewMode}
                 onBlur={handleBlur}
                 invalid={!!errors.dateOfBirth && touched.dateOfBirth}
               />
@@ -369,7 +383,6 @@ const Customer = () => {
                     value="male"
                     checked={values.gender === "male"}
                     onChange={handleChange}
-                    readOnly={isViewMode}
                   />
                   Male
                 </InputGroupText>
@@ -380,7 +393,6 @@ const Customer = () => {
                     value="female"
                     checked={values.gender === "female"}
                     onChange={handleChange}
-                    readOnly={isViewMode}
                   />
                   Female
                 </InputGroupText>
@@ -391,7 +403,6 @@ const Customer = () => {
                     value="other"
                     checked={values.gender === "other"}
                     onChange={handleChange}
-                    readOnly={isViewMode}
                   />
                   Other
                 </InputGroupText>
@@ -410,7 +421,6 @@ const Customer = () => {
               value={values.address}
               onChange={handleChange}
               placeholder="123 Main St, City"
-              readOnly={isViewMode}
               onBlur={handleBlur}
               invalid={!!errors.address && touched.address}
             />
@@ -426,7 +436,6 @@ const Customer = () => {
               value={values.linkedInProfile}
               onChange={handleChange}
               placeholder="LinkedIn URL"
-              readOnly={isViewMode}
             />
           </Grid>
 
@@ -438,7 +447,6 @@ const Customer = () => {
               value={values.facebookProfile}
               onChange={handleChange}
               placeholder="Facebook URL"
-              readOnly={isViewMode}
             />
           </Grid>
 
@@ -450,16 +458,18 @@ const Customer = () => {
               value={values.twitterProfile}
               onChange={handleChange}
               placeholder="Twitter URL"
-              readOnly={isViewMode}
             />
           </Grid>
 
           <Box className="d-flex justify-content-end">
-            {!isViewMode && (
-              <Button className="me-1" color="primary" type="submit">
-                {editData ? "Update" : "Add"}
-              </Button>
-            )}
+
+            <Button className="me-1" color="primary" type="submit" disabled={loading}>
+              {loading ? (
+                <Spinner className="spinner-border spinner-border-sm " />
+              ) : (
+                editData ? "Update" : "Save"
+              )}
+            </Button>
             <Button color="secondary" onClick={toggleSidebar} outline>
               Cancel
             </Button>
@@ -477,7 +487,7 @@ const Customer = () => {
         </ModalBody>
         <ModalFooter>
           <Button color="danger" onClick={confirmDelete}>
-            Yes, Delete
+            Delete
           </Button>
           <Button color="secondary" onClick={closeDeleteModal}>
             Cancel

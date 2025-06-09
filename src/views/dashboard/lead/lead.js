@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Button, Col, Form, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
+import { Button, Col, Form, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Spinner } from "reactstrap";
 import Sidebar from "@components/sidebar";
 import { useFormik } from "formik";
 import { Edit, Eye, Trash2 } from "react-feather";
@@ -25,9 +25,12 @@ const Lead = () => {
     const [paginationModel, setPaginationModel] = useState({ pageSize: 10, page: 0 });
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedForDelete, setSelectedForDelete] = useState(null);
+    const [loading, setLoading] = useState(false);
+
     const SweetToast = useSweetToast();
 
     useEffect(() => {
+        // setLoading(true);
         dispatch(getLeads({ page: paginationModel.page + 1, pageSize: paginationModel.pageSize }));
     }, [dispatch, paginationModel]);
 
@@ -37,6 +40,7 @@ const Lead = () => {
                 ...item,
             }));
             setRows(dataWithId);
+            // setLoading(false);
         }
     }, [leadList]);
 
@@ -118,7 +122,7 @@ const Lead = () => {
                 /^(?:\D*\d){10}\D*$/,
                 "Phone number must contain exactly 10 digits"
             )
-            .required("Phone number is required"),
+            .required("Phone Number is required"),
 
         address: Yup.string(),
         city: Yup.string(),
@@ -138,46 +142,53 @@ const Lead = () => {
         validationSchema,
         enableReinitialize: true,
         onSubmit: async (values, { resetForm }) => {
-            if (editData) {
-                const hasChanged = Object.keys(values).some(
-                    key => values[key] !== editData[key]
-                );
-                if (!hasChanged) {
-                    toggleSidebar();
-                    resetForm();
-                    setEditData(null);
-                    return;
-                }
-                const updatedData = { ...editData, ...values };
-                const res = await dispatch(updateLead({ updatedData, paginationModel }));
-                if (res.payload?.status === 200) {
-                    SweetToast.fire({
-                        icon: "success",
-                        title: res.payload.data.message,
-                    });
+            setLoading(true);
+            try {
+                if (editData) {
+                    const hasChanged = Object.keys(values).some(
+                        key => values[key] !== editData[key]
+                    );
+                    if (!hasChanged) {
+                        toggleSidebar();
+                        resetForm();
+                        setEditData(null);
+                        return;
+                    }
+                    const updatedData = { ...editData, ...values };
+                    const res = await dispatch(updateLead({ updatedData, paginationModel }));
+                    if (res.payload?.status === 200) {
+                        SweetToast.fire({
+                            icon: "success",
+                            title: res.payload.data.message,
+                        });
+                    } else {
+                        SweetToast.fire({
+                            icon: "error",
+                            title: res.payload.data.message,
+                        });
+                    }
                 } else {
-                    SweetToast.fire({
-                        icon: "error",
-                        title: res.payload.data.message,
-                    });
+                    const res = await dispatch(addLead(values));
+                    if (res.payload?.status === 201) {
+                        SweetToast.fire({
+                            icon: "success",
+                            title: res.payload.data.message,
+                        });
+                    } else {
+                        SweetToast.fire({
+                            icon: "error",
+                            title: res.payload.data.message,
+                        });
+                    }
                 }
-            } else {
-                const res = await dispatch(addLead(values));
-                if (res.payload?.status === 201) {
-                    SweetToast.fire({
-                        icon: "success",
-                        title: res.payload.data.message,
-                    });
-                } else {
-                    SweetToast.fire({
-                        icon: "error",
-                        title: res.payload.data.message,
-                    });
-                }
+                resetForm();
+                setEditData(null);
+                toggleSidebar();
+            } catch (error) {
+                console.error("Error submitting form:", error);
+            } finally {
+                setLoading(false);
             }
-            resetForm();
-            setEditData(null);
-            toggleSidebar();
         },
     });
 
@@ -226,9 +237,10 @@ const Lead = () => {
 
     return (
         <>
-            <Box className="mb-2 text-end">
+            <Box className="mb-2 d-flex justify-content-between align-items-center ">
+                <h3>Leaad List</h3>
                 <Button color="primary" onClick={toggleSidebar}>
-                    Add lead Record
+                    Add
                 </Button>
             </Box>
 
@@ -243,7 +255,10 @@ const Lead = () => {
                     pageSizeOptions={[5, 10, 20]}
                     rowCount={leadList?.total}
                     disableRowSelectionOnClick
-                    // loading={loading}
+                    loading={loading}
+                    localeText={{
+                        noRowsLabel: loading ? '' : 'No records to display'
+                    }}
                     getRowId={row => row._id}
                 />
             </Box>
@@ -453,8 +468,12 @@ const Lead = () => {
 
                     <Box className="d-flex justify-content-end">
 
-                        <Button className="me-1" color="primary" type="submit">
-                            {editData ? "Update" : "Add"}
+                        <Button className="me-1" color="primary" type="submit" disabled={loading}>
+                            {loading ? (
+                                <Spinner className="spinner-border spinner-border-sm " />
+                            ) : (
+                                editData ? "Update" : "Save"
+                            )}
                         </Button>
 
                         <Button color="secondary" onClick={toggleSidebar} outline>
@@ -475,7 +494,7 @@ const Lead = () => {
                 </ModalBody>
                 <ModalFooter>
                     <Button color="danger" onClick={confirmDelete}>
-                        Yes, Delete
+                        Delete
                     </Button>
                     <Button color="secondary" onClick={closeDeleteModal}>
                         Cancel

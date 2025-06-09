@@ -10,6 +10,7 @@ import {
   ModalBody,
   ModalFooter,
   ModalHeader,
+  Spinner,
 } from "reactstrap";
 import Sidebar from "@components/sidebar";
 import { useFormik } from "formik";
@@ -35,7 +36,6 @@ const Task = () => {
   const userData = JSON.parse(localStorage.getItem("userData"));
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [editData, setEditData] = useState(null);
-  const [isViewMode, setIsViewMode] = useState(false);
   const [rows, setRows] = useState([]);
   const [paginationModel, setPaginationModel] = useState({
     pageSize: 10,
@@ -47,6 +47,8 @@ const Task = () => {
   const leadList = useSelector((state) => state.lead?.data || []);
   const customerList = useSelector((state) => state.customer?.data);
   const teamList = useSelector((state) => state.team?.data);
+  const [loading, setLoading] = useState(false);
+
   const SweetToast = useSweetToast();
 
   const contactOptions = contactList?.map((contact) => ({
@@ -111,9 +113,11 @@ const Task = () => {
   }, [taskList]);
 
   const columns = [
-    { field: "title", headerName: "Title", flex: 1 },
-    { field: "assignToName", headerName: "Assign To Name", flex: 1 },
-    { field: "status", headerName: "status", flex: 1 },
+    {
+      field: "title", headerName: "Title", flex: 1, renderCell: (params) => params.value || "–",
+    },
+    { field: "assignToName", headerName: "Assign To Name", flex: 1, renderCell: (params) => params.value || "–" },
+    { field: "status", headerName: "status", flex: 1, renderCell: (params) => params.value || "–" },
     {
       field: "startDate",
       headerName: "Start Date",
@@ -204,46 +208,53 @@ const Task = () => {
     validationSchema,
     enableReinitialize: true,
     onSubmit: async (values, { resetForm }) => {
-      if (editData) {
-        const hasChanged = Object.keys(values).some(
-          (key) => values[key] !== editData[key]
-        );
-        if (!hasChanged) {
-          toggleSidebar();
-          resetForm();
-          setEditData(null);
-          return;
-        }
-        const updatedData = { ...editData, ...values };
-        const res = await dispatch(updateTask({ updatedData, paginationModel }));
-        if (res.payload?.status === 200) {
-          SweetToast.fire({
-            icon: "success",
-            title: res.payload.data.message,
-          });
+      setLoading(true);
+      try {
+        if (editData) {
+          const hasChanged = Object.keys(values).some(
+            (key) => values[key] !== editData[key]
+          );
+          if (!hasChanged) {
+            toggleSidebar();
+            resetForm();
+            setEditData(null);
+            return;
+          }
+          const updatedData = { ...editData, ...values };
+          const res = await dispatch(updateTask({ updatedData, paginationModel }));
+          if (res.payload?.status === 200) {
+            SweetToast.fire({
+              icon: "success",
+              title: res.payload.data.message,
+            });
+          } else {
+            SweetToast.fire({
+              icon: "error",
+              title: res.payload.data.message,
+            });
+          }
         } else {
-          SweetToast.fire({
-            icon: "error",
-            title: res.payload.data.message,
-          });
+          const res = await dispatch(addTask(values));
+          if (res.payload?.status === 201) {
+            SweetToast.fire({
+              icon: "success",
+              title: res.payload.data.message,
+            });
+          } else {
+            SweetToast.fire({
+              icon: "error",
+              title: res.payload.data.message,
+            });
+          }
         }
-      } else {
-        const res = await dispatch(addTask(values));
-        if (res.payload?.status === 201) {
-          SweetToast.fire({
-            icon: "success",
-            title: res.payload.data.message,
-          });
-        } else {
-          SweetToast.fire({
-            icon: "error",
-            title: res.payload.data.message,
-          });
-        }
+        resetForm();
+        setEditData(null);
+        toggleSidebar();
+      } catch (error) {
+        console.error("Error submitting form:", error);
+      } finally {
+        setLoading(false);
       }
-      resetForm();
-      setEditData(null);
-      toggleSidebar();
     },
   });
 
@@ -253,7 +264,6 @@ const Task = () => {
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
     setEditData(null);
-    setIsViewMode(false);
     formik.resetForm();
   };
 
@@ -292,7 +302,6 @@ const Task = () => {
     };
 
     setEditData(formattedData);
-    setIsViewMode(false);
     setSidebarOpen(true);
   };
 
@@ -321,13 +330,14 @@ const Task = () => {
 
   return (
     <>
-      {userData.role === "admin" && (
-        <Box className="mb-2 text-end">
+      <Box className="mb-2 d-flex justify-content-between align-items-center ">
+        <h3>Task List</h3>
+        {userData.role === "admin" && (
           <Button color="primary" onClick={toggleSidebar}>
-            Add Task
+            Add
           </Button>
-        </Box>
-      )}
+        )}
+      </Box>
 
       <Box style={{ height: 635, width: "100%" }}>
         <DataGrid
@@ -341,6 +351,10 @@ const Task = () => {
           rowCount={taskList?.total || 0}
           disableRowSelectionOnClick
           getRowId={(row) => row?._id}
+          loading={loading}
+          localeText={{
+            noRowsLabel: loading ? "No customers found" : <Spinner />,
+          }}
         />
       </Box>
 
@@ -362,7 +376,6 @@ const Task = () => {
                 value={values.title}
                 onChange={handleChange}
                 placeholder="Title"
-                readOnly={isViewMode}
                 onBlur={handleBlur}
                 invalid={touched.title && !!errors.title}
               />
@@ -378,7 +391,6 @@ const Task = () => {
                 name="related"
                 value={values.related}
                 onChange={handleChange}
-                readOnly={isViewMode}
               >
                 <option value="none">None</option>
                 <option value="contact">Contact</option>
@@ -400,7 +412,6 @@ const Task = () => {
                     name="assignToContactId"
                     value={values.assignToContactId}
                     onChange={handleChange}
-                    disabled={isViewMode}
                   >
                     <option value="">Select Contact</option>
                     {contactOptions.map((option) => (
@@ -421,7 +432,6 @@ const Task = () => {
                     name="assignToLeadId"
                     value={values.assignToLeadId}
                     onChange={handleChange}
-                    disabled={isViewMode}
                   >
                     <option value="">Select Lead</option>
                     {leadOptions.map((option) => (
@@ -441,7 +451,6 @@ const Task = () => {
                     name="assignToTeamId"
                     value={values.assignToTeamId}
                     onChange={handleChange}
-                    disabled={isViewMode}
                   >
                     <option value="">Select Team</option>
                     {teamOptions.map((option) => (
@@ -461,7 +470,6 @@ const Task = () => {
                     name="assignToCustomerId"
                     value={values.assignToCustomerId}
                     onChange={handleChange}
-                    disabled={isViewMode}
                   >
                     <option value="">Select Customer</option>
                     {customerOptions.map((option) => (
@@ -506,7 +514,6 @@ const Task = () => {
                 value={values.priority}
                 onChange={handleChange}
                 placeholder="Priority"
-                readOnly={isViewMode}
               />
             </Grid>
           </Grid>
@@ -520,7 +527,6 @@ const Task = () => {
                 name="startDate"
                 value={values.startDate}
                 onChange={handleChange}
-                readOnly={isViewMode}
                 onBlur={handleBlur}
                 invalid={!!errors.startDate && touched.startDate}
               />
@@ -533,7 +539,6 @@ const Task = () => {
                 name="deadLine"
                 value={values.deadLine}
                 onChange={handleChange}
-                readOnly={isViewMode}
                 onBlur={handleBlur}
                 invalid={!!errors.deadLine && touched.deadLine}
               />
@@ -548,18 +553,19 @@ const Task = () => {
               value={values.description}
               onChange={handleChange}
               placeholder="123 Main St, City"
-              readOnly={isViewMode}
               onBlur={handleBlur}
               invalid={!!errors.description && touched.description}
             />
           </Grid>
 
           <Box className="d-flex justify-content-end">
-            {!isViewMode && (
-              <Button className="me-1" color="primary" type="submit">
-                {editData ? "Update" : "Add"}
-              </Button>
-            )}
+            <Button className="me-1" color="primary" type="submit" disabled={loading}>
+              {loading ? (
+                <Spinner className="spinner-border spinner-border-sm " />
+              ) : (
+                editData ? "Update" : "Save"
+              )}
+            </Button>
             <Button color="secondary" onClick={toggleSidebar} outline>
               Cancel
             </Button>
@@ -578,7 +584,7 @@ const Task = () => {
         </ModalBody>
         <ModalFooter>
           <Button color="danger" onClick={confirmDelete}>
-            Yes, Delete
+            Delete
           </Button>
           <Button color="secondary" onClick={closeDeleteModal}>
             Cancel
