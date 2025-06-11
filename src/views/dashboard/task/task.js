@@ -365,7 +365,7 @@ const Task = () => {
         size="xl"
       >
         <Form onSubmit={handleSubmit} className="mt-2">
-          <Grid container spacing={2} className="mb-2">
+          <Grid container spacing={2} >
             <Grid size={{ xs: 12, sm: 6 }}>
               <Label for="title">
                 Title <span className="text-danger">*</span>

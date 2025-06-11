@@ -333,9 +333,7 @@ const Contact = () => {
                 <div className="text-danger">{errors.firstName}</div>
               )}
             </Grid>
-          </Grid>
 
-          <Grid container spacing={2} className="mb-2">
             <Grid size={{ xs: 12, sm: 6 }}>
               <Label for="lastName">
                 Last Name <span className="text-danger">*</span>
@@ -371,9 +369,7 @@ const Contact = () => {
                 <div className="text-danger">{errors.email}</div>
               )}
             </Grid>
-          </Grid>
 
-          <Grid container spacing={2} className="mb-2">
             <Grid size={{ xs: 12, sm: 6 }}>
               <Label for="phoneNumber">
                 Phone Number<span className="text-danger">*</span>
@@ -466,50 +462,46 @@ const Contact = () => {
             </Grid>
           </Grid>
 
-          <Grid container spacing={2} className="mb-2">
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <Label for="city">City</Label>
-              <Input
-                id="city"
-                name="city"
-                value={values.city}
-                onChange={handleChange}
-                placeholder="City"
-              />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <Label for="state">State</Label>
-              <Input
-                id="state"
-                name="state"
-                value={values.state}
-                onChange={handleChange}
-                placeholder="State"
-              />
-            </Grid>
+          <Grid size={{ xs: 12, sm: 6 }} className="mb-2">
+            <Label for="city">City</Label>
+            <Input
+              id="city"
+              name="city"
+              value={values.city}
+              onChange={handleChange}
+              placeholder="City"
+            />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6 }} className="mb-2">
+            <Label for="state">State</Label>
+            <Input
+              id="state"
+              name="state"
+              value={values.state}
+              onChange={handleChange}
+              placeholder="State"
+            />
           </Grid>
 
-          <Grid container spacing={2} className="mb-2">
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <Label for="country">Country</Label>
-              <Input
-                id="country"
-                name="country"
-                value={values.country}
-                onChange={handleChange}
-                placeholder="Country"
-              />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6 }} className="mb-2">
-              <Label for="zip">ZIP Code</Label>
-              <Input
-                id="zip"
-                name="zip"
-                value={values.zip}
-                onChange={handleChange}
-                placeholder="ZIP Code"
-              />
-            </Grid>
+          <Grid size={{ xs: 12, sm: 6 }} className="mb-2">
+            <Label for="country">Country</Label>
+            <Input
+              id="country"
+              name="country"
+              value={values.country}
+              onChange={handleChange}
+              placeholder="Country"
+            />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6 }} className="mb-2">
+            <Label for="zip">ZIP Code</Label>
+            <Input
+              id="zip"
+              name="zip"
+              value={values.zip}
+              onChange={handleChange}
+              placeholder="ZIP Code"
+            />
           </Grid>
 
           <Grid size={{ xs: 12, sm: 6 }} className="mb-2">

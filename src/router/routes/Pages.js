@@ -3,7 +3,7 @@ import { Navigate } from 'react-router-dom'
 
 const Faq = lazy(() => import('../../views/pages/faq'))
 const ApiKey = lazy(() => import('../../views/pages/api-key'))
-const Profile = lazy(() => import('../../views/pages/profile'))
+// const Profile = lazy(() => import('../../views/pages/profile'))
 const Pricing = lazy(() => import('../../views/pages/pricing'))
 const License = lazy(() => import('../../views/pages/license'))
 const Error = lazy(() => import('../../views/pages/misc/Error'))
@@ -20,10 +20,10 @@ const KnowledgeBaseCategory = lazy(() => import('../../views/pages/knowledge-bas
 const KBCategoryQuestion = lazy(() => import('../../views/pages/knowledge-base/KnowledgeBaseCategoryQuestion'))
 
 const PagesRoutes = [
-  {
-    path: '/pages/profile',
-    element: <Profile />
-  },
+  // {
+  //   path: '/pages/profile',
+  //   element: <Profile />
+  // },
   {
     path: '/pages/faq',
     element: <Faq />
@@ -111,7 +111,8 @@ const PagesRoutes = [
       publicRoute: true,
       layout: 'blank'
     }
-  }
+  },
+
 ]
 
 export default PagesRoutes

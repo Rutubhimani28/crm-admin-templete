@@ -306,9 +306,7 @@ const Lead = () => {
                                 <div className="text-danger">{formik.errors.email}</div>
                             )}
                         </Grid>
-                    </Grid>
 
-                    <Grid container spacing={2} className='mb-2'>
                         <Grid size={{ xs: 12, sm: 6, }}>
                             <Label for="phoneNumber">
                                 Phone Number <span className="text-danger">*</span>
@@ -377,9 +375,7 @@ const Lead = () => {
                                 placeholder="State"
                             />
                         </Grid>
-                    </Grid>
 
-                    <Grid container spacing={2} className='mb-2'>
                         <Grid size={{ xs: 12, sm: 6, }}>
                             <Label for="country">Country</Label>
                             <Input
@@ -400,9 +396,7 @@ const Lead = () => {
                                 placeholder="ZIP Code"
                             />
                         </Grid>
-                    </Grid>
 
-                    <Grid container spacing={2} className='mb-2'>
                         <Grid size={{ xs: 12, sm: 6, }}>
                             <Label for="source">Source</Label>
                             <Col sm={12}>
@@ -440,9 +434,7 @@ const Lead = () => {
                                 </Input>
                             </Col>
                         </Grid>
-                    </Grid>
 
-                    <Grid container spacing={2} className='mb-2'>
                         <Grid size={{ xs: 12, sm: 6, }}>
                             <Label for="conversationDate">Conversation Date</Label>
                             <Input

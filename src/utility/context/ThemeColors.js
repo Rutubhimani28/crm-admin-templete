@@ -3,15 +3,12 @@ import { createTheme, ThemeProvider } from '@mui/material'
 import { useEffect, useState, createContext } from 'react'
 import { useSkin } from '@hooks/useSkin'
 
-// ** Create Context
 const ThemeColors = createContext()
 
 const ThemeContext = ({ children }) => {
-  // ** State
   const [colors, setColors] = useState({})
   const { skin } = useSkin()
 
-  //** ComponentDidMount
   useEffect(() => {
     if (window !== 'undefined') {
       //** Get variable value
@@ -56,7 +53,6 @@ const ThemeContext = ({ children }) => {
     }
   }, [])
 
-
   const theme = createTheme({
     palette: {
       mode: skin,
@@ -72,6 +68,14 @@ const ThemeContext = ({ children }) => {
       },
     },
     components: {
+      MuiPaper: {
+        styleOverrides: {
+          root: {
+            backgroundColor: skin === "light" ? "#f9f9f9" : "#202544",
+            color: skin === "light" ? "#000" : "#fff",
+          }
+        }
+      },
       MuiDataGrid: {
         styleOverrides: {
           root: {

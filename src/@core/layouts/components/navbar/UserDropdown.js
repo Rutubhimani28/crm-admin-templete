@@ -10,10 +10,10 @@ import { isUserLoggedIn } from "@utils";
 
 // ** Store & Actions
 import { handleLogout } from "@store/authentication";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 // ** Third Party Components
-import { Power } from "react-feather";
+import { User, Power } from "react-feather";
 
 // ** Reactstrap Imports
 import {
@@ -26,6 +26,7 @@ import {
 // ** Default Avatar Image
 import defaultAvatar from "@src/assets/images/portrait/small/avatar-s-11.jpg";
 import { logout } from "../../../../redux/authentication";
+import { getProfile } from "../../../../redux/Profile";
 
 const UserDropdown = () => {
   // ** Store Vars
@@ -33,15 +34,17 @@ const UserDropdown = () => {
 
   // ** State
   const [userData, setUserData] = useState(null);
+  const user = useSelector((state) => state.profile?.data) // make sure you access `.data` if needed
   //** ComponentDidMount
   useEffect(() => {
     if (isUserLoggedIn() !== null) {
       setUserData(JSON.parse(localStorage.getItem("userData")));
     }
+    dispatch(getProfile())
   }, []);
 
   //** Vars
-  const userAvatar = (userData && userData.avatar) || defaultAvatar;
+  const userAvatar = (user?.image?.url) || defaultAvatar;
 
   return (
     <UncontrolledDropdown tag="li" className="dropdown-user nav-item">
@@ -62,6 +65,10 @@ const UserDropdown = () => {
         <Avatar img={userAvatar} imgHeight="40" imgWidth="40" status="online" />
       </DropdownToggle>
       <DropdownMenu end>
+        <DropdownItem tag={Link} to='/dashboard/profile'>
+          <User size={14} className='me-75' />
+          <span className='align-middle'>Profile</span>
+        </DropdownItem>
         <DropdownItem
           tag={Link}
           to="/login"

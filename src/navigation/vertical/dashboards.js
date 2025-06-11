@@ -1,5 +1,5 @@
 // ** Icons Import
-import { PhoneCall, BarChart2, Users, CheckSquare, User } from "react-feather";
+import {PhoneCall, BarChart2, Users, CheckSquare, User } from "react-feather";
 
 export default [
   {

@@ -324,9 +324,7 @@ const Customer = () => {
                 <div className="text-danger">{errors.email}</div>
               )}
             </Grid>
-          </Grid>
 
-          <Grid container spacing={2} className="mb-2">
             <Grid size={{ xs: 12, sm: 6 }}>
               <Label for="phoneNumber">
                 Phone Number <span className="text-danger">*</span>
@@ -355,9 +353,7 @@ const Customer = () => {
                 placeholder="Occupation"
               />
             </Grid>
-          </Grid>
 
-          <Grid container spacing={2} className="mb-2">
             <Grid size={{ xs: 12, sm: 6 }}>
               <Label for="dateOfBirth">Date of Birth</Label>
               <Input
