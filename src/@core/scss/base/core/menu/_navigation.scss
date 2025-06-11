@@ -82,7 +82,7 @@
       // margin-top: 1.35rem;
       font-size: inherit;
       .brand-logo img {
-        max-width: 75px;
+        width: 120px;
       }
       .brand-text {
         color: $primary;
@@ -105,6 +105,7 @@
     .ps__rail-y {
       z-index: 3;
     }
+    padding-top: 35px;
   }
 
   ul {

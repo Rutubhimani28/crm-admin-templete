@@ -68,7 +68,7 @@ const ResetPasswordBasic = () => {
       }
     } catch (err) {
       setError("Unexpected error occurred");
-    } finally { 
+    } finally {
       setIsLoading(false);
     }
   };
@@ -83,7 +83,7 @@ const ResetPasswordBasic = () => {
               to="/"
               onClick={(e) => e.preventDefault()}
             >
-              <img src={crm} alt="logo" height={100} width={100} />
+              <img src={crm} alt="logo" height={100} width={120} />
             </Link>
             <CardTitle tag="h4" className="mb-1">
               {(error || message) && (
