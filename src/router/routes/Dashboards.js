@@ -23,11 +23,11 @@ const DashboardRoutes = [
     element: <DashboardAnalytics />
   },
   {
-    path: '/dashboard/ecommerce',
-    element: <DashboardEcommerce />
+    path: '/ecommerce',
+    element: <commerce />
   },
   {
-    path: '/dashboard/contact',
+    path: '/contact',
     element: <Contact />
   },
   {
@@ -35,7 +35,7 @@ const DashboardRoutes = [
     element: <ContactView />
   },
   {
-    path: '/dashboard/lead',
+    path: '/lead',
     element: <Lead />
   },
   {
@@ -43,7 +43,7 @@ const DashboardRoutes = [
     element: <LeadView />
   },
   {
-    path: "/dashboard/customer",
+    path: "/customer",
     element: <Customer />
   },
   {
@@ -51,7 +51,7 @@ const DashboardRoutes = [
     element: <CustomerView />
   },
   {
-    path: '/dashboard/task',
+    path: '/task',
     element: <Task />
   },
   {
@@ -59,7 +59,7 @@ const DashboardRoutes = [
     element: <TaskView />
   },
   {
-    path: '/dashboard/team',
+    path: '/team',
     element: <Team />
   },
   {
@@ -67,15 +67,15 @@ const DashboardRoutes = [
     element: <TeamView />
   },
   {
-    path: '/dashboard/profile',
+    path: '/profile',
     element: <Profile />
   },
   // {
-  //   path: '/dashboard/todo',
+  //   path: '/todo',
   //   element: <Todo />
   // },
   {
-    path: '/dashboard/calendar',
+    path: '/calendar',
     element: <Calendar />
   }
 

@@ -12,47 +12,47 @@ export default [
     id: "contact",
     title: "Contact",
     icon: <PhoneCall size={20} />,
-    navLink: "/dashboard/contact",
+    navLink: "/contact",
     roles: ["admin", "user"],
   },
   {
     id: "lead",
     title: "Lead",
     icon: <BarChart2 size={20} />,
-    navLink: "/dashboard/lead",
+    navLink: "/lead",
     roles: ["admin", "user"],
   },
   {
     id: "customer",
     title: "Customer",
     icon: <User size={20} />,
-    navLink: "/dashboard/customer",
+    navLink: "/customer",
     roles: ["admin", "user"],
   },
   {
     id: "task",
     title: "Task",
     icon: <CheckSquare size={20} />,
-    navLink: "/dashboard/task",
+    navLink: "/task",
     roles: ["admin", "user"],
   },
   {
     id: "team",
     title: "Team",
     icon: <Users size={12} />,
-    navLink: "/dashboard/team",
+    navLink: "/team",
     roles: ["admin", "user"],
   },
   // {
   //   id: 'todo',
   //   title: 'Todo',
   //   icon: <CheckSquare />,
-  //   navLink: '/dashboard/todo'
+  //   navLink: '/todo'
   // },
   {
     id: 'calendar',
     title: 'Calendar',
     icon: <Calendar />,
-    navLink: '/dashboard/calendar'
+    navLink: '/calendar'
   }
 ]

@@ -248,7 +248,7 @@ const AnalyticsDashboard = () => {
         </Col>
       </Row>
       <Row className='match-height'>
-        <Box style={{ height: 635, width: "100%" }}>
+        <Box style={{ height: '68.9vh', width: "100%" }}>
           <h3>Lead List</h3>
           <DataGrid
             rows={rows.slice(0, 5)}
@@ -260,7 +260,7 @@ const AnalyticsDashboard = () => {
           />
           {leadList?.total > 5 && (
             <div className='d-flex justify-content-end mt-1'>
-              <Button color="primary" onClick={() => navigate('/dashboard/lead')}>
+              <Button color="primary" onClick={() => navigate('/lead')}>
                 View All Leads
               </Button>
             </div>

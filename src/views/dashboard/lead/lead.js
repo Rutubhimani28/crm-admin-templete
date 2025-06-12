@@ -301,7 +301,7 @@ const Lead = () => {
                 </Button>
             </Box>
 
-            <Box style={{ height: 635, width: "100%" }}>
+            <Box style={{ height: '68.9vh', width: "100%" }}>
                 <DataGrid
                     rows={rows}
                     columns={columns}
