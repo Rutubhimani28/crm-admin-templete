@@ -1,174 +1,271 @@
 // ** React Imports
-import { useContext } from 'react'
+import { useContext, useEffect, useState } from 'react'
 
 // ** Icons Imports
-import { List } from 'react-feather'
-
-import Avatar from '@components/avatar'
-import Timeline from '@components/timeline'
-import AvatarGroup from '@components/avatar-group'
-
-import { kFormatter } from '@utils'
+import { BarChart2, CheckSquare, List, PhoneCall, User, UserCheck, UserPlus, UserX } from 'react-feather'
 
 import { ThemeColors } from '@src/utility/context/ThemeColors'
 
-import { Row, Col, Card, CardHeader, CardTitle, CardBody } from 'reactstrap'
+import { Row, Col, Card, CardHeader, CardTitle, CardBody, Button } from 'reactstrap'
 
-import Sales from '@src/views/ui-elements/cards/analytics/Sales'
-import AvgSessions from '@src/views/ui-elements/cards/analytics/AvgSessions'
-import CardAppDesign from '@src/views/ui-elements/cards/advance/CardAppDesign'
 import SupportTracker from '@src/views/ui-elements/cards/analytics/SupportTracker'
-import OrdersReceived from '@src/views/ui-elements/cards/statistics/OrdersReceived'
-import SubscribersGained from '@src/views/ui-elements/cards/statistics/SubscribersGained'
-import CardCongratulations from '@src/views/ui-elements/cards/advance/CardCongratulations'
 
-// ** Images
-import jsonImg from '@src/assets/images/icons/json.png'
 
-// ** Avatar Imports
-import avatar6 from '@src/assets/images/portrait/small/avatar-s-6.jpg'
-import avatar7 from '@src/assets/images/portrait/small/avatar-s-7.jpg'
-import avatar8 from '@src/assets/images/portrait/small/avatar-s-8.jpg'
-import avatar9 from '@src/assets/images/portrait/small/avatar-s-9.jpg'
-import avatar20 from '@src/assets/images/portrait/small/avatar-s-20.jpg'
-
-// ** Styles
 import '@styles/react/libs/charts/apex-charts.scss'
+import { getLeads } from '../../../redux/lead'
+import { useDispatch, useSelector } from 'react-redux'
+import { DataGrid } from '@mui/x-data-grid'
+import { Box } from '@mui/material'
+import { Edit, Eye, Trash2 } from "react-feather";
+import { useSkin } from '@hooks/useSkin'
+import { useNavigate } from 'react-router-dom'
+import StatsHorizontal from '@components/widgets/stats/StatsHorizontal'
+import { getContacts } from '../../../redux/contact'
+import { getCustomers } from '../../../redux/customer'
+import { getTasks } from '../../../redux/task'
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 
 const AnalyticsDashboard = () => {
   // ** Context
   const { colors } = useContext(ThemeColors)
+  const [rows, setRows] = useState([]);
+  const [paginationModel, setPaginationModel] = useState({ pageSize: 10, page: 0 });
+  const dispatch = useDispatch();
+  const leadList = useSelector((state) => state?.lead);
+  const { skin } = useSkin()
+  const navigate = useNavigate()
+  const contactList = useSelector((state) => state?.contact);
+  const customerList = useSelector((state) => state?.customer);
+  const taskList = useSelector((state) => state?.task);
 
-  // ** Vars
-  const avatarGroupArr = [
-    {
-      imgWidth: 33,
-      imgHeight: 33,
-      title: 'Billy Hopkins',
-      placement: 'bottom',
-      img: avatar9
-    },
-    {
-      imgWidth: 33,
-      imgHeight: 33,
-      title: 'Amy Carson',
-      placement: 'bottom',
-      img: avatar6
-    },
-    {
-      imgWidth: 33,
-      imgHeight: 33,
-      title: 'Brandon Miles',
-      placement: 'bottom',
-      img: avatar8
-    },
-    {
-      imgWidth: 33,
-      imgHeight: 33,
-      title: 'Daisy Weber',
-      placement: 'bottom',
-      img: avatar7
-    },
-    {
-      imgWidth: 33,
-      imgHeight: 33,
-      title: 'Jenny Looper',
-      placement: 'bottom',
-      img: avatar20
+
+
+  useEffect(() => {
+    dispatch(getLeads({ page: paginationModel.page + 1, pageSize: paginationModel.pageSize }));
+    dispatch(
+      getContacts({
+        page: paginationModel.page + 1,
+        pageSize: paginationModel.pageSize,
+      })
+    );
+    dispatch(
+      getCustomers({
+        page: paginationModel.page + 1,
+        pageSize: paginationModel.pageSize,
+      })
+    );
+    dispatch(
+      getTasks({
+        page: paginationModel.page + 1,
+        pageSize: paginationModel.pageSize,
+      })
+    );
+  }, [dispatch, paginationModel]);
+
+  useEffect(() => {
+    if (leadList?.data?.length) {
+      const dataWithId = leadList?.data?.map((item) => ({
+        ...item,
+      }));
+      setRows(dataWithId);
     }
-  ]
-  const data = [
+  }, [leadList]);
+
+
+  const columns = [
+    { field: "name", headerName: "Name", flex: 1 },
+    { field: "email", headerName: "Email", flex: 1 },
+    { field: "phoneNumber", headerName: "Phone Number", flex: 1 },
+    { field: "address", headerName: "Address", flex: 1 },
     {
-      title: '12 Invoices have been paid',
-      content: 'Invoices have been paid to the company.',
-      meta: '',
-      metaClassName: 'me-1',
-      customContent: (
-        <div className='d-flex align-items-center'>
-          <img className='me-1' src={jsonImg} alt='data.json' height='23' />
-          <span>data.json</span>
-        </div>
-      )
-    },
-    {
-      title: 'Client Meeting',
-      content: 'Project meeting with john @10:15am.',
-      meta: '',
-      metaClassName: 'me-1',
-      color: 'warning',
-      customContent: (
-        <div className='d-flex align-items-center'>
-          <Avatar img={avatar9} />
-          <div className='ms-50'>
-            <h6 className='mb-0'>John Doe (Client)</h6>
-            <span>CEO of Infibeam</span>
+      field: "status",
+      headerName: "Status",
+      flex: 1,
+      renderCell: (params) => {
+        const status = params.value;
+        let bgColor = '';
+        let textColor = '';
+
+        switch (status) {
+          case 'Active':
+            bgColor = 'rgba(0, 255, 135, 0.1)';
+            textColor = '#00ff87';
+            break;
+          case 'Inactive':
+            bgColor = 'rgba(255, 0, 0, 0.1)';
+            textColor = '#ff4d4f';
+            break;
+          case 'Pending':
+            bgColor = 'rgba(255, 193, 7, 0.1)';
+            textColor = '#ffc107';
+            break;
+          default:
+            bgColor = 'rgba(108, 117, 125, 0.1)';
+            textColor = '#6c757d';
+        }
+
+        return (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              height: '100%',
+            }}
+          >
+            <div
+              style={{
+                backgroundColor: bgColor,
+                color: textColor,
+                padding: '2px 8px',
+                borderRadius: '10px',
+                fontSize: '12px',
+                fontWeight: 500,
+                lineHeight: 1,
+                textTransform: 'capitalize',
+                width: 'fit-content',
+                textAlign: 'center',
+
+              }}
+
+            >
+              {status}
+            </div>
           </div>
-        </div>
-      )
+        );
+      }
     },
     {
-      title: 'Create a new project for client',
-      content: 'Add files to new design folder',
-      color: 'info',
-      meta: '',
-      metaClassName: 'me-1',
-      customContent: <AvatarGroup data={avatarGroupArr} />
+      field: "actions",
+      headerName: "Actions",
+      sortable: false,
+      filterable: false,
+      flex: 1,
+
+      renderCell: (params) => {
+        const data = params.row;
+        return (
+          <div style={{ display: "flex", marginTop: "7px" }}>
+            <Button
+              variant="outlined"
+              size="small"
+              style={{ padding: "2px" }}
+              color=''
+              onClick={() => {
+                handleEdit(data)
+              }}
+            >
+              <Edit size={20} color="green" />
+            </Button>
+            <Button
+              variant="contained"
+              color=''
+              size="small"
+              style={{ padding: "4px" }}
+              onClick={() => navigate(`/lead/leadView/${data._id}`)}
+            >
+              <Eye size={20} color={skin === "light" ? "blue" : "white"} />
+            </Button>
+
+            <Button
+              variant="contained"
+              color="error"
+              size="small"
+              style={{ padding: "2px" }}
+              onClick={() => dispatch(() => openDeleteModal(data))}
+            >
+              <Trash2 size={20} color="red" />
+            </Button>
+          </div>
+        );
+      },
     },
-    {
-      title: 'Create a new project for client',
-      content: 'Add files to new design folder',
-      color: 'danger',
-      meta: '',
-      metaClassName: 'me-1'
-    }
+  ];
+
+  const chartData = [
+    { name: 'Contacts', value: contactList?.total || 0 },
+    { name: 'Leads', value: leadList?.total || 0 },
+    { name: 'Customers', value: customerList?.total || 0 },
+    { name: 'Tasks', value: taskList?.total || 0 }
   ]
 
   return (
     <div id='dashboard-analytics'>
-      <Row className='match-height'>
-        <Col lg='6' sm='12'>
-          <CardCongratulations />
+      <Row>
+        <Col lg='3' sm='6'>
+          <StatsHorizontal
+            color='primary'
+            statTitle='Total Contact'
+            icon={<PhoneCall size={20} />}
+            renderStats={<h3 className='fw-bolder mb-75'>{contactList.total}</h3>}
+          />
         </Col>
         <Col lg='3' sm='6'>
-          <SubscribersGained kFormatter={kFormatter} />
+          <StatsHorizontal
+            color='danger'
+            statTitle='Total Lead'
+            icon={<BarChart2 size={20} />}
+            renderStats={<h3 className='fw-bolder mb-75'>{leadList.total}</h3>}
+          />
         </Col>
         <Col lg='3' sm='6'>
-          <OrdersReceived kFormatter={kFormatter} warning={colors.warning.main} />
+          <StatsHorizontal
+            color='success'
+            statTitle='Total Customer'
+            icon={<UserCheck size={20} />}
+            renderStats={<h3 className='fw-bolder mb-75'>{customerList.total}</h3>}
+          />
+        </Col>
+        <Col lg='3' sm='6'>
+          <StatsHorizontal
+            color='warning'
+            statTitle='Total Task'
+            icon={<CheckSquare size={20} />}
+            renderStats={<h3 className='fw-bolder mb-75'>{taskList.total}</h3>}
+          />
         </Col>
       </Row>
       <Row className='match-height'>
         <Col lg='6' xs='12'>
-          <AvgSessions primary={colors.primary.main} />
+          <Card>
+            <CardHeader>
+              <CardTitle tag="h4">Overview</CardTitle>
+            </CardHeader>
+            <CardBody style={{ height: 300 }}> {/* IMPORTANT: Set height */}
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                  {/* <CartesianGrid strokeDasharray="3 3" /> */}
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="value" fill="#7367F0" radius={[10, 10, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardBody>
+          </Card>
         </Col>
         <Col lg='6' xs='12'>
           <SupportTracker primary={colors.primary.main} danger={colors.danger.main} />
         </Col>
       </Row>
       <Row className='match-height'>
-        <Col lg='4' xs='12'>
-          <Card className='card-user-timeline'>
-            <CardHeader>
-              <div className='d-flex align-items-center'>
-                <List className='user-timeline-title-icon' />
-                <CardTitle tag='h4'>User Timeline</CardTitle>
-              </div>
-            </CardHeader>
-            <CardBody>
-              <Timeline className='ms-50 mb-0' data={data} />
-            </CardBody>
-          </Card>
-        </Col>
-        <Col lg='4' md='6' xs='12'>
-          <Sales primary={colors.primary.main} info={colors.info.main} />
-        </Col>
-        <Col lg='4' md='6' xs='12'>
-          <CardAppDesign />
-        </Col>
-      </Row>
-      <Row className='match-height'>
-        <Col xs='12'>
-          {/* <InvoiceList /> */}
-        </Col>
+        <Box style={{ height: 635, width: "100%" }}>
+          <h3>Lead List</h3>
+          <DataGrid
+            rows={rows.slice(0, 5)}
+            columns={columns}
+            hideFooter
+            disableRowSelectionOnClick
+            getRowId={(row) => row._id}
+            autoHeight
+          />
+          {leadList?.total > 5 && (
+            <div className='d-flex justify-content-end mt-1'>
+              <Button color="primary" onClick={() => navigate('/dashboard/lead')}>
+                View All Leads
+              </Button>
+            </div>
+          )}
+        </Box>
       </Row>
     </div>
   )

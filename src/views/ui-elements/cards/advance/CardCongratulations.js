@@ -10,8 +10,17 @@ import { Card, CardBody, CardText } from 'reactstrap'
 // ** Images
 import decorationLeft from '@src/assets/images/elements/decore-left.png'
 import decorationRight from '@src/assets/images/elements/decore-right.png'
+import { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { getProfile } from '../../../../redux/Profile'
 
 const CardCongratulations = () => {
+  const dispatch = useDispatch()
+  const userData = useSelector((state) => state.profile?.data)
+
+  useEffect(() => {
+    dispatch(getProfile())
+  }, [])
   return (
     <Card className='card-congratulations'>
       <CardBody className='text-center'>
@@ -19,10 +28,10 @@ const CardCongratulations = () => {
         <img className='congratulations-img-right' src={decorationRight} alt='decor-right' />
         <Avatar icon={<Award size={28} />} className='shadow' color='primary' size='xl' />
         <div className='text-center'>
-          <h1 className='mb-1 text-white'>Congratulations John,</h1>
-          <CardText className='m-auto w-75'>
+          <h1 className='mb-1 text-white'>Congratulations {userData.userName},</h1>
+          {/* <CardText className='m-auto w-75'>
             You have done <strong>57.6%</strong> more sales today. Check your new badge in your profile.
-          </CardText>
+          </CardText> */}
         </div>
       </CardBody>
     </Card>

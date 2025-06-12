@@ -295,7 +295,7 @@ const Lead = () => {
     return (
         <>
             <Box className="mb-2 d-flex justify-content-between align-items-center ">
-                <h3>Leaad List</h3>
+                <h3>Lead List</h3>
                 <Button color="primary" onClick={toggleSidebar}>
                     Add
                 </Button>

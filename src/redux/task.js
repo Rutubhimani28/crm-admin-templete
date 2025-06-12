@@ -8,6 +8,17 @@ const initialState = {
   total: 0,
   page: 1,
   totalPages: 0,
+  stats: {
+    total: 0,
+    statusSummary: {
+      active: 0,
+      pending: 0,
+      completed: 0
+    },
+    monthlyStats: [],
+    dailyStats: [],
+    weeklyStats: []
+  }
 };
 
 export const getTasks = createAsyncThunk(
@@ -36,6 +47,30 @@ export const addTask = createAsyncThunk(
     }
   }
 );
+
+// export const getTaskStats = createAsyncThunk(
+//   "task/getTaskStats",
+//   async (view, { rejectWithValue }) => {
+//     try {
+//       const response = await axiosInstance.get(`/task/getTaskStats`);
+//       return response.data; // ⬅️ Fix: use `.data`
+//     } catch (error) {
+//       return rejectWithValue(error.message);
+//     }
+//   }
+// );
+export const getTaskStats = createAsyncThunk(
+  "task/getTaskStats",
+  async (view, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(`/task/getTaskStats?view=${view}`);
+      return response.data; // ⬅️ Fix: use `.data`
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 
 export const updateTask = createAsyncThunk(
   "task/updateTask",
@@ -120,8 +155,24 @@ const taskSlice = createSlice({
       })
       .addCase(getTasks.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload;
       })
+
+      .addCase(getTaskStats.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getTaskStats.fulfilled, (state, action) => {
+        state.loading = false;
+        state.stats = {
+          data: action.payload,
+        };
+      })
+      .addCase(getTaskStats.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
       .addCase(addTask.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -134,34 +185,33 @@ const taskSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+
       .addCase(updateTask.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(updateTask.fulfilled, (state, action) => {
         state.loading = false;
-        state.data = state.data.map((task) =>
-          task._id === action.payload._id ? action.payload : task
-        );
+        state.data = state.data.map(task => task._id === action.payload._id ? action.payload : task);
       })
       .addCase(updateTask.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
+
       .addCase(deleteTask.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(deleteTask.fulfilled, (state, action) => {
         state.loading = false;
-        state.data = state.data.filter(
-          (task) => task._id !== action.payload._id
-        );
+        state.data = state.data.filter(task => task._id !== action.payload._id);
       })
       .addCase(deleteTask.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
+
       .addCase(viewTask.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -172,9 +222,9 @@ const taskSlice = createSlice({
       })
       .addCase(viewTask.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload;
       });
-  },
+  }
 });
 export const { reOrderTasks, selectTask } = taskSlice.actions
 export default taskSlice.reducer;
