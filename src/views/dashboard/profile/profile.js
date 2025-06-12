@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 // import { Camera, Save, Edit, Mail, Phone, Briefcase, User } from 'react-feather'
 // import { Building } from 'react-feather'
@@ -13,7 +13,6 @@ import { getProfile, updateProfile } from '../../../redux/Profile'
 import moment from 'moment'
 
 
-
 const Profile = () => {
     const [isEditing, setIsEditing] = useState(false)
     const dispatch = useDispatch()
@@ -24,7 +23,7 @@ const Profile = () => {
     const handleAvatarChange = (event) => {
         const file = event.target.files[0]
         if (file) {
-            setAvatar(URL.createObjectURL(file));
+            setAvatar(URL.createObjectURL(file))
         }
     }
 
@@ -54,19 +53,19 @@ const Profile = () => {
             console.log(" moment(values.dateOfBirth).format('YYYY-MM-DD')", moment(values.dateOfBirth).format('YYYY-MM-DD'))
             setLoading(true)
             try {
-                const formData = new FormData();
-                formData.append("userName", values.userName);
-                formData.append("email", values.email);
-                formData.append("role", values.role);
-                formData.append("phoneNumber", values.phoneNumber);
-                formData.append("address", values.address);
-                formData.append("city", values.city);
-                formData.append("zip", values.zip);
-                formData.append("dateOfBirth", moment(values?.dateOfBirth).format('YYYY-MM-DD'));
+                const formData = new FormData()
+                formData.append("userName", values.userName)
+                formData.append("email", values.email)
+                formData.append("role", values.role)
+                formData.append("phoneNumber", values.phoneNumber)
+                formData.append("address", values.address)
+                formData.append("city", values.city)
+                formData.append("zip", values.zip)
+                formData.append("dateOfBirth", moment(values?.dateOfBirth).format('YYYY-MM-DD'))
 
-                const fileInput = document.getElementById("avatar-upload");
+                const fileInput = document.getElementById("avatar-upload")
                 if (fileInput && fileInput.files[0]) {
-                    formData.append("image", fileInput.files[0]);
+                    formData.append("image", fileInput.files[0])
                 }
 
                 dispatch(updateProfile(formData))
@@ -101,7 +100,7 @@ const Profile = () => {
                         flexDirection: 'column',
                         alignItems: 'center',
                         p: 3,
-                        borderRadius: 2,
+                        borderRadius: 2
                     }}>
                         <Box sx={{ position: 'relative', display: 'inline-block' }}>
                             <Avatar
@@ -131,7 +130,7 @@ const Profile = () => {
                                         disabled={!isEditing}
                                         onClick={() => {
                                             console.log()
-                                            setAvatar(null);
+                                            setAvatar(null)
 
                                         }}
                                     >
@@ -332,9 +331,7 @@ const Profile = () => {
                                             />
                                         ) : (
                                             <Typography variant="body1" sx={{ mt: 1 }}>
-                                                {userData.dateOfBirth
-                                                    ? moment(userData.dateOfBirth).format('YYYY-MM-DD')
-                                                    : '-'}
+                                                {userData.dateOfBirth ? moment(userData.dateOfBirth).format('YYYY-MM-DD') : '-'}
                                             </Typography>
                                         )}
                                     </Grid>
@@ -359,7 +356,6 @@ const Profile = () => {
                                                 ) : (
                                                     "Save Changes"
                                                 )}
-                                                Save Changes
                                             </Button>
                                         </Box>
                                     </Grid>

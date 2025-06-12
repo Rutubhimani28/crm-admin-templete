@@ -4,30 +4,36 @@ import { useParams } from 'react-router-dom'
 
 // ** Third Party Components
 import classnames from 'classnames'
+import { useSkin } from '@hooks/useSkin'
 
 // ** Todo App Components
-// import Tasks from './Tasks'
+import Tasks from './Tasks'
 import Sidebar from './Sidebar'
-// import TaskSidebar from './TaskSidebar'
-
+import TaskSidebar from './TaskSidebar'
 // ** Store & Actions
 import { useDispatch, useSelector } from 'react-redux'
-import { getTasks, updateTask, selectTask, addTask, deleteTask, reOrderTasks } from './store'
+import { addTask, deleteTask, getTasks,selectTask, updateTask, reOrderTasks } from "../../../redux/task";
+// import { getTasks, updateTask, selectTask, addTask, deleteTask, reOrderTasks } from './store'
 
 // ** Styles
 import '@styles/react/apps/app-todo.scss'
+import { Box } from '@mui/material'
 
 const Todo = () => {
   // ** States
+  const { skin } = useSkin()
   const [sort, setSort] = useState('')
   const [query, setQuery] = useState('')
   const [mainSidebar, setMainSidebar] = useState(false)
   const [openTaskSidebar, setOpenTaskSidebar] = useState(false)
-
+ const [paginationModel, setPaginationModel] = useState({
+    pageSize: 10,
+    page: 0,
+  });
   // ** Store Vars
   const dispatch = useDispatch()
-  const store = useSelector(state => state.todo)
-
+  const store = useSelector(state => state.task)
+console.log(store,"store")
   // ** URL Params
   const paramsURL = useParams()
   const params = {
@@ -52,9 +58,17 @@ const Todo = () => {
   //     })
   //   )
   // }, [store.tasks.length, paramsURL.filter, paramsURL.tag, query, sort])
+  useEffect(() => {
+     dispatch(
+          getTasks({
+            page: paginationModel.page + 1,
+            pageSize: paginationModel.pageSize,
+          })
+        );
+  }, [])
 
   return (
-    <Fragment>
+      <Box className={skin === "light" ? "box-wrapper": "dark-box-wrapper"}>
       <Sidebar
         store={store}
         params={params}
@@ -65,7 +79,7 @@ const Todo = () => {
         setMainSidebar={setMainSidebar}
         handleTaskSidebar={handleTaskSidebar}
       />
-      <div className='content-right'>
+      <div className='content-right '>
         <div className='content-wrapper'>
           <div className='content-body'>
             <div
@@ -75,10 +89,10 @@ const Todo = () => {
               onClick={handleMainSidebar}
             ></div>
 
-            {/* {store ? (
+            {store ? (
               <Tasks
                 store={store}
-                tasks={store.tasks}
+                tasks={store?.data}
                 sort={sort}
                 query={query}
                 params={params}
@@ -105,11 +119,11 @@ const Todo = () => {
               selectTask={selectTask}
               deleteTask={deleteTask}
               handleTaskSidebar={handleTaskSidebar}
-            /> */}
+            />
           </div>
         </div>
       </div>
-    </Fragment>
+      </Box>
   )
 }
 

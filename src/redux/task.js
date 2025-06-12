@@ -41,13 +41,14 @@ export const updateTask = createAsyncThunk(
   "task/updateTask",
   async (props, { dispatch, rejectWithValue }) => {
     try {
+      console.log(typeof props?.paginationModel?.page,"props")
       const response = await axiosInstance.put(
         `/task/updateTaskById/${props?.updatedData?._id}`,
         props?.updatedData
       );
       dispatch(
         getTasks({
-          page: props?.paginationModel?.page + 1,
+          page:1,
           pageSize: props?.paginationModel?.pageSize,
         })
       );
@@ -93,8 +94,17 @@ export const viewTask = createAsyncThunk(
 
 const taskSlice = createSlice({
   name: "task",
+  tasks: [],
+  selectedTask: {},
   initialState,
-  reducers: {},
+  reducers: {
+    reOrderTasks: (state, action) => {
+      state.tasks = action.payload
+    },
+    selectTask: (state, action) => {
+      state.selectedTask = action.payload
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(getTasks.pending, (state) => {
@@ -166,5 +176,5 @@ const taskSlice = createSlice({
       });
   },
 });
-
+export const { reOrderTasks, selectTask } = taskSlice.actions
 export default taskSlice.reducer;

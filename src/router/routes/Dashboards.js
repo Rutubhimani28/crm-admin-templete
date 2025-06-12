@@ -70,10 +70,10 @@ const DashboardRoutes = [
     path: '/dashboard/profile',
     element: <Profile />
   },
-  {
-    path: '/dashboard/todo',
-    element: <Todo />
-  },
+  // {
+  //   path: '/dashboard/todo',
+  //   element: <Todo />
+  // },
   {
     path: '/dashboard/calendar',
     element: <Calendar />
