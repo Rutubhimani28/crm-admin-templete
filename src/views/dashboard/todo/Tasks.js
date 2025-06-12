@@ -24,6 +24,10 @@ import {
   DropdownToggle,
   UncontrolledDropdown
 } from 'reactstrap'
+import '@styles/react/apps/app-todo.scss'
+import { Box, Checkbox, IconButton, Typography } from '@mui/material'
+import { useState } from 'react'
+
 
 const Tasks = props => {
   // ** Props
@@ -47,7 +51,10 @@ const Tasks = props => {
     dispatch(selectTask(obj))
     handleTaskSidebar()
   }
-
+  const [paginationModel, setPaginationModel] = useState({
+    pageSize: 10,
+    page: 0,
+  });
   // ** Returns avatar color based on task tag
   const resolveAvatarVariant = tags => {
     if (tags.includes('high')) return 'light-primary'
@@ -61,13 +68,12 @@ const Tasks = props => {
   // ** Renders task tags
   const renderTags = arr => {
     const badgeColor = {
-      team: 'light-primary',
+      // team: 'light-primary',
       low: 'light-success',
       medium: 'light-warning',
       high: 'light-danger',
-      update: 'light-info'
+      // update: 'light-info'
     }
-
     return arr.map(item => (
       <Badge className='text-capitalize' key={item} color={badgeColor[item]} pill>
         {item}
@@ -88,6 +94,75 @@ const Tasks = props => {
     }
   }
 
+  // const renderTasks = () => {
+  //   return (
+  //     <Box sx={{ height: '100%', overflowY: 'auto' }}>
+  //     {tasks.length ? (
+  //       <Box component="ul" sx={{ listStyle: 'none', m: 0, p: 0 }}>
+  //         {tasks.map((item, index) => (
+  //           <Box
+  //             key={`${item.id}-${index}`}
+  //             component="li"
+  //             onClick={() => handleTaskClick(item)}
+  //             // className={classNames('todo-item', {
+  //             //   completed: item.isCompleted
+  //             // })}
+  //             sx={{
+  //               display: 'flex',
+  //               flexDirection: 'column',
+  //               px: 2,
+  //               py: 1,
+  //               borderBottom: '1px solid #e0e0e0',
+  //               cursor: 'pointer',
+  //               '&:hover': { backgroundColor: '#f9f9f9' }
+  //             }}
+  //           >
+  //             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+  //               <Box sx={{ display: 'flex', alignItems: 'center' }}>
+  //                 <IconButton size="small">
+  //                   {/* <MoreVertIcon fontSize="small" /> */}
+  //                 </IconButton>
+
+  //                 <Checkbox
+  //                   checked={item.isCompleted}
+  //                   onClick={e => e.stopPropagation()}
+  //                   onChange={e => {
+  //                     e.stopPropagation()
+  //                     dispatch(updateTask({ ...item, isCompleted: e.target.checked }))
+  //                   }}
+  //                 />
+
+  //                 <Typography variant="body1" sx={{ ml: 1 }}>
+  //                   {item.title}
+  //                 </Typography>
+  //               </Box>
+
+  //               <Box sx={{ display: 'flex', alignItems: 'center' }}>
+  //                 {item.tags && item.tags.length > 0 && (
+  //                   <Box sx={{ mr: 1 }}>{renderTags(item.priority)}</Box>
+  //                 )}
+
+  //                 {item.dueDate && (
+  //                   <Typography variant="caption" color="text.secondary" sx={{ mr: 1 }}>
+  //                     {new Date(item.dueDate).toLocaleString('default', { month: 'short' })}{' '}
+  //                     {new Date(item.dueDate).getDate().toString().padStart(2, '0')}
+  //                   </Typography>
+  //                 )}
+
+  //                 {/* {item.assignee && renderAvatar(item)} */}
+  //               </Box>
+  //             </Box>
+  //           </Box>
+  //         ))}
+  //       </Box>
+  //     ) : (
+  //       <Box sx={{ textAlign: 'center', p: 3 }}>
+  //         <Typography variant="h6">No Items Found</Typography>
+  //       </Box>
+  //     )}
+  //   </Box>
+  //   )
+  // }
   const renderTasks = () => {
     return (
       <PerfectScrollbar
@@ -109,7 +184,7 @@ const Tasks = props => {
           <ReactSortable
             tag='ul'
             list={tasks}
-            handle='.drag-icon'
+            // handle='.drag-icon'
             className='todo-task-list media-list'
             setList={newState => dispatch(reOrderTasks(newState))}
           >
@@ -124,7 +199,7 @@ const Tasks = props => {
                 >
                   <div className='todo-title-wrapper'>
                     <div className='todo-title-area'>
-                      <MoreVertical className='drag-icon' />
+                      {/* <MoreVertical className='drag-icon' /> */}
                       <div className='form-check'>
                         <Input
                           type='checkbox'
@@ -132,16 +207,19 @@ const Tasks = props => {
                           checked={item.isCompleted}
                           onClick={e => e.stopPropagation()}
                           onChange={e => {
-                            e.stopPropagation()
-                            dispatch(updateTask({ ...item, isCompleted: e.target.checked }))
+                            e.stopPropagation();
+                            const completed = e.target.checked ? "Completed" :item?.status;
+                            console.log(item,"item")
+                            dispatch(updateTask({updatedData:{ ...item, status: completed, paginationModel }}));
                           }}
+
                         />
                       </div>
                       <span className='todo-title'>{item.title}</span>
                     </div>
                     <div className='todo-item-action mt-lg-0 mt-50'>
-                      {item.tags && item.tags.length ? (
-                        <div className='badge-wrapper me-1'>{renderTags(item.tags)}</div>
+                      {item.priority && item?.priority?.length ? (
+                        <div className='badge-wrapper me-1'>{renderTags([item.priority])}</div>
                       ) : null}
                       {item.dueDate ? (
                         <small className='text-nowrap text-muted me-1'>
@@ -149,7 +227,7 @@ const Tasks = props => {
                           {new Date(item.dueDate).getDate().toString().padStart(2, '0')}
                         </small>
                       ) : null}
-                      {item.assignee ? renderAvatar(item) : null}
+                      {/* {item.assignee ? renderAvatar(item) : null}  */}
                     </div>
                   </div>
                 </li>

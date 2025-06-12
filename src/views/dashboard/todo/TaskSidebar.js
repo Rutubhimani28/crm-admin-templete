@@ -124,7 +124,7 @@ const TaskSidebar = props => {
 
   // ** Returns sidebar title
   const handleSidebarTitle = () => {
-    if (store && !isObjEmpty(store.selectedTask)) {
+    if (store ) {
       return (
         <Button
           outline
@@ -284,7 +284,7 @@ const TaskSidebar = props => {
       isOpen={open}
       toggle={handleTaskSidebar}
       className='sidebar-lg'
-      contentClassName='p-0'
+      contentClassName='content-area-wrapper p-0'
       onOpened={handleSidebarOpened}
       onClosed={handleSidebarClosed}
       modalClassName='modal-slide-in sidebar-todo-modal'
@@ -386,7 +386,7 @@ const TaskSidebar = props => {
               onEditorStateChange={data => setDesc(data)}
             />
           </div>
-          <div>{renderFooterButtons()}</div>
+          {/* <div>{renderFooterButtons()}</div> */}
         </ModalBody>
       </Form>
     </Modal>
