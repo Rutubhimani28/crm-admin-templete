@@ -117,7 +117,67 @@ const Task = () => {
       field: "title", headerName: "Title", flex: 1, renderCell: (params) => params.value || "–",
     },
     { field: "assignToName", headerName: "Assign To Name", flex: 1, renderCell: (params) => params.value || "–" },
-    { field: "status", headerName: "status", flex: 1, renderCell: (params) => params.value || "–" },
+    {
+      field: "status",
+      headerName: "Status",
+      flex: 1,
+      renderCell: (params) => {
+        const status = params.value;
+        let bgColor = '';
+        let textColor = '';
+
+        switch (status) {
+          case 'Active':
+            bgColor = 'rgba(0, 255, 135, 0.1)';
+            textColor = '#00ff87';
+            break;
+          case 'Inactive':
+            bgColor = 'rgba(255, 0, 0, 0.1)';
+            textColor = '#ff4d4f';
+            break;
+          case 'Pending':
+            bgColor = 'rgba(255, 193, 7, 0.1)';
+            textColor = '#ffc107';
+            break;
+          case 'Completed':
+            bgColor = '#1565c0';
+            textColor = '#bbdefb';
+            break;
+          default:
+            bgColor = 'rgba(108, 117, 125, 0.1)';
+            textColor = '#6c757d';
+        }
+
+        return (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              height: '100%',
+            }}
+          >
+            <div
+              style={{
+                backgroundColor: bgColor,
+                color: textColor,
+                padding: '2px 8px',
+                borderRadius: '10px',
+                fontSize: '12px',
+                fontWeight: 500,
+                lineHeight: 1,
+                textTransform: 'capitalize',
+                width: 'fit-content',
+                textAlign: 'center',
+
+              }}
+
+            >
+              {status}
+            </div>
+          </div>
+        );
+      }
+    },
     {
       field: "startDate",
       headerName: "Start Date",

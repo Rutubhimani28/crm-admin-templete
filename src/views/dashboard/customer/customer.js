@@ -262,7 +262,7 @@ const Customer = () => {
         </Button>
       </Box>
 
-      <Box style={{ height: 500, width: "100%" }}>
+      <Box style={{ height: 635, width: "100%" }}>
         <DataGrid
           rows={rows}
           columns={columns}

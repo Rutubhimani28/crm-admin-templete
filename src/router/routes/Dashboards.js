@@ -1,5 +1,7 @@
 import { lazy } from 'react'
 
+const DashboardAnalytics = lazy(() => import('../../views/dashboard/analytics'))
+
 const DashboardEcommerce = lazy(() => import('../../views/dashboard/ecommerce'))
 const Contact = lazy(() => import('../../views/dashboard/contact/contact'))
 const ContactView = lazy(() => import('../../views/dashboard/contact/contactView'))
@@ -12,8 +14,14 @@ const TaskView = lazy(() => import('../../views/dashboard/task/taskview'))
 const Team = lazy(() => import('../../views/dashboard/team/team'))
 const TeamView = lazy(() => import('../../views/dashboard/team/teamView'))
 const Profile = lazy(() => import('../../views/dashboard/profile/profile'))
+const Todo = lazy(() => import('../../views/dashboard/todo'))
+const Calendar = lazy(() => import('../../views/dashboard/calendar/Calendar'))
 
 const DashboardRoutes = [
+  {
+    path: '/dashboard/analytics',
+    element: <DashboardAnalytics />
+  },
   {
     path: '/dashboard/ecommerce',
     element: <DashboardEcommerce />
@@ -61,7 +69,16 @@ const DashboardRoutes = [
   {
     path: '/dashboard/profile',
     element: <Profile />
+  },
+  {
+    path: '/dashboard/todo',
+    element: <Todo />
+  },
+  {
+    path: '/dashboard/calendar',
+    element: <Calendar />
   }
+
 ]
 
 export default DashboardRoutes
