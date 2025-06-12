@@ -4,9 +4,9 @@ import { PhoneCall, BarChart2, Users, CheckSquare, User, Activity, Calendar } fr
 export default [
   {
     id: 'analyticsDash',
-    title: 'Analytics',
+    title: 'Dashboard',
     icon: <Activity />,
-    navLink: '/dashboard/analytics'
+    navLink: '/dashboard'
   },
   {
     id: "contact",
@@ -43,16 +43,16 @@ export default [
     navLink: "/dashboard/team",
     roles: ["admin", "user"],
   },
-  {
-    id: 'todo',
-    title: 'Todo',
-    icon: <CheckSquare />,
-    navLink: '/dashboard/todo'
-  },
+  // {
+  //   id: 'todo',
+  //   title: 'Todo',
+  //   icon: <CheckSquare />,
+  //   navLink: '/dashboard/todo'
+  // },
   {
     id: 'calendar',
     title: 'Calendar',
     icon: <Calendar />,
     navLink: '/dashboard/calendar'
-  },
-];
+  }
+]

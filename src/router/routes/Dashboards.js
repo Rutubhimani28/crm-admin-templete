@@ -19,7 +19,7 @@ const Calendar = lazy(() => import('../../views/dashboard/calendar/Calendar'))
 
 const DashboardRoutes = [
   {
-    path: '/dashboard/analytics',
+    path: '/dashboard',
     element: <DashboardAnalytics />
   },
   {
