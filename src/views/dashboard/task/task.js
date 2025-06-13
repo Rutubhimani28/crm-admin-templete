@@ -129,19 +129,19 @@ const Task = () => {
         switch (status) {
           case 'Active':
             bgColor = 'rgba(0, 255, 135, 0.1)';
-            textColor = '#00ff87';
+            textColor = '#008000';
             break;
           case 'Inactive':
             bgColor = 'rgba(255, 0, 0, 0.1)';
             textColor = '#ff4d4f';
             break;
           case 'Pending':
-            bgColor = 'rgba(255, 193, 7, 0.1)';
-            textColor = '#ffc107';
+            bgColor = '#c1930733';
+            textColor = '#c19308';
             break;
           case 'Completed':
-            bgColor = '#1565c0';
-            textColor = '#bbdefb';
+            bgColor = '#bbdefb94';
+            textColor = '#1565c0';
             break;
           default:
             bgColor = 'rgba(108, 117, 125, 0.1)';
@@ -187,10 +187,16 @@ const Task = () => {
     },
     {
       field: "deadLine",
-      headerName: "dead Line",
+      headerName: "Dead Line",
       flex: 1,
       valueFormatter: (value) =>
         value ? moment(value).format("DD/MM/YYYY") : "—",
+    },
+    {
+      field: "priority",
+      headerName: "Priority",
+      flex: 1,
+      renderCell: (params) => params.value || "–"
     },
     {
       field: "actions",
@@ -287,7 +293,7 @@ const Task = () => {
               icon: "success",
               title: res.payload.data.message,
             });
-            
+
           } else {
             SweetToast.fire({
               icon: "error",
@@ -463,92 +469,91 @@ const Task = () => {
                 <div className="text-danger">{errors.related}</div>
               )}
             </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
-              {values.related === "contact" && (
-                <>
-                  <Label for="assignTo">Assign To Contact</Label>
-                  <Input
-                    type="select"
-                    id="assignToContactId"
-                    name="assignToContactId"
-                    value={values.assignToContactId}
-                    onChange={handleChange}
-                  >
-                    <option value="">Select Contact</option>
-                    {contactOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </Input>
-                </>
-              )}
+            {values.related !== "none" &&
+              <Grid size={{ xs: 12, sm: 6 }}>
+                {values.related === "contact" && (
+                  <>
+                    <Label for="assignTo">Assign To Contact</Label>
+                    <Input
+                      type="select"
+                      id="assignToContactId"
+                      name="assignToContactId"
+                      value={values.assignToContactId}
+                      onChange={handleChange}
+                    >
+                      <option value="">Select Contact</option>
+                      {contactOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </Input>
+                  </>
+                )}
 
-              {values.related === "lead" && (
-                <>
-                  <Label for="assignTo">Assign To Lead</Label>
-                  <Input
-                    type="select"
-                    id="assignToLeadId"
-                    name="assignToLeadId"
-                    value={values.assignToLeadId}
-                    onChange={handleChange}
-                  >
-                    <option value="">Select Lead</option>
-                    {leadOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </Input>
-                </>
-              )}
-              {values.related === "team" && (
-                <>
-                  <Label for="assignTo">Assign To Team</Label>
-                  <Input
-                    type="select"
-                    id="assignToTeamId"
-                    name="assignToTeamId"
-                    value={values.assignToTeamId}
-                    onChange={handleChange}
-                  >
-                    <option value="">Select Team</option>
-                    {teamOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </Input>
-                </>
-              )}
-              {values.related === "customer" && (
-                <>
-                  <Label for="assignTo">Assign To Customer</Label>
-                  <Input
-                    type="select"
-                    id="assignToCustomerId"
-                    name="assignToCustomerId"
-                    value={values.assignToCustomerId}
-                    onChange={handleChange}
-                  >
-                    <option value="">Select Customer</option>
-                    {customerOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </Input>
-                </>
-              )}
+                {values.related === "lead" && (
+                  <>
+                    <Label for="assignTo">Assign To Lead</Label>
+                    <Input
+                      type="select"
+                      id="assignToLeadId"
+                      name="assignToLeadId"
+                      value={values.assignToLeadId}
+                      onChange={handleChange}
+                    >
+                      <option value="">Select Lead</option>
+                      {leadOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </Input>
+                  </>
+                )}
+                {values.related === "team" && (
+                  <>
+                    <Label for="assignTo">Assign To Team</Label>
+                    <Input
+                      type="select"
+                      id="assignToTeamId"
+                      name="assignToTeamId"
+                      value={values.assignToTeamId}
+                      onChange={handleChange}
+                    >
+                      <option value="">Select Team</option>
+                      {teamOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </Input>
+                  </>
+                )}
+                {values.related === "customer" && (
+                  <>
+                    <Label for="assignTo">Assign To Customer</Label>
+                    <Input
+                      type="select"
+                      id="assignToCustomerId"
+                      name="assignToCustomerId"
+                      value={values.assignToCustomerId}
+                      onChange={handleChange}
+                    >
+                      <option value="">Select Customer</option>
+                      {customerOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </Input>
+                  </>
+                )}
 
-              {touched.assignTo && errors.assignTo && (
-                <div className="text-danger">{errors.assignTo}</div>
-              )}
-            </Grid>
-          </Grid>
-
-          <Grid container spacing={2} className="mb-2">
+                {touched.assignTo && errors.assignTo && (
+                  <div className="text-danger">{errors.assignTo}</div>
+                )}
+              </Grid>
+            }
             <Grid size={{ xs: 12, sm: 6 }}>
               <Col sm={12}>
                 <Label for="status">Status</Label>
@@ -577,9 +582,7 @@ const Task = () => {
                 placeholder="Priority"
               />
             </Grid>
-          </Grid>
 
-          <Grid container spacing={2} className="mb-2">
             <Grid size={{ xs: 12, sm: 6 }}>
               <Label for="startDate">Start Date</Label>
               <Input
@@ -604,19 +607,19 @@ const Task = () => {
                 invalid={!!errors.deadLine && touched.deadLine}
               />
             </Grid>
-          </Grid>
-          <Grid size={{ xs: 12, sm: 6 }} className="mb-2">
-            <Label for="description">Description</Label>
-            <Input
-              type="textarea"
-              id="description"
-              name="description"
-              value={values.description}
-              onChange={handleChange}
-              placeholder="123 Main St, City"
-              onBlur={handleBlur}
-              invalid={!!errors.description && touched.description}
-            />
+            <Grid size={{ xs: 12 }} className="mb-2">
+              <Label for="description">Description</Label>
+              <Input
+                type="textarea"
+                id="description"
+                name="description"
+                value={values.description}
+                onChange={handleChange}
+                placeholder="123 Main St, City"
+                onBlur={handleBlur}
+                invalid={!!errors.description && touched.description}
+              />
+            </Grid>
           </Grid>
 
           <Box className="d-flex justify-content-end">

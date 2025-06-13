@@ -74,6 +74,9 @@ const Contact = () => {
     { field: "title", headerName: "Title", flex: 1, renderCell: (params) => params.value || "–" },
     { field: "firstName", headerName: "First Name", flex: 1, renderCell: (params) => params.value || "–" },
     { field: "lastName", headerName: "Last Name", flex: 1, renderCell: (params) => params.value || "–" },
+    { field: "city", headerName: "City", flex: 1, renderCell: (params) => params.value || "–" },
+    { field: "phoneNumber", headerName: "Phone Number", flex: 1, renderCell: (params) => params.value || "–" },
+    { field: "gender", headerName: "Gender", flex: 1, renderCell: (params) => params.value || "–" },
     { field: "email", headerName: "Email", flex: 1, renderCell: (params) => params.value || "–" },
     {
       field: "actions",

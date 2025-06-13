@@ -49,6 +49,7 @@ const Lead = () => {
         { field: "name", headerName: "Name", flex: 1 },
         { field: "email", headerName: "Email", flex: 1 },
         { field: "phoneNumber", headerName: "Phone Number", flex: 1 },
+        { field: "city", headerName: "City", flex: 1, renderCell: (params) => params.value || "–" },
         { field: "address", headerName: "Address", flex: 1 },
         {
             field: "status",
@@ -62,15 +63,15 @@ const Lead = () => {
                 switch (status) {
                     case 'Active':
                         bgColor = 'rgba(0, 255, 135, 0.1)';
-                        textColor = '#00ff87';
+                        textColor = '#008000';
                         break;
                     case 'Inactive':
                         bgColor = 'rgba(255, 0, 0, 0.1)';
                         textColor = '#ff4d4f';
                         break;
                     case 'Pending':
-                        bgColor = 'rgba(255, 193, 7, 0.1)';
-                        textColor = '#ffc107';
+                        bgColor = '#c1930733';
+                        textColor = '#c19308';
                         break;
                     default:
                         bgColor = 'rgba(108, 117, 125, 0.1)';

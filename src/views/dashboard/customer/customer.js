@@ -79,6 +79,7 @@ const Customer = () => {
     { field: "name", headerName: "Name", flex: 1, renderCell: (params) => params.value || "–" },
     { field: "email", headerName: "Email", flex: 1, renderCell: (params) => params.value || "–" },
     { field: "phoneNumber", headerName: "Phone Number", flex: 1, renderCell: (params) => params.value || "–" },
+    { field: "gender", headerName: "Gender", flex: 1, renderCell: (params) => params.value || "–" },
     { field: "address", headerName: "Address", flex: 1, renderCell: (params) => params.value || "–" },
     {
       field: "actions",
