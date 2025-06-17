@@ -1,5 +1,5 @@
 // ** Icons Import
-import { PhoneCall, BarChart2, Users, CheckSquare, User, Activity, Calendar } from "react-feather";
+import { PhoneCall, BarChart2, Users, CheckSquare, User, Activity, Calendar, Book } from "react-feather";
 
 export default [
   {
@@ -41,6 +41,13 @@ export default [
     title: "Team",
     icon: <Users size={12} />,
     navLink: "/team",
+    roles: ["admin", "user"],
+  },
+  {
+    id: "proposals",
+    title: "Proposals",
+    navLink: "/Proposals",
+    icon: <Book size={12} />,
     roles: ["admin", "user"],
   },
   // {

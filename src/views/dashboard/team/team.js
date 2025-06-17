@@ -11,6 +11,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { useSkin } from '@hooks/useSkin'
 import { Box, Grid } from "@mui/material";
 import { useSweetToast } from "../../../@core/layouts/utils";
+import { updateProposal } from "../../../redux/Proposals";
 
 
 const Team = () => {
@@ -49,6 +50,42 @@ const Team = () => {
         { field: "email", headerName: "Email", flex: 1, renderCell: (params) => params.value || "–" },
         { field: "phoneNumber", headerName: "Phone Number", flex: 1, renderCell: (params) => params.value || "–" },
         { field: "address", headerName: "Address", flex: 1, renderCell: (params) => params.value || "–" },
+        {
+            field: "proposals",
+            headerName: "Proposal Actions",
+            sortable: false,
+            filterable: false,
+            flex: 1,
+            renderCell: (params) => {
+                const proposal = params.row.proposals?.[0]; // Assuming first proposal
+                if (!proposal) return <span>–</span>;
+
+                // Show buttons only if status is neither approved nor rejected
+                if (proposal.status === "approved" || proposal.status === "rejected") {
+                    return <span>{proposal.status.charAt(0).toUpperCase() + proposal.status.slice(1)}</span>;
+                }
+
+                return (
+                    <div style={{ display: "flex", gap: "4px", marginTop: "13px" }}>
+                        <Button
+                            color="success"
+                            size="sm"
+                            onClick={() => handleProposalStatusChange(proposal, "approved")}
+                        >
+                            Approve
+                        </Button>
+                        <Button
+                            color="danger"
+                            size="sm"
+                            onClick={() => handleProposalStatusChange(proposal, "rejected")}
+                        >
+                            Reject
+                        </Button>
+                    </div>
+                );
+            },
+        },
+
         {
             field: "actions",
             headerName: "Actions",
@@ -211,6 +248,36 @@ const Team = () => {
     };
 
 
+    const handleProposalStatusChange = (proposal, newStatus) => {
+        console.log("proposal", proposal)
+        if (!proposal || !proposal._id) {
+            console.error("Proposal data is missing or invalid:", proposal);
+            return;
+        }
+
+        const updatedData = {
+            ...proposal,
+            status: newStatus
+        };
+
+        dispatch(updateProposal({ updatedData }))
+            .unwrap()
+            .then(() => {
+                SweetToast.fire({
+                    icon: "success",
+                    title: `Proposal ${newStatus}`,
+                });
+            })
+            .catch(err => {
+                SweetToast.fire({
+                    icon: "error",
+                    title: `Failed to update proposal: ${err}`,
+                });
+            });
+    };
+
+
+
     return (
         <>
             <Box className="mb-2 d-flex justify-content-between align-items-center ">
@@ -369,7 +436,7 @@ const Team = () => {
                             value={values.address}
                             onChange={handleChange}
                             placeholder="123 Main St, City"
-                            s onBlur={handleBlur}
+                            onBlur={handleBlur}
                             invalid={!!errors.address && touched.address}
                         />
                         {errors.address && touched.address && (

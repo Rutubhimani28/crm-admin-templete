@@ -46,7 +46,7 @@ const Task = () => {
   const contactList = useSelector((state) => state.contact?.data);
   const leadList = useSelector((state) => state.lead?.data || []);
   const customerList = useSelector((state) => state.customer?.data);
-  const teamList = useSelector((state) => state.team?.data);
+  const teamList = useSelector((state) => state?.team?.data || []);
   const [loading, setLoading] = useState(false);
 
   const SweetToast = useSweetToast();
@@ -66,10 +66,17 @@ const Task = () => {
     value: customer._id,
   }));
 
-  const teamOptions = teamList?.map((team) => ({
-    label: `${team.firstName} ${team.lastName}`,
-    value: team._id,
-  }));
+  // const teamOptions = teamList?.map((team) => ({
+  //   label: `${team?.firstName} ${team?.lastName}`,
+  //   value: team?._id,
+  // }));
+
+  const teamOptions = Array.isArray(teamList)
+    ? teamList.map(team => ({
+      label: `${team?.firstName} ${team?.lastName}`,
+      value: team?._id,
+    }))
+    : [];
 
   useEffect(() => {
     dispatch(

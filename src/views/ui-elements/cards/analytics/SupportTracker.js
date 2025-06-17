@@ -32,8 +32,6 @@ const SupportTracker = props => {
 
   } = taskStats
 
-  console.log("const", taskStats)
-
   useEffect(() => {
     dispatch(getTaskStats(selectedView.toLowerCase())) // 'daily', 'weekly', 'monthly'
   }, [dispatch, selectedView])

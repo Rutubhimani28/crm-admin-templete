@@ -1,155 +1,150 @@
-// ** React Import
-import { useEffect, useRef, memo } from 'react'
+import React, { Fragment, useEffect, useRef, useState } from 'react';
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import interactionPlugin from '@fullcalendar/interaction';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import listPlugin from '@fullcalendar/list';
 
-// ** Full Calendar & it's Plugins
-import '@fullcalendar/react/dist/vdom'
-import FullCalendar from '@fullcalendar/react'
-import listPlugin from '@fullcalendar/list'
-import dayGridPlugin from '@fullcalendar/daygrid'
-import timeGridPlugin from '@fullcalendar/timegrid'
-import interactionPlugin from '@fullcalendar/interaction'
+import '@fullcalendar/common/main.css';
+import '@fullcalendar/daygrid/main.css';
+import '@fullcalendar/timegrid/main.css';
+import '@fullcalendar/list/main.css';
+import '@styles/react/apps/app-calendar.scss';
 
-// ** Third Party Components
-import toast from 'react-hot-toast'
-import { Menu } from 'react-feather'
-import { Card, CardBody } from 'reactstrap'
+import TaskSidebar from './TaskSidebar';
+import { useDispatch, useSelector } from 'react-redux';
+import { getTasks } from '../../../redux/task';
+import { useSkin } from "@hooks/useSkin";
 
-const Calendar = props => {
-  // ** Refs
-  const calendarRef = useRef(null)
 
-  // ** Props
-  const {
-    store,
-    isRtl,
-    dispatch,
-    calendarsColor,
-    calendarApi,
-    setCalendarApi,
-    handleAddEventSidebar,
-    blankEvent,
-    toggleSidebar,
-    selectEvent,
-    updateEvent
-  } = props
+const CalendarComponent = () => {
+    const { skin } = useSkin();  
+  const calendarRef = useRef(null);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [events, setEvents] = useState([]);
+  const dispatch = useDispatch();
+  const taskList = useSelector((state) => state?.task);
+  const [paginationModel, setPaginationModel] = useState({
+    pageSize: 10,
+    page: 0,
+  });
 
-  // ** UseEffect checks for CalendarAPI Update
   useEffect(() => {
-    if (calendarApi === null) {
-      setCalendarApi(calendarRef.current.getApi())
+    dispatch(getTasks({
+      page: paginationModel.page + 1,
+      pageSize: paginationModel.pageSize,
+    }));
+
+    const calendarApi = calendarRef.current?.getApi();
+    if (calendarApi) {
+      calendarApi.today();
     }
-  }, [calendarApi])
+  }, [dispatch]);
 
-  // ** calendarOptions(Props)
-  const calendarOptions = {
-    // events: store.events.length ? store.events : [],
-    plugins: [interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin],
-    initialView: 'dayGridMonth',
-    headerToolbar: {
-      start: 'sidebarToggle, prev,next, title',
-      end: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
-    },
-    /*
-      Enable dragging and resizing event
-      ? Docs: https://fullcalendar.io/docs/editable
-    */
-    editable: true,
+  useEffect(() => {
+    if (taskList && taskList.data) {
+      const calendarEvents = taskList.data.map(task => ({
+        id: task._id,
+        title: task.title || 'Untitled',
+        priority: task.priority || 'Medium',
+        start: task.startDate,
+        end: task.deadLine,
+        // backgroundColor: getPriorityColor(task.priority),
+        backgroundColor: 'rgba(115, 103, 240, 0.3)',
+        // borderColor: getPriorityColor(task.priority),
+        borderColor: "rgba(115, 103, 240, 0.3)",
+        textColor: getPriorityColor(task.priority, true)
+      }));
+      setEvents(calendarEvents);
+    }
+  }, [taskList]);
 
-    /*
-      Enable resizing event from start
-      ? Docs: https://fullcalendar.io/docs/eventResizableFromStart
-    */
-    eventResizableFromStart: true,
+  const getPriorityColor = (priority, text) => {
+    switch (priority?.toLowerCase()) {
+      case 'high':
+        return 'rgba(255, 107, 107, 0.3)';     // Red-ish
+      case 'medium':
+        return 'rgba(255, 168, 0, 0.3)';      // Amber
+      case 'low':
+        return 'rgba(0, 201, 167, 0.3)';      // Green/Teal
+      default:
+        return 'rgba(115, 103, 240, 0.3)';    // Purple fallback
+    }
+  };
 
-    /*
-      Automatically scroll the scroll-containers during event drag-and-drop and date selecting
-      ? Docs: https://fullcalendar.io/docs/dragScroll
-    */
-    dragScroll: true,
-
-    /*
-      Max number of events within a given day
-      ? Docs: https://fullcalendar.io/docs/dayMaxEvents
-    */
-    dayMaxEvents: 2,
-
-    /*
-      Determines if day names and week names are clickable
-      ? Docs: https://fullcalendar.io/docs/navLinks
-    */
-    navLinks: true,
-
-    eventClassNames({ event: calendarEvent }) {
-      // eslint-disable-next-line no-underscore-dangle
-      const colorName = calendarsColor[calendarEvent._def.extendedProps.calendar]
-
-      return [
-        // Background Color
-        `bg-light-${colorName}`
-      ]
-    },
-
-    eventClick({ event: clickedEvent }) {
-      dispatch(selectEvent(clickedEvent))
-      handleAddEventSidebar()
-
-      // * Only grab required field otherwise it goes in infinity loop
-      // ! Always grab all fields rendered by form (even if it get `undefined`) otherwise due to Vue3/Composition API you might get: "object is not extensible"
-      // event.value = grabEventDataFromEventApi(clickedEvent)
-
-      // eslint-disable-next-line no-use-before-define
-      // isAddNewEventSidebarActive.value = true
-    },
-
-    customButtons: {
-      sidebarToggle: {
-        text: <Menu className='d-xl-none d-block' />,
-        click() {
-          toggleSidebar(true)
-        }
-      }
-    },
-
-    dateClick(info) {
-      const ev = blankEvent
-      ev.start = info.date
-      ev.end = info.date
-      dispatch(selectEvent(ev))
-      handleAddEventSidebar()
-    },
-
-    /*
-      Handle event drop (Also include dragged event)
-      ? Docs: https://fullcalendar.io/docs/eventDrop
-      ? We can use `eventDragStop` but it doesn't return updated event so we have to use `eventDrop` which returns updated event
-    */
-    eventDrop({ event: droppedEvent }) {
-      dispatch(updateEvent(droppedEvent))
-      toast.success('Event Updated')
-    },
-
-    /*
-      Handle event resize
-      ? Docs: https://fullcalendar.io/docs/eventResize
-    */
-    eventResize({ event: resizedEvent }) {
-      dispatch(updateEvent(resizedEvent))
-      toast.success('Event Updated')
-    },
-
-    ref: calendarRef,
-
-    // Get direction from app state (store)
-    direction: isRtl ? 'rtl' : 'ltr'
-  }
+  const handleDateClick = (info) => {
+    const clickedDate = info.dateStr;
+    const emptyTask = {
+      title: '',
+      description: '',
+      status: '',
+      priority: '',
+      startDate: clickedDate,
+      deadLine: clickedDate,
+      assignToName: ''
+    };
+    setSelectedTask(emptyTask);
+    setSidebarOpen(true);
+  };
 
   return (
-    <Card className='shadow-none border-0 mb-0 rounded-0'>
-      <CardBody className='pb-0'>
-        <FullCalendar {...calendarOptions} />{' '}
-      </CardBody>
-    </Card>
-  )
-}
+    <div style={{ backgroundColor: skin === 'dark' ? '#283046' : '#ffffff' }}>
+      <Fragment>
+        <div className='app-calendar m-0 border'>
+          <FullCalendar
+            ref={calendarRef}
+            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
+            initialView="dayGridMonth"
+            headerToolbar={{
+              start: 'prev,next today',
+              center: 'title',
+              end: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
+            }}
+            views={{
+              dayGridMonth: { buttonText: 'Month' },
+              timeGridWeek: { buttonText: 'Week' },
+              timeGridDay: { buttonText: 'Day' },
+              listMonth: { buttonText: 'List' }
+            }}
+            editable={true}
+            selectable={true}
+            dateClick={handleDateClick}
+            events={events}
+            eventContent={(eventInfo) => (
+              <div style={{ padding: '2px 4px' }}>
+                <div style={{
+                  fontWeight: 'bold',
+                  // fontSize: '0.9rem',
+                  marginBottom: '2px',
+                  color: '#fff'
+                }}>
+                  {eventInfo.event.title}
+                </div>
+                <div style={{
+                  fontSize: '0.75rem',
+                  color: '#000',
+                  backgroundColor: getPriorityColor(eventInfo.event.extendedProps.priority),
+                  padding: '1px 6px',
+                  borderRadius: '4px',
+                  display: 'inline-block',
+                  fontWeight: '600',
+                  textTransform: 'capitalize'
+                }}>
+                  {eventInfo.event.extendedProps.priority}
+                </div>
+              </div>
+            )}
+          />
+          <TaskSidebar
+            open={sidebarOpen}
+            onClose={() => setSidebarOpen(false)}
+            task={selectedTask}
+          />
+        </div>
+      </Fragment>
+    </div>
+  );
+};
 
-export default memo(Calendar)
+export default CalendarComponent;
