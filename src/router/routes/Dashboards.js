@@ -18,6 +18,8 @@ const Todo = lazy(() => import('../../views/dashboard/todo'))
 const Calendar = lazy(() => import('../../views/dashboard/calendar/Calendar'))
 const Proposals = lazy(() => import('../../views/dashboard/proposals/proposals'))
 const ProposalsView = lazy(() => import('../../views/dashboard/proposals/proposalsview'))
+const Document = lazy(() => import('../../views/dashboard/documents/document'))
+const Users = lazy(() => import('../../views/dashboard/users/users'))
 
 const DashboardRoutes = [
   {
@@ -87,6 +89,14 @@ const DashboardRoutes = [
   {
     path: '/proposals/proposalsview/:id',
     element: <ProposalsView />
+  },
+  {
+    path: '/document',
+    element: <Document />
+  },
+  {
+    path: '/users',
+    element: <Users />
   }
 
 ]

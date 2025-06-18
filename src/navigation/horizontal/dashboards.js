@@ -1,7 +1,13 @@
 // ** Icons Import
-import {PhoneCall, BarChart2, Users, CheckSquare, User, Book, Calendar } from "react-feather";
+import { PhoneCall, BarChart2, Users, CheckSquare, User, Activity, Calendar, Book, FolderPlus } from "react-feather";
 
 export default [
+  {
+    id: 'analyticsDash',
+    title: 'Dashboard',
+    icon: <Activity />,
+    navLink: '/dashboard'
+  },
   {
     id: "contact",
     title: "Contact",
@@ -55,5 +61,17 @@ export default [
     title: 'Calendar',
     icon: <Calendar />,
     navLink: '/calendar'
+  },
+  {
+    id: 'document',
+    title: 'Document',
+    icon: <FolderPlus />,
+    navLink: '/document'
+  },
+  {
+    id: 'users',
+    title: 'Users',
+    icon: <Users />,
+    navLink: '/users'
   }
-];
+]

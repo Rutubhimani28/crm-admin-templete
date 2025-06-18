@@ -1,5 +1,6 @@
 // ** Icons Import
-import { PhoneCall, BarChart2, Users, CheckSquare, User, Activity, Calendar, Book } from "react-feather";
+import { iconClasses } from "@mui/material";
+import { PhoneCall, BarChart2, Users, CheckSquare, User, Activity, Calendar, Book, FolderPlus } from "react-feather";
 
 export default [
   {
@@ -61,5 +62,17 @@ export default [
     title: 'Calendar',
     icon: <Calendar />,
     navLink: '/calendar'
+  },
+  {
+    id: 'document',
+    title: 'Document',
+    icon: <FolderPlus />,
+    navLink: '/document'
+  },
+  {
+    id: 'users',
+    title: 'Users',
+    icon: <Users />,
+    navLink: '/users'
   }
 ]
