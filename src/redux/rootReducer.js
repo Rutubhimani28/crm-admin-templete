@@ -10,6 +10,7 @@ import team from './team'
 import profile from './Profile'
 import Proposals from './Proposals'
 import Document from './document'
+import role from './rolesPermissions'
 import users from '@src/views/apps/user/store'
 // import contacts from '@src/views/apps/contact/store'
 
@@ -25,7 +26,8 @@ const rootReducer = {
   team,
   profile,
   Proposals,
-  Document
+  Document,
+  role,
   // contacts
 }
 

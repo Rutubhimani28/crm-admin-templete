@@ -1,6 +1,6 @@
 // ** Icons Import
 import { iconClasses } from "@mui/material";
-import { PhoneCall, BarChart2, Users, CheckSquare, User, Activity, Calendar, Book, FolderPlus } from "react-feather";
+import { PhoneCall, BarChart2, Users, CheckSquare, User, Activity, Calendar, Book, FolderPlus, Sliders } from "react-feather";
 
 export default [
   {
@@ -14,7 +14,7 @@ export default [
     title: "Contact",
     icon: <PhoneCall size={20} />,
     navLink: "/contact",
-    roles: ["admin", "user"],
+    roles: ["admin", "user", "contact", 'lead'],
   },
   {
     id: "lead",
@@ -74,5 +74,12 @@ export default [
     title: 'Users',
     icon: <Users />,
     navLink: '/users'
+  },
+  {
+    id: 'rolesPermissions',
+    title: 'Roles-Permissions',
+    icon: <Sliders />,
+    navLink: '/rolesPermissions',
+    roles: ["admin"]
   }
 ]

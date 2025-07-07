@@ -61,6 +61,7 @@ import {
   fetchsingUserData,
 } from "../../../redux/authentication";
 import crm from "@src/assets/images/logo/crm1.png";
+import { getAllRoles } from "../../../redux/rolesPermissions";
 
 const ToastContent = ({ t, name, role }) => {
   return (
@@ -144,6 +145,7 @@ const Login = () => {
             />
           ));
         }
+        dispatch(getAllRoles())
       } catch (err) {
         console.error("Unexpected error during login:", err);
         setError("loginEmail", {

@@ -20,6 +20,9 @@ const Proposals = lazy(() => import('../../views/dashboard/proposals/proposals')
 const ProposalsView = lazy(() => import('../../views/dashboard/proposals/proposalsview'))
 const Document = lazy(() => import('../../views/dashboard/documents/document'))
 const Users = lazy(() => import('../../views/dashboard/users/users'))
+const UsersView = lazy(() => import('../../views/dashboard/users/usersview'))
+const RolesPermissions = lazy(() => import('../../views/dashboard/rolesPermissions/rolesPermissions'))
+const Permissions = lazy(() => import('../../views/dashboard/rolesPermissions/permissions'))
 
 const DashboardRoutes = [
   {
@@ -97,7 +100,19 @@ const DashboardRoutes = [
   {
     path: '/users',
     element: <Users />
-  }
+  },
+  {
+    path: '/profile/viewUser/:id',
+    element: <UsersView />
+  },
+  {
+    path: '/rolesPermissions',
+    element: <RolesPermissions />
+  },
+  {
+    path: '/rolesPermissions/permissions/:id',
+    element: <Permissions />
+  },
 
 ]
 

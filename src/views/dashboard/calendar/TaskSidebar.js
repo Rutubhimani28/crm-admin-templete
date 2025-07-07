@@ -101,7 +101,6 @@ const TaskSidebar = ({ open, onClose, task = null }) => {
         validationSchema,
         enableReinitialize: true,
         onSubmit: async (values, { resetForm }) => {
-            console.log('Formik values:', values)
             const res = await dispatch(addTask(values));
             if (res.payload?.status === 201) {
                 SweetToast.fire({
@@ -123,17 +122,11 @@ const TaskSidebar = ({ open, onClose, task = null }) => {
     const { handleSubmit, values, errors, touched, handleChange, handleBlur } =
         formik;
 
-
-    // const handleSubmit = (values) => {
-    //     console.log('Formik values:', values)
-    //     onClose()
-    // }
-
     return (
         <Sidebar
             open={open}
             toggleSidebar={onClose}
-            title={task ? "Edit Task" : "Add Task"}
+            title={"Add Task"}
             size="xl"
         >
             <form onSubmit={handleSubmit} className="mt-2">

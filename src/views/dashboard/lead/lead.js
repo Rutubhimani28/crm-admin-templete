@@ -26,7 +26,7 @@ const Lead = () => {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedForDelete, setSelectedForDelete] = useState(null);
     const [loading, setLoading] = useState(false);
-
+    const [canAccess, setCanAccess] = useState(null);
     const SweetToast = useSweetToast();
 
     useEffect(() => {
@@ -44,6 +44,26 @@ const Lead = () => {
         }
     }, [leadList]);
 
+    useEffect(() => {
+        const permissionData = localStorage.getItem("createdRole");
+        if (permissionData) {
+            try {
+                const permissions = JSON.parse(permissionData);
+                if (permissions?.permissions?.Leads) {
+                    setCanAccess(permissions?.permissions?.Leads
+                        
+                    );
+                } else {
+                    setCanAccess(null);
+                }
+            } catch (err) {
+                console.error("Invalid permissions format", err);
+                setCanAccess(null);
+            }
+        } else {
+            setCanAccess(null);
+        }
+    }, []);
 
     const columns = [
         { field: "name", headerName: "Name", flex: 1 },
@@ -119,36 +139,41 @@ const Lead = () => {
                 const data = params.row;
                 return (
                     <div style={{ display: "flex", marginTop: "7px" }}>
-                        <Button
-                            variant="outlined"
-                            size="small"
-                            style={{ padding: "2px" }}
-                            color=''
-                            onClick={() => {
-                                handleEdit(data)
-                            }}
-                        >
-                            <Edit size={20} color="green" />
-                        </Button>
-                        <Button
-                            variant="contained"
-                            color=''
-                            size="small"
-                            style={{ padding: "4px" }}
-                            onClick={() => navigate(`/lead/leadView/${data._id}`)}
-                        >
-                            <Eye size={20} color={skin === "light" ? "blue" : "white"} />
-                        </Button>
-
-                        <Button
-                            variant="contained"
-                            color="error"
-                            size="small"
-                            style={{ padding: "2px" }}
-                            onClick={() => dispatch(() => openDeleteModal(data))}
-                        >
-                            <Trash2 size={20} color="red" />
-                        </Button>
+                        {canAccess?.edit && (
+                            <Button
+                                variant="outlined"
+                                size="small"
+                                style={{ padding: "2px" }}
+                                color=''
+                                onClick={() => {
+                                    handleEdit(data)
+                                }}
+                            >
+                                <Edit size={20} color="green" />
+                            </Button>
+                        )}
+                        {canAccess?.view && (
+                            <Button
+                                variant="contained"
+                                color=''
+                                size="small"
+                                style={{ padding: "4px" }}
+                                onClick={() => navigate(`/lead/leadView/${data._id}`)}
+                            >
+                                <Eye size={20} color={skin === "light" ? "blue" : "white"} />
+                            </Button>
+                        )}
+                        {canAccess?.delete && (
+                            <Button
+                                variant="contained"
+                                color="error"
+                                size="small"
+                                style={{ padding: "2px" }}
+                                onClick={() => dispatch(() => openDeleteModal(data))}
+                            >
+                                <Trash2 size={20} color="red" />
+                            </Button>
+                        )}
                     </div>
                 );
             },
@@ -297,9 +322,11 @@ const Lead = () => {
         <>
             <Box className="mb-2 d-flex justify-content-between align-items-center ">
                 <h3>Lead List</h3>
-                <Button color="primary" onClick={toggleSidebar}>
-                    Add
-                </Button>
+                {canAccess?.create && (
+                    <Button color="primary" onClick={toggleSidebar}>
+                        Add
+                    </Button>
+                )}
             </Box>
 
             <Box style={{ height: '68.9vh', width: "100%" }}>

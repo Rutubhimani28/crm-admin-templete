@@ -52,7 +52,6 @@ const Document = () => {
             setLoading(true)
             try {
                 const res = await dispatch(uploadDocument(formData))
-                console.log("res", res.payload)
                 if (res.payload?.status === 201) {
                     SweetToast.fire({
                         icon: "success",
@@ -193,7 +192,7 @@ const Document = () => {
                             return (
                                 <ListItem
                                     key={doc.id || idx}
-                                    button
+                                    button={true}
                                     // onClick={() => setSelectedDocUrl(fileUrl)}
                                     sx={{ '&:hover': { backgroundColor: '#161d31', color: '#fff', borderRadius: '10px', } }}
                                 >

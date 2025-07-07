@@ -47,7 +47,6 @@ const documentSlice = createSlice({
                 state.error = null
             })
             .addCase(getAllDocuments.fulfilled, (state, action) => {
-                console.log("action", action.payload)
                 state.loading = false
                 state.data = action.payload
             })
