@@ -11,7 +11,7 @@ const ContactView = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const contact = useSelector((state) => state?.contact?.data); // Adjust slice name
+  const contact = useSelector((state) => state?.contact?.viewData); // Adjust slice name
   useEffect(() => {
     if (id) {
       dispatch(contactView({ _id: id }));

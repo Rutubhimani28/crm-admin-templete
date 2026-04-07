@@ -3,6 +3,7 @@ import axiosInstance from "../auth/axiosInstance";
 
 const initialState = {
   data: [],
+  viewData: null,
   loading: false,
   error: null,
   total: 0,
@@ -32,7 +33,7 @@ export const addCustomer = createAsyncThunk(
         "/coustomer/addCustomer",
         props
       );
-      dispatch(getCustomers({ page: 1, pageSize: 10 }));
+      await dispatch(getCustomers({ page: 1, pageSize: 10 }));
       return response;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -48,7 +49,7 @@ export const updateCustomer = createAsyncThunk(
         `/coustomer/updateCustomer/${props?.updatedData?._id}`,
         props?.updatedData
       );
-      dispatch(
+      await dispatch(
         getCustomers({
           page: props?.paginationModel?.page + 1,
           pageSize: props?.paginationModel?.pageSize,
@@ -68,7 +69,7 @@ export const deleteCustomer = createAsyncThunk(
       await axiosInstance.delete(
         `/coustomer/deleteCustomerById/${props?.selectedForDelete?._id}`
       );
-      dispatch(
+      await dispatch(
         getCustomers({
           page: props?.paginationModel?.page + 1,
           pageSize: props?.paginationModel?.pageSize,
@@ -152,10 +153,12 @@ const customerSlice = createSlice({
       })
       .addCase(viewCustomer.pending, (state) => {
         state.loading = true;
+        state.error = null;
+        state.viewData = null;
       })
       .addCase(viewCustomer.fulfilled, (state, action) => {
         state.loading = false;
-        state.data = action.payload;
+        state.viewData = action.payload;
       })
       .addCase(viewCustomer.rejected, (state, action) => {
         state.loading = false;

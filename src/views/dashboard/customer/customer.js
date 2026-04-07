@@ -57,7 +57,7 @@ const Customer = () => {
   }, [dispatch, paginationModel]);
 
   useEffect(() => {
-    if (customerList?.data?.length) {
+    if (customerList?.data) {
       const dataWithId = customerList?.data?.map((item) => ({
         ...item,
       }));
@@ -228,14 +228,14 @@ const Customer = () => {
     setIsDeleteModalOpen(false);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     try {
       if (selectedForDelete) {
-        dispatch(deleteCustomer({ selectedForDelete, paginationModel }));
+        await dispatch(deleteCustomer({ selectedForDelete, paginationModel }));
       }
       closeDeleteModal();
     } catch (error) {
-      console.error("Error deleting team:", error);
+      console.error("Error deleting customer:", error);
     }
   };
 

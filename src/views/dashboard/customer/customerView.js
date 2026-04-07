@@ -12,7 +12,7 @@ const CustomerView = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const customerList = useSelector((state) => state?.customer?.data);
+  const customerData = useSelector((state) => state?.customer?.viewData);
 
   useEffect(() => {
     if (id) {
@@ -20,7 +20,7 @@ const CustomerView = () => {
     }
   }, [id, dispatch]);
 
-  if (!customerList) {
+  if (!customerData) {
     return <p>No customer data found.</p>;
   }
 
@@ -36,7 +36,7 @@ const CustomerView = () => {
     facebookProfile = "",
     twitterProfile = "",
     task = [],
-  } = customerList;
+  } = customerData;
 
   return (
     <>

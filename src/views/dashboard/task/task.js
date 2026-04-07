@@ -103,7 +103,7 @@ const Task = () => {
   }, [dispatch, paginationModel]);
 
   useEffect(() => {
-    if (taskList?.data?.length) {
+    if (taskList?.data) {
       const dataWithId = taskList.data.map((item) => item.task || item);
 
       setRows(dataWithId);
@@ -306,14 +306,14 @@ const Task = () => {
     setIsDeleteModalOpen(false);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     try {
       if (selectedForDelete) {
-        dispatch(deleteTask({ selectedForDelete, paginationModel }));
+        await dispatch(deleteTask({ selectedForDelete, paginationModel }));
       }
       closeDeleteModal();
     } catch (error) {
-      console.error("Error deleting team:", error);
+      console.error("Error deleting task:", error);
     }
   };
 

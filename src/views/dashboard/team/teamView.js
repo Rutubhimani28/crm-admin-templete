@@ -11,7 +11,7 @@ const TeamView = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const teamList = useSelector((state) => state?.team?.data);
+  const teamList = useSelector((state) => state?.team?.viewData);
 
   useEffect(() => {
     if (id) {

@@ -12,7 +12,7 @@ const TaskView = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const taskList = useSelector((state) => state?.task?.data);
+  const taskData = useSelector((state) => state?.task?.viewData);
 
   useEffect(() => {
     if (id) {
@@ -20,7 +20,7 @@ const TaskView = () => {
     }
   }, [id, dispatch]);
 
-  if (!taskList) {
+  if (!taskData) {
     return <p>No task data found.</p>;
   }
 
@@ -33,7 +33,7 @@ const TaskView = () => {
     startDate = "",
     deadLine = "",
     related = "",
-  } = taskList;
+  } = taskData;
 
   return (
     <>

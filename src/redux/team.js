@@ -3,6 +3,7 @@ import axiosInstance from '../auth/axiosInstance'
 
 const initialState = {
     data: [],
+    viewData: null,
     loading: false,
     error: null,
     total: 0,
@@ -26,7 +27,7 @@ export const addTeam = createAsyncThunk(
     async (props, { dispatch, rejectWithValue }) => {
         try {
             const response = await axiosInstance.post('/team/addTeam', props)
-            dispatch(getTeam({ page: 1, pageSize: 10 }))
+            await dispatch(getTeam({ page: 1, pageSize: 10 }))
             return response
         } catch (error) {
             return rejectWithValue(error.message)
@@ -39,7 +40,7 @@ export const updateTeam = createAsyncThunk(
     async (props, { dispatch, rejectWithValue }) => {
         try {
             const response = await axiosInstance.put(`/team/updateTeamById/${props?.updatedData?._id}`, props?.updatedData)
-            dispatch(getTeam({ page: props?.paginationModel?.page + 1, pageSize: props?.paginationModel?.pageSize }))
+            await dispatch(getTeam({ page: props?.paginationModel?.page + 1, pageSize: props?.paginationModel?.pageSize }))
             return response
         } catch (error) {
             return rejectWithValue(error.message)
@@ -52,7 +53,7 @@ export const deleteTeam = createAsyncThunk(
     async (props, { dispatch, rejectWithValue }) => {
         try {
             const response = await axiosInstance.delete(`/team/deleteTeamById/${props?.selectedForDelete?._id}`)
-            dispatch(getTeam({ page: props?.paginationModel?.page + 1, pageSize: props?.paginationModel?.pageSize }));
+            await dispatch(getTeam({ page: props?.paginationModel?.page + 1, pageSize: props?.paginationModel?.pageSize }));
             return response.data
         } catch (error) {
             return rejectWithValue(error.message)
@@ -126,10 +127,11 @@ const teamSlice = createSlice({
             })
             .addCase(viewTeam.pending, (state) => {
                 state.loading = true
+                state.viewData = null
             })
             .addCase(viewTeam.fulfilled, (state, action) => {
                 state.loading = false
-                state.data = action.payload
+                state.viewData = action.payload
             })
             .addCase(viewTeam.rejected, (state, action) => {
                 state.loading = false

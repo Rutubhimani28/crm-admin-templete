@@ -63,7 +63,7 @@ const Contact = () => {
   }, [dispatch, paginationModel]);
 
   useEffect(() => {
-    if (contactList?.data?.length) {
+    if (contactList?.data) {
       const dataWithId = contactList?.data?.map((item) => ({
         ...item,
       }));
@@ -251,14 +251,14 @@ const Contact = () => {
     setIsDeleteModalOpen(false);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     try {
       if (selectedForDelete) {
-        dispatch(deleteContact({ selectedForDelete, paginationModel }));
+        await dispatch(deleteContact({ selectedForDelete, paginationModel }));
       }
       closeDeleteModal();
     } catch (error) {
-      console.error("Error deleting team:", error);
+      console.error("Error deleting contact:", error);
     }
   };
 

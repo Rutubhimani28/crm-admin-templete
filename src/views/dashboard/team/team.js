@@ -30,13 +30,16 @@ const Team = () => {
     const SweetToast = useSweetToast();
 
     useEffect(() => {
-        setLoading(true)
-        dispatch(getTeam({ page: paginationModel.page + 1, pageSize: paginationModel.pageSize }));
-        setLoading(false)
+        const fetchTeamData = async () => {
+            setLoading(true);
+            await dispatch(getTeam({ page: paginationModel.page + 1, pageSize: paginationModel.pageSize }));
+            setLoading(false);
+        };
+        fetchTeamData();
     }, [dispatch, paginationModel]);
 
     useEffect(() => {
-        if (teamList?.data?.length) {
+        if (teamList?.data) {
             const dataWithId = teamList?.data?.map((item) => ({
                 ...item,
             }));
@@ -87,7 +90,8 @@ const Team = () => {
                             color="error"
                             size="small"
                             style={{ padding: "2px" }}
-                            onClick={() => dispatch(() => openDeleteModal(data))}
+                            onClick={() => openDeleteModal(data)}
+                            // onClick={() => dispatch(() => openDeleteModal(data))}
                         >
                             <Trash2 size={20} color="red" />
                         </Button>
@@ -199,11 +203,11 @@ const Team = () => {
         setIsDeleteModalOpen(false);
     };
 
-    const confirmDelete = () => {
+    const confirmDelete = async () => {
         setLoading(true)
         try {
             if (selectedForDelete) {
-                dispatch(deleteTeam({ selectedForDelete, paginationModel }));
+                await dispatch(deleteTeam({ selectedForDelete, paginationModel }));
             }
             closeDeleteModal();
         } catch (error) {

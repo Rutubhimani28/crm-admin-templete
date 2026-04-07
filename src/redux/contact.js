@@ -4,6 +4,7 @@ import axiosInstance from '../auth/axiosInstance'
 
 const initialState = {
     data: [],
+    viewData: null,
     loading: false,
     error: null,
     total: 0,
@@ -30,7 +31,7 @@ export const addContact = createAsyncThunk(
         try {
             const response = await axiosInstance.post('/contacts/addContact', props)
             console.log("response ", response)
-            dispatch(getContacts({ page: 1, pageSize: 10 }))
+            await dispatch(getContacts({ page: 1, pageSize: 10 }))
             return response
         } catch (error) {
             return rejectWithValue(error.message)
@@ -44,7 +45,7 @@ export const updateContact = createAsyncThunk(
             const response = await axiosInstance.put(`/contacts/updateContact/${props?.updatedData?._id}`, props?.updatedData)
             console.log("response ", response.data)
             // const data = await response.data
-            dispatch(getContacts({ page: props?.paginationModel?.page + 1, pageSize: props?.paginationModel?.pageSize }))
+            await dispatch(getContacts({ page: props?.paginationModel?.page + 1, pageSize: props?.paginationModel?.pageSize }))
             return response
         } catch (error) {
             return rejectWithValue(error.message)
@@ -56,7 +57,7 @@ export const deleteContact = createAsyncThunk(
     async (props, { dispatch, rejectWithValue }) => {
         try {
             await axiosInstance.delete(`/contacts/deleteContact/${props?.selectedForDelete?._id}`)
-            dispatch(getContacts({ page: props?.paginationModel?.page + 1, pageSize: props?.paginationModel?.pageSize }))
+            await dispatch(getContacts({ page: props?.paginationModel?.page + 1, pageSize: props?.paginationModel?.pageSize }))
         } catch (error) {
             return rejectWithValue(error.message)
         }
@@ -127,10 +128,12 @@ const contactSlice = createSlice({
             })
             .addCase(contactView.pending, (state, action) => {
                 state.loading = true
+                state.error = null
+                state.viewData = null
             })
             .addCase(contactView.fulfilled, (state, action) => {
                 state.loading = false
-                state.data = action.payload
+                state.viewData = action.payload
             })
             .addCase(contactView.rejected, (state, action) => {
                 state.loading = false
